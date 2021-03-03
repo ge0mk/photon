@@ -701,10 +701,10 @@ namespace ifd {
 	void* FileDialog::m_getIcon(const std::filesystem::path& path)
 	{
 #ifdef _WIN32
-		if (m_icons.count(path.u8string()) > 0)
-			return m_icons[path.u8string()];
+		if (m_icons.count(path.string()) > 0)
+			return m_icons[path.string()];
 
-		std::string pathU8 = path.u8string();
+		std::string pathU8 = path.string();
 
 		std::error_code ec;
 		m_icons[pathU8] = nullptr;
@@ -920,7 +920,7 @@ namespace ifd {
 #ifdef _WIN32
 		// drives don't work well without the backslash symbol
 		if (p.u8string().size() == 2 && p.u8string()[1] == ':')
-			m_currentDirectory = std::filesystem::u8path(p.u8string() + "\\");
+			m_currentDirectory = std::filesystem::path(p.string() + "\\");
 #endif
 
 		m_clearIconPreview();
