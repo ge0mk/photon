@@ -1,6 +1,6 @@
-#include <photonvk/device.hpp>
-#include <photonvk/physicaldevice.hpp>
-#include <photonvk/swapchain.hpp>
+#include <vulkan/device.hpp>
+#include <vulkan/physicaldevice.hpp>
+#include <vulkan/swapchain.hpp>
 
 #include <fstream>
 

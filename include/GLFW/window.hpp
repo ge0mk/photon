@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 #include <math/vector.hpp>
 #include <spdlog/spdlog.h>
-#include <photonvk/instance.hpp>
+#include <vulkan/instance.hpp>
 #include "glfw3.h"
 #include "monitor.hpp"
 

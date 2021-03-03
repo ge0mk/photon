@@ -1,7 +1,7 @@
-#include <photonvk/instance.hpp>
+#include <vulkan/instance.hpp>
 #include <iostream>
 
-#include <photonvk/physicaldevice.hpp>
+#include <vulkan/physicaldevice.hpp>
 #include <spdlog/spdlog.h>
 
 namespace photonvk {
