@@ -1,0 +1,6 @@
+*
+!.gitignore
+!tiles
+!*.glsl
+!*.json
+!*.yaml

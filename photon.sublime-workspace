@@ -1,0 +1,850 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"i",
+				"iterator"
+			],
+			[
+				"ha",
+				"hashed_string"
+			],
+			[
+				"tex",
+				"textureCache"
+			],
+			[
+				"Tex",
+				"TextureLoader"
+			],
+			[
+				"SetNe",
+				"SetNextWindowFocus"
+			],
+			[
+				"ImGui",
+				"ImGuiWindowFlags"
+			],
+			[
+				"load",
+				"loadLevel"
+			],
+			[
+				"chu",
+				"chunkdata"
+			],
+			[
+				"tile",
+				"tileCache"
+			],
+			[
+				"GLFW_MOUSE",
+				"GLFW_MOUSE_BUTTON_LEFT"
+			],
+			[
+				"wo",
+				"worldcursor"
+			],
+			[
+				"plac",
+				"placeTile"
+			],
+			[
+				"CH",
+				"ChunkComponent"
+			],
+			[
+				"GL_B",
+				"GL_BACK"
+			],
+			[
+				"ImGuiWindowFlags_No",
+				"ImGuiWindowFlags_NoInputs"
+			],
+			[
+				"ImGu",
+				"ImGuiWindowFlags"
+			],
+			[
+				"ImGuiW",
+				"ImGuiWindowFlags"
+			],
+			[
+				"ImGuiMouseButton_",
+				"ImGuiMouseButton_Left"
+			],
+			[
+				"ImGuiMo",
+				"ImGuiMouseButton_"
+			],
+			[
+				"M",
+				"MouseClicked"
+			],
+			[
+				"ImGuiWindowFlags_",
+				"ImGuiWindowFlags_NoMouseInputs"
+			],
+			[
+				"ImGuiWi",
+				"ImGuiWindowFlags"
+			],
+			[
+				"getM",
+				"GetMousePos"
+			],
+			[
+				"GlFW_MOU",
+				"GLFW_MOUSE_BUTTON_LEFT"
+			],
+			[
+				"glfwGet",
+				"glfwGetMouseButton"
+			],
+			[
+				"W",
+				"WantCaptureMouse"
+			],
+			[
+				"tr",
+				"transpose"
+			],
+			[
+				"tra",
+				"transpose"
+			],
+			[
+				"til",
+				"tileCache"
+			],
+			[
+				"inde",
+				"indexBase"
+			],
+			[
+				"p",
+				"push_back"
+			],
+			[
+				"se",
+				"setVertexData"
+			],
+			[
+				"to",
+				"toFloat"
+			],
+			[
+				"ge",
+				"getArray"
+			],
+			[
+				"getC",
+				"getCurrentTilesetTexture"
+			],
+			[
+				"em",
+				"emplace_or_replace"
+			],
+			[
+				"s",
+				"size"
+			],
+			[
+				"ImGuiCol_Button",
+				"ImGuiCol_ButtonActive"
+			],
+			[
+				"PopS",
+				"PopStyleColor"
+			],
+			[
+				"Push",
+				"PushStyleColor"
+			],
+			[
+				"ImGuiStyleVar_B",
+				"ImGuiStyleVar_FrameBorderSize"
+			],
+			[
+				"ImGuiS",
+				"ImGuiStyleVar_"
+			],
+			[
+				"PushS",
+				"PushStyleVar"
+			],
+			[
+				"En",
+				"EndGroup"
+			],
+			[
+				"Be",
+				"BeginGroup"
+			],
+			[
+				"SetCur",
+				"SetCursorPos"
+			],
+			[
+				"Re",
+				"RenderFrame"
+			],
+			[
+				"imgui",
+				"imgui.h>"
+			],
+			[
+				"Fra",
+				"RenderFrame"
+			],
+			[
+				"SliderFlo",
+				"SliderFloat2"
+			],
+			[
+				"PopSt",
+				"PopStyleColor"
+			],
+			[
+				"ImGuiStyleVar_Bo",
+				"ImGuiStyleVar_FrameBorderSize"
+			],
+			[
+				"ImGuiStyl",
+				"ImGuiStyleVar_"
+			],
+			[
+				"Pu",
+				"PushStyleVar"
+			],
+			[
+				"P",
+				"PopStyleVar"
+			],
+			[
+				"frame",
+				"frameInfoUBO"
+			],
+			[
+				"texture",
+				"textureCache"
+			],
+			[
+				"ImGUIW",
+				"ImGuiWindowFlags_"
+			],
+			[
+				"main",
+				"mainfb"
+			],
+			[
+				"h",
+				"getHandle"
+			],
+			[
+				"GL_COLO",
+				"GL_COLOR_ATTACHMENT0"
+			],
+			[
+				"getFra",
+				"getWindowFrameSize"
+			],
+			[
+				"Fram",
+				"FrameBuffer"
+			],
+			[
+				"Fr",
+				"FrameBuffer"
+			],
+			[
+				"Frame",
+				"FrameBuffer"
+			],
+			[
+				"setWindowS",
+				"setWindowShouldClose"
+			],
+			[
+				"E",
+				"EndMenuBar"
+			],
+			[
+				"BeginM",
+				"BeginMenuBar"
+			],
+			[
+				"ImGuiWindowFlags_NoD",
+				"ImGuiWindowFlags_NoDecoration"
+			],
+			[
+				"gl_STENCIL_B",
+				"GL_STENCIL_BUFFER_BIT"
+			],
+			[
+				"share",
+				"shared_ptr"
+			],
+			[
+				"resou",
+				"resource_loader"
+			],
+			[
+				"re",
+				"resource_cache"
+			],
+			[
+				"crea",
+				"createChunk"
+			],
+			[
+				"in",
+				"indexBuffer"
+			],
+			[
+				"res",
+				"resource_handle"
+			],
+			[
+				"sha",
+				"shared_ptr"
+			],
+			[
+				"Mes",
+				"MeshComponent"
+			],
+			[
+				"vec",
+				"vector.hpp>"
+			],
+			[
+				"GL_FR",
+				"GL_FRONT_FACE"
+			],
+			[
+				"tu",
+				"tuplebase"
+			],
+			[
+				"setVe",
+				"setVertexAttribPointer"
+			],
+			[
+				"get",
+				"getAttributeDescriptions"
+			],
+			[
+				"con",
+				"constexpr"
+			],
+			[
+				"pho",
+				"photon.hpp>"
+			],
+			[
+				"ut",
+				"utils/"
+			],
+			[
+				"ios",
+				"iostream>"
+			],
+			[
+				"ca",
+				"camera-transform"
+			],
+			[
+				"ptr",
+				"ptr_component"
+			],
+			[
+				"T",
+				"TransformComponent"
+			],
+			[
+				"Me",
+				"MeshComponent"
+			],
+			[
+				"u",
+				"update"
+			],
+			[
+				"mod",
+				"modelInfoUBO"
+			],
+			[
+				"cub",
+				"cubeTexture"
+			],
+			[
+				"sphere",
+				"sphereTexture"
+			],
+			[
+				"Te",
+				"TextureComponent"
+			],
+			[
+				"Mesh",
+				"MeshComponent"
+			],
+			[
+				"sphe",
+				"sphereMesh"
+			],
+			[
+				"Cam",
+				"CameraInfo"
+			],
+			[
+				"base",
+				"baseIndices"
+			],
+			[
+				"no",
+				"north"
+			],
+			[
+				"C",
+				"Checkbox"
+			],
+			[
+				"sid",
+				"sideBVertex"
+			],
+			[
+				"ed",
+				"edgeVertexIndices"
+			],
+			[
+				"ver",
+				"vertexMap"
+			],
+			[
+				"bas",
+				"baseIndices"
+			],
+			[
+				"create",
+				"createFace"
+			],
+			[
+				"ui",
+				"uint8_t"
+			],
+			[
+				"vert",
+				"vertexMap"
+			],
+			[
+				"pu",
+				"push_back"
+			],
+			[
+				"ind",
+				"indices"
+			],
+			[
+				"col",
+				"column"
+			],
+			[
+				"po",
+				"pointsPerEdge"
+			],
+			[
+				"si",
+				"sideA"
+			],
+			[
+				"edg",
+				"edgeTriplets"
+			],
+			[
+				"fa",
+				"faceIndex"
+			],
+			[
+				"div",
+				"divisionCount"
+			],
+			[
+				"pus",
+				"push_back"
+			],
+			[
+				"d",
+				"division"
+			],
+			[
+				"gen",
+				"generateCube"
+			],
+			[
+				"GL_UNS",
+				"GL_UNSIGNED_BYTE"
+			],
+			[
+				"sky",
+				"skyboxTexture"
+			],
+			[
+				"inter",
+				"internalFormat"
+			],
+			[
+				"GL_FL",
+				"GL_FLOAT"
+			],
+			[
+				"stbi_write",
+				"stbi_write_hdr"
+			],
+			[
+				"cha",
+				"channel_t"
+			],
+			[
+				"chann",
+				"channel_t"
+			],
+			[
+				"Pop",
+				"PopFont"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"pa",
+				"Package Control: Install Package"
+			],
+			[
+				"jso",
+				"Pretty JSON: Format and Sort JSON"
+			],
+			[
+				"lsp",
+				"LSP: Enable Language Server in Project"
+			],
+			[
+				"ls",
+				"LSP: Enable Language Server in Project"
+			],
+			[
+				"vm",
+				"View: Toggle Menu"
+			],
+			[
+				"",
+				"Rot13 Selection"
+			],
+			[
+				"prv",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Install Package Control"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/superuser/code/photon"
+	],
+	"file_history":
+	[
+		"/home/superuser/code/photon/src/imgui/ImGuizmo.cpp",
+		"/home/superuser/code/photon/src/imgui/ImFileDialog.cpp",
+		"/home/superuser/code/photon/include/soloud/soloud_speech.h",
+		"/home/superuser/code/photon/src/stb/stb_easy_font.c",
+		"/home/superuser/code/photon/include/stb/stb_truetype.h",
+		"/home/superuser/code/photon/build/res/tileset.json",
+		"/home/superuser/code/photon/build/res/tiles.json",
+		"/home/superuser/code/photon/res/level.json",
+		"/home/superuser/code/photon/include/opengl/app.hpp",
+		"/home/superuser/code/photon/include/imgui/app.hpp",
+		"/home/superuser/code/photon/CMakeLists.txt",
+		"/home/superuser/code/photon/include/imgui/imgui.h",
+		"/home/superuser/code/photon/build/res/level.json",
+		"/home/superuser/code/photon/res/skybox.glsl",
+		"/home/superuser/code/photon/res/platformer.glsl",
+		"/home/superuser/code/photon/src/GLFW/window.cpp",
+		"/home/superuser/code/photon/include/GLFW/window.hpp",
+		"/home/superuser/code/photon/include/math/matrix.hpp",
+		"/home/superuser/code/photon/include/math/math.hpp",
+		"/home/superuser/code/photon/src/imgui/app.cpp",
+		"/home/superuser/code/photon/include/utils/tuple.hpp",
+		"/home/superuser/code/photon/src/meshes.cpp",
+		"/home/superuser/code/photon/src/main.cpp",
+		"/home/superuser/code/photon/include/photonvk/mesh.hpp",
+		"/home/superuser/code/photon/include/utils/json.hpp",
+		"/home/superuser/code/photon/res/tileset.png",
+		"/home/superuser/code/photon/res/tileset.json",
+		"/home/superuser/code/photon/src/imgui/imgui_widgets.cpp",
+		"/home/superuser/code/photon/include/math/vector.hpp",
+		"/home/superuser/code/photon/src/imgui/imgui_demo.cpp",
+		"/home/superuser/code/photon/src/utils/json.cpp",
+		"/home/superuser/code/photon/res/main.glsl",
+		"/home/superuser/code/photon/src/opengl/framebuffer.cpp",
+		"/home/superuser/code/photon/include/opengl/framebuffer.hpp",
+		"/home/superuser/code/photon/include/opengl/mesh.hpp",
+		"/home/superuser/code/photon/include/opengl/buffer.hpp",
+		"/home/superuser/code/photon/include/components.hpp",
+		"/home/superuser/code/photon/include/opengl/vertex.hpp",
+		"/home/superuser/code/photon/res/crosshair.glsl",
+		"/home/superuser/code/photon/src/opengl/vao.cpp",
+		"/home/superuser/code/photon/include/opengl/vao.hpp",
+		"/home/superuser/code/photon/src/utils/yaml.cpp",
+		"/home/superuser/code/photon/include/utils/yaml.hpp",
+		"/home/superuser/code/photon/res/level.yaml",
+		"/home/superuser/code/photon/include/photonvk/vertex.hpp",
+		"/home/superuser/code/photon/src/photonvk/device.cpp",
+		"/home/superuser/code/photon/include/platformer.hpp",
+		"/home/superuser/code/photon/include/main.hpp",
+		"/home/superuser/code/photon/src/utils/image.cpp",
+		"/home/superuser/code/photon/include/utils/image.hpp",
+		"/home/superuser/code/photon/include/stb/stb_image_write.h",
+		"/home/superuser/code/photon/src/opengl/texture.cpp",
+		"/home/superuser/code/photon/include/opengl/texture.hpp",
+		"/home/superuser/code/photon/include/opengl/renderbuffer.hpp",
+		"/home/superuser/code/photon/src/opengl/renderbuffer.cpp",
+		"/home/superuser/code/photon/include/stb/stb_image.h",
+		"/home/superuser/code/photon/include/utils/pixel.hpp",
+		"/home/superuser/code/photon/include/utils/hdrimage.hpp",
+		"/home/superuser/code/photon/build/res/crosshair.glsl",
+		"/home/superuser/code/photon/experiments/vulkan/vkdev.cpp",
+		"/home/superuser/code/photon/src/utils/CMakeLists.txt",
+		"/home/superuser/code/photon/src/tommath/CMakeLists.txt",
+		"/home/superuser/code/photon/src/tomcrypt/CMakeLists.txt",
+		"/home/superuser/code/photon/src/stb/CMakeLists.txt",
+		"/home/superuser/code/photon/src/sqlite/CMakeLists.txt",
+		"/home/superuser/code/photon/src/spdlog/CMakeLists.txt",
+		"/home/superuser/code/photon/src/soloud/CMakeLists.txt",
+		"/home/superuser/code/photon/src/photonvk/CMakeLists.txt",
+		"/home/superuser/code/photon/src/opengl/CMakeLists.txt",
+		"/home/superuser/code/photon/src/network/CMakeLists.txt",
+		"/home/superuser/code/photon/src/math/CMakeLists.txt",
+		"/home/superuser/code/photon/src/imgui/CMakeLists.txt",
+		"/home/superuser/code/photon/src/GLFW/CMakeLists.txt",
+		"/home/superuser/code/photon/src/glad/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/include/opengl/framebuffer.hpp",
+		"/home/superuser/code/OpenGL Base/src/photonvk/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/sqlite/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/res/main.glsl",
+		"/home/superuser/code/OpenGL Base/include/opengl/buffer.hpp",
+		"/home/superuser/code/OpenGL Base/src/GLFW/window.cpp",
+		"/home/superuser/code/OpenGL Base/include/math/vector.hpp",
+		"/home/superuser/code/OpenGL Base/src/utils/image.cpp",
+		"/home/superuser/code/OpenGL Base/include/utils/image.hpp",
+		"/home/superuser/code/OpenGL Base/src/opengl/texture.cpp",
+		"/home/superuser/code/OpenGL Base/include/opengl/texture.hpp",
+		"/home/superuser/code/OpenGL Base/include/opengl/program.hpp",
+		"/home/superuser/code/OpenGL Base/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/utils/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/tommath/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/tomcrypt/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/stb/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/spdlog/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/soloud/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/opengl/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/network/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/math/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/imgui/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/GLFW/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/glad/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/tomcrypt/misc/pk_get_oid.c",
+		"/home/superuser/code/yeetlib.old/CMakeLists.txt",
+		"/home/superuser/code/OpenGL Base/src/imgui/app.cpp",
+		"/home/superuser/code/OpenGL Base/include/GLFW/window.hpp",
+		"/home/superuser/code/yeetlib.old/res/camera.as",
+		"/home/superuser/code/OpenGL Base/include/imgui/app.hpp",
+		"/home/superuser/code/OpenGL Base/include/math/matrix.hpp",
+		"/home/superuser/code/OpenGL Base/include/math/quaternion.hpp",
+		"/home/superuser/code/yeetlib.old/include/math/matrix.hpp",
+		"/home/superuser/code/OpenGL Base/include/glad/glad.h",
+		"/home/superuser/code/yeetlib.old/res/shader.vert",
+		"/home/superuser/code/yeetlib.old/res/shader.frag",
+		"/home/superuser/code/OpenGL Base/src/opengl/vao.cpp",
+		"/home/superuser/code/OpenGL Base/include/opengl/vao.hpp",
+		"/home/superuser/code/OpenGL Base/src/opengl/program.cpp",
+		"/home/superuser/code/OpenGL Base/src/opengl/shader.cpp",
+		"/home/superuser/code/OpenGL Base/include/opengl/shader.hpp",
+		"/home/superuser/code/OpenGL Base/src/opengl/buffer.cpp",
+		"/run/media/superuser/(undefined)/yeetlib2/release/res/main.glsl",
+		"/home/superuser/code/OpenGL Base/res/glitch.glsl",
+		"/run/media/superuser/(undefined)/yeetlib/level/post.glsl",
+		"/home/superuser/code/yeetlib.old2/src/math/matrix.hpp",
+		"/home/superuser/code/yeetlib.old2/src/opengl/object.hpp",
+		"/home/superuser/code/yeetlib.old2/src/opengl/object.cpp",
+		"/home/superuser/code/yeetlib.old2/src/opengl/shader.cpp",
+		"/home/superuser/code/yeetlib.old2/src/opengl/mesh.cpp",
+		"/home/superuser/code/OpenGL Base/include/GLFW/app.hpp",
+		"/home/superuser/code/OpenGL Base/include/utils/json.hpp",
+		"/home/superuser/code/OpenGL Base/include/opengl/app.hpp"
+	],
+	"find":
+	{
+		"height": 46.0
+	},
+	"find_in_files":
+	{
+		"height": 214.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": true,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 46.0
+	},
+	"input":
+	{
+		"height": 74.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.diagnostics":
+	{
+		"height": 0.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "cmake",
+	"project": "photon.sublime-project",
+	"replace":
+	{
+		"height": 88.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 334.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

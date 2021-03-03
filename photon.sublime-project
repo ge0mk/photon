@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"path":".",
+		}
+	],
+	"build_systems": [
+		{
+			"name":"cmake",
+			"quiet":false,
+			"working_dir": "${project_path:${folder}}/build",
+			"linux": {
+				"cmd": ["cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && make -j4 && cp compile_commands.json .."],
+				"shell":true,
+			},
+		}
+	],
+	"settings": {
+		"LSP": {
+			"clangd": {
+				"enabled": true,
+				"command": ["clangd", "-header-insertion=never", "-index"]
+			}
+		}
+	},
+}
