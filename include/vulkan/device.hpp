@@ -1,11 +1,11 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
-#include <photonvk/instance.hpp>
-#include <photonvk/buffer.hpp>
-#include <photonvk/image.hpp>
-#include <photonvk/vertex.hpp>
-#include <photonvk/swapchain.hpp>
+#include <vulkan/instance.hpp>
+#include <vulkan/buffer.hpp>
+#include <vulkan/image.hpp>
+#include <vulkan/vertex.hpp>
+#include <vulkan/swapchain.hpp>
 
 #include <optional>
 

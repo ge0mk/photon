@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
-#include <photonvk/buffer.hpp>
+#include <vulkan/buffer.hpp>
 #include <math/matrix.hpp>
 
 namespace photonvk {
