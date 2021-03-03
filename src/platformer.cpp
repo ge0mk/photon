@@ -208,7 +208,6 @@ protected:
 		renderScene();
 	}
 
-	vec3 campos = vec3(0, 0, -5);
 	void renderScene() {
 		glClearColor(0.0f, 0.02f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -241,20 +240,22 @@ protected:
 			mesh.drawElements();
 		}
 
-		texture->unbind();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		for(auto entity : view) {
-			math::mat4 transform;
+		if(wireframe) {
+			texture->unbind();
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			for(auto entity : view) {
+				math::mat4 transform;
 
-			if(ecs.has<TransformComponent>(entity)) {
-				auto t = ecs.get<TransformComponent>(entity);
-				transform = math::mat4().translate(t.pos).scale(vec3(t.scale, 1.0f));
+				if(ecs.has<TransformComponent>(entity)) {
+					auto t = ecs.get<TransformComponent>(entity);
+					transform = math::mat4().translate(t.pos).scale(vec3(t.scale, 1.0f));
+				}
+
+				modelInfoUBO.update({transform, mat4()});
+
+				Mesh &mesh = ecs.get<MeshComponent>(entity);
+				mesh.drawElements();
 			}
-
-			modelInfoUBO.update({transform, mat4()});
-
-			Mesh &mesh = ecs.get<MeshComponent>(entity);
-			mesh.drawElements();
 		}
 		// render other entities, e.g. player
 
@@ -427,6 +428,7 @@ protected:
 			if(ImGui::Begin("Console", nullptr)) {
 				ImGui::SliderFloat3("campos", &campos.x, -32.0f, 32.0f, "%1.1f");
 				ImGui::Text("Cursor: (%f, %f)", worldcursor.x, worldcursor.y);
+				ImGui::Checkbox("wireframe", &wireframe);
 				if(ImGui::Button("test")) {
 					ifd::FileDialog::Instance().Open("ShaderOpenDialog", "Open a shader", "Image file (*.png;*.jpg;*.jpeg;*.bmp;*.tga){.png,.jpg,.jpeg,.bmp,.tga},.*", true);
 				}
@@ -763,6 +765,9 @@ private:
 
 	Tile *selected = nullptr;
 	vec2 worldcursor = ivec2(0);
+
+	bool wireframe = false;
+	vec3 campos = vec3(0, 0, -5);
 };
 
 

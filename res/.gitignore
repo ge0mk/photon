@@ -1,6 +1,7 @@
 *
 !.gitignore
-!tiles
+!tiles/*
 !*.glsl
 !*.json
 !*.yaml
+!spritesheet.png
