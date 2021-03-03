@@ -26,8 +26,10 @@
 #define CHUNK_SIZE 512
 
 namespace network{
+#if !defined(WINDOWS)
 	//include unistd.h insde namespace network to avoid conflict between namespace crypt and char* crypt(char*, char*);
 	#include <unistd.h>
+#endif
 
 	struct address{
 		address(unsigned v = Any);
@@ -70,7 +72,7 @@ namespace network{
 
 		virtual bool send(std::string data);
 		virtual std::string recv(int len);
-		virtual std::string recvLine(char delim = '\n', size_t maxlen = std::numeric_limits<size_t>::max());
+		virtual std::string recvLine(char delim = '\n', size_t maxlen = 1024*1024);
 	private:
 		bool connected = false;
 		#if defined(WINDOWS)

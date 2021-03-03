@@ -1,7 +1,7 @@
 #include <network/tcpsocket.hpp>
 
 namespace network{
-	void __attribute__((constructor)) initTCP(){
+	/*void __attribute__((constructor)) initTCP(){
 		#if defined(WINDOWS)
 			WSADATA wsa;
 			long r =  WSAStartup(MAKEWORD(2,0),&wsa);
@@ -9,7 +9,7 @@ namespace network{
 				exit(-1);
 			}
 		#endif
-	}
+	}*/
 
 	address::address(unsigned v) : val(v){}
 
@@ -43,7 +43,7 @@ namespace network{
 	std::string tcpsocket::getClientIP(){
 		return inet_ntoa(client.sin_addr);
 	}
-	void tcpsocket::connect(std::string host, unsigned short port){
+	bool tcpsocket::connect(std::string host, unsigned short port){
 		unsigned long addr;
 
 		if((addr = inet_addr(host.c_str())) != INADDR_NONE);
@@ -52,18 +52,19 @@ namespace network{
 			if(host_info)
 				memcpy(&addr, host_info->h_addr, host_info->h_length);
 			else{
-				return;
+				return false;
 			}
 		}
 		SOCKADDR_IN server = {AF_INET, htons(port)};
 		server.sin_addr.s_addr = htonl(addr);
-		if(::connect(handle, (SOCKADDR*)&server, sizeof(server)) == SOCKET_ERROR);
+		if(::connect(handle, (SOCKADDR*)&server, sizeof(server)) == SOCKET_ERROR) {
+			return true;
+		}
+		return false;
 	}
 	void tcpsocket::disconnect(){
-		if(shutdown(handle, SD_SEND) < 0){
-		}
-		if(close(handle) < 0){
-		}
+		if(shutdown(handle, SD_SEND) < 0){ }
+		// if(close(handle) < 0){ }
 	}
 
 	bool tcpsocket::isConnected(){

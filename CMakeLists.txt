@@ -14,17 +14,21 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(glfw)
 
 if(WIN32)
-	add_compile_definitions(_GLFW_WIN32 WITH_WINMM)
+	add_compile_definitions(_GLFW_WIN32 WITH_WINMM WINDOWS)
 elseif(UNIX)
-	add_compile_definitions(_GLFW_X11 WITH_ALSA)
+	add_compile_definitions(_GLFW_X11 WITH_ALSA UNIX)
 endif()
 
 add_compile_definitions(SPDLOG_COMPILED_LIB IMGUI_IMPL_OPENGL_LOADER_GLAD LTC_SOURCE LTC_NO_ROLC)
 
 add_library(photon)
+if(WIN32)
+	target_include_directories(photon PUBLIC ENV{VULKAN_SDK}/Include)
+else()
+	target_compile_options(photon PUBLIC -g)
+endif()
 
 add_subdirectory(src)
-target_compile_options(photon PUBLIC -g)
 target_include_directories(photon PUBLIC include)
 
 if(WIN32)
