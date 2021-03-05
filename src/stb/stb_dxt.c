@@ -1,2 +1,2 @@
 #define STB_DXT_IMPLEMENTATION
-#include "stb_dxt.h"
+#include <stb/stb_dxt.h>

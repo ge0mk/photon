@@ -1,2 +1,2 @@
 #define STB_RECT_PACK_IMPLEMENTATION
-#include "stb_rect_pack.h"
+#include <stb/stb_rect_pack.h>

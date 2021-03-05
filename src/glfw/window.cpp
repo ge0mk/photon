@@ -1,4 +1,4 @@
-#include <GLFW/window.hpp>
+#include <glfw/window.hpp>
 #include <stdexcept>
 
 namespace glfw {

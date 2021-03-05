@@ -1,7 +1,7 @@
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include "ImFileDialog.h"
+#include <imgui/ImFileDialog.h>
 
 #include <fstream>
 #include <algorithm>
@@ -10,8 +10,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb/stb_image.h>
 
 #ifdef _WIN32
 #include <Windows.h>

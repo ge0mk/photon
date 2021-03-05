@@ -1,4 +1,4 @@
-#include <vao.hpp>
+#include <opengl/vao.hpp>
 
 namespace opengl {
 	VertexArray::VertexArray() {

@@ -1,4 +1,4 @@
-#include <framebuffer.hpp>
+#include <opengl/framebuffer.hpp>
 
 namespace opengl {
 	FrameBuffer::FrameBuffer(math::ivec2 size) : m_size(size) {

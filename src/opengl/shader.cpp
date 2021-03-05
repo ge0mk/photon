@@ -1,4 +1,4 @@
-#include <shader.hpp>
+#include <opengl/shader.hpp>
 
 namespace opengl {
 	Shader::Shader(GLenum type) {

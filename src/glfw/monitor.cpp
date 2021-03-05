@@ -1,4 +1,4 @@
-#include "monitor.hpp"
+#include <glfw/monitor.hpp>
 
 namespace glfw {
 	std::vector<Monitor> Monitor::getMonitors() {

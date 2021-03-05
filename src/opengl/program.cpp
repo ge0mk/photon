@@ -1,4 +1,4 @@
-#include <program.hpp>
+#include <opengl/program.hpp>
 
 namespace opengl {
 	Program::Program() {

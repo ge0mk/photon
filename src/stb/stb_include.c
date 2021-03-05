@@ -1,2 +1,2 @@
 #define STB_INCLUDE_IMPLEMENTATION
-#include "stb_include.h"
+#include <stb/stb_include.h>

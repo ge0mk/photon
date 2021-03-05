@@ -25,13 +25,13 @@ freely, subject to the following restrictions:
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "soloud.h"
-#include "soloud_wav.h"
-#include "soloud_file.h"
-#include "stb_vorbis.h"
-#include "dr_mp3.h"
-#include "dr_wav.h"
-#include "dr_flac.h"
+#include <soloud/soloud.h>
+#include <soloud/soloud_wav.h>
+#include <soloud/soloud_file.h>
+#include <stb/stb_vorbis.h>
+#include <soloud/dr_mp3.h>
+#include <soloud/dr_wav.h>
+#include <soloud/dr_flac.h>
 
 namespace SoLoud
 {

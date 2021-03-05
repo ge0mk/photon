@@ -1,4 +1,4 @@
-#include "vector.hpp"
+#include <math/vector.hpp>
 #include <opengl/app.hpp>
 #include <glad/glad.h>
 #include <spdlog/spdlog.h>

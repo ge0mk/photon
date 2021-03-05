@@ -1,2 +1,2 @@
 #define STB_DEFINE
-#include "stb.h"
+#include <stb/stb.h>

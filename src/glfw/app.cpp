@@ -1,4 +1,4 @@
-#include "app.hpp"
+#include <glfw/app.hpp>
 
 namespace glfw {
 	Application::Application(int width, int height, std::string title)

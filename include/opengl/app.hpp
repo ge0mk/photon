@@ -1,4 +1,4 @@
-#include <GLFW/app.hpp>
+#include <glfw/app.hpp>
 
 namespace opengl {
 	class Application : public glfw::Application {
