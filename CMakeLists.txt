@@ -36,7 +36,7 @@ add_subdirectory(src)
 target_include_directories(photon PUBLIC include)
 
 if(WIN32)
-	target_link_libraries(photon PUBLIC win32 glfw winmm)
+	target_link_libraries(photon PUBLIC glfw winmm)
 elseif(UNIX)
 	target_link_libraries(photon PUBLIC dl m pthread glfw asound)
 endif()
