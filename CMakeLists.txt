@@ -41,9 +41,6 @@ elseif(UNIX)
 	target_link_libraries(photon PUBLIC dl m pthread glfw asound)
 endif()
 
-add_executable(app src/main.cpp src/meshes.cpp src/photon.cpp)
-target_link_libraries(app PUBLIC photon)
-
 add_executable(platformer src/platformer.cpp)
 target_link_libraries(platformer PUBLIC photon)
 
