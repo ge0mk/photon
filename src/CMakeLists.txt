@@ -25,6 +25,9 @@ if(IMGUI OR PHOTON_FULL)
 endif()
 
 if(VULKAN OR OPENGL OR GLFW OR PHOTON_FULL)
+	if(VULKAN)
+		add_compile_definitions(GLFW_ENABLE_VULKAN)
+	endif()
 	add_subdirectory(glfw)
 endif()
 

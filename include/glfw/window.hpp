@@ -5,9 +5,12 @@
 #include <cassert>
 
 #include <glad/glad.h>
+#if defined(GLFW_ENABLE_VULKAN)
+	#include <vulkan/instance.hpp>
+#endif
+
 #include <math/vector.hpp>
 #include <spdlog/spdlog.h>
-#include <vulkan/instance.hpp>
 #include "glfw3.h"
 #include "monitor.hpp"
 
@@ -70,8 +73,10 @@ namespace glfw {
 		math::vec2 getCursorPos();
 		int getMouseButton(int button);
 
+#if defined(GLFW_ENABLE_VULKAN)
 		std::vector<const char*> getRequiredExtensions();
 		photonvk::Surface createSurface(const photonvk::Instance &instance);
+#endif
 
 	protected:
 		virtual void onKeyTyped(int key);

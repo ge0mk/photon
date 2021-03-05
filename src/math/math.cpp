@@ -3,9 +3,9 @@
 #if defined(WINDOWS)
 	#include <intrin.h>
 
-	static uint32_t __inline ctz( uint32_t x )
+	static uint64_t __inline ctz( uint64_t x )
 	{
-		int r = 0;
+		unsigned long r = 0;
 		_BitScanForward(&r, x);
 		return r;
 	}
