@@ -5,7 +5,7 @@
 	layout(location = 1) in vec2 iUV;
 
 	layout(std140, binding = 0) uniform CameraInfo {
-		mat4 view, proj;
+		mat4 proj, view;
 	} scene;
 
 	layout(std140, binding = 1) uniform ObjectInfo {
@@ -20,12 +20,13 @@
 		pos = scene.proj * scene.view * obj.transform * pos;
 		oPos = pos.xyz;
 		gl_Position = pos;
-		oUV = iUV;//(obj.uvtransform * vec4(iUV, 0.0f, 0.0f)).xy;
+		oUV = (obj.uvtransform * vec4(iUV, 0.0f, 1.0f)).xy;
 	}
 
 #elif defined(FRAGMENT_SHADER)
 
-	layout(std140, binding = 2) uniform Screeninfo {
+	layout(std140, binding = 2) uniform RenderInfo {
+		vec4 tint;
 		ivec2 res;
 		float time, dt;
 	};
@@ -39,6 +40,7 @@
 
 	void main() {
 		fragColor = texture(sampler, iUV);
+		fragColor.rgb = mix(fragColor.rgb, fragColor.rgb * tint.rgb, tint.a);
 	}
 
 #endif
