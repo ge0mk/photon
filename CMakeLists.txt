@@ -41,7 +41,16 @@ elseif(UNIX)
 	target_link_libraries(photon PUBLIC dl m pthread glfw asound)
 endif()
 
-add_executable(platformer src/platformer.cpp)
+add_executable(platformer
+	src/platformer.cpp
+	src/camera.cpp
+	src/chunk.cpp
+	src/entity.cpp
+	src/player.cpp
+	src/resources.cpp
+	src/rigidbody.cpp
+	src/tile.cpp
+	src/world.cpp)
 target_link_libraries(platformer PUBLIC photon)
 
 file(COPY res DESTINATION ${CMAKE_BINARY_DIR})
