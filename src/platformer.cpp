@@ -32,6 +32,11 @@ Game::Game() : imgui::Application(1080, 720, "Game"), world("res/platformer.glsl
 
 	auto cursorSprite = textures.load("res/crosshair.png", 1);
 	cursor = world.createEntity<TileCursor>(cursorSprite);
+	particles.setTexturePtr(cursorSprite);
+	particles.createParticle(Particle{vec2(1,1)});
+	particles.createParticle(Particle{vec2(-1,1)});
+	particles.createParticle(Particle{vec2(-1,-1)});
+	particles.createParticle(Particle{vec2(1,-1)});
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -61,6 +66,7 @@ void Game::render() {
 
 	world.render(proj);
 	world.renderCollisions(player);
+	particles.render();
 }
 
 void Game::renderUI() {

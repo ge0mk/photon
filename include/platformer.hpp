@@ -28,6 +28,7 @@
 #include "resources.hpp"
 #include "entity.hpp"
 #include "player.hpp"
+#include "particles.hpp"
 
 class TileCursor : public Entity {
 public:
@@ -69,7 +70,7 @@ private:
 	TileCursor *cursor;
 	Player* player;
 	ResourceCache<TiledTexture> textures;
-	ResourceCache<SpriteSheet> spriteSheets;
+	ParticleSystem particles;
 };
 
 int main(int argc, const char *argv[]);

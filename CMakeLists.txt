@@ -46,6 +46,7 @@ add_executable(platformer
 	src/camera.cpp
 	src/chunk.cpp
 	src/entity.cpp
+	src/particles.cpp
 	src/player.cpp
 	src/resources.cpp
 	src/rigidbody.cpp
