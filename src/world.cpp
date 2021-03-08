@@ -45,12 +45,12 @@ void World::init() {
 	});
 }
 
-void World::setTileSetPtr(const std::shared_ptr<TileSet> &tileset) {
-	this->tileset = tileset;
+void World::setTexturePtr(const std::shared_ptr<TiledTexture> &texture) {
+	this->texture = texture;
 }
 
 Chunk* World::createChunk(ivec2 pos) {
-	chunks.push_back(std::unique_ptr<Chunk>(new Chunk(this, pos, tileset->scale())));
+	chunks.push_back(std::unique_ptr<Chunk>(new Chunk(this, pos, texture->scale())));
 	return chunks.back().get();
 }
 
@@ -95,7 +95,7 @@ void World::update(float time, float dt) {
 
 void World::render(mat4 proj) {
 	shader.use();
-	tileset->activate();
+	texture->activate();
 
 	cameraInfoUBO.update({cam->proj, cam->view});
 	renderInfoUBO.setData({vec4(0), cam->res, 0.0f, 0.0f});
@@ -113,7 +113,7 @@ void World::render(mat4 proj) {
 		vec2 pos = transform * vec4(0,0,0,1);
 		if(dist(cam->pos.xy, pos) < 64) {
 			modelInfoUBO.update({transform, mat4()});
-			entity->getSpriteSheet()->activate();
+			entity->getTexturePtr()->activate();
 			unitplane.drawElements();
 		}
 	}

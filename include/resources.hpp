@@ -10,32 +10,17 @@
 
 using namespace math;
 
-class TileSet {
+class TiledTexture {
 public:
-	TileSet(const std::string &path, ivec2 size);
+	TiledTexture(const std::string &path, ivec2 size);
 
-	vec2 scale();
-	ivec2 size();
-	ivec2 textureSize();
+	vec2 scale() const;
+	ivec2 size() const;
+	ivec2 textureSize() const;
 
 	void activate();
 
-private:
-	opengl::Texture texture;
-	ivec2 m_size;
-};
-
-class SpriteSheet {
-public:
-	SpriteSheet(const std::string &path, ivec2 size);
-
-	vec2 scale();
-	ivec2 size();
-	ivec2 textureSize();
-
-	void activate();
-
-	mat4 getUVTransform(ivec2 pos);
+	mat4 getUVTransform(ivec2 pos) const;
 
 private:
 	opengl::Texture texture;

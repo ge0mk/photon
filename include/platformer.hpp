@@ -31,7 +31,7 @@
 
 class TileCursor : public Entity {
 public:
-	TileCursor(std::shared_ptr<SpriteSheet> sprites);
+	TileCursor(std::shared_ptr<TiledTexture> sprites);
 
 	void update(float time, float dt, World *world) override;
 
@@ -68,7 +68,7 @@ private:
 	World world;
 	TileCursor *cursor;
 	Player* player;
-	ResourceCache<TileSet> tileSets;
+	ResourceCache<TiledTexture> textures;
 	ResourceCache<SpriteSheet> spriteSheets;
 };
 

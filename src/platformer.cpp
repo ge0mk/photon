@@ -1,6 +1,6 @@
 #include "platformer.hpp"
 
-TileCursor::TileCursor(std::shared_ptr<SpriteSheet> sprites) : Entity(sprites) {}
+TileCursor::TileCursor(std::shared_ptr<TiledTexture> sprites) : Entity(sprites) {}
 
 void TileCursor::update(float time, float dt, World *world) {
 	transform = mat4().translate(pos).scale(0.5).translate(vec3(1,1,0)).scale(1.05);
@@ -8,9 +8,9 @@ void TileCursor::update(float time, float dt, World *world) {
 
 Game::Game() : imgui::Application(1080, 720, "Game"), world("res/platformer.glsl", &cam) {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-	auto tileset = tileSets.load("res/tileset.png", ivec2(16, 16));
+	auto tileset = textures.load("res/tileset.png", ivec2(16, 16));
 
-	world.setTileSetPtr(tileset);
+	world.setTexturePtr(tileset);
 	world.createChunk(ivec2(0, -1))->fill(Tile::stone);
 	world.createChunk(ivec2(-1, -1))->fill(Tile::stone);
 	for(int x = -31; x < 32; x++) {
@@ -27,10 +27,10 @@ Game::Game() : imgui::Application(1080, 720, "Game"), world("res/platformer.glsl
 	world[ivec2(-3,1)] = Tile::stone;
 	world[ivec2(-3,2)] = Tile::stone;
 
-	auto playerSprite = spriteSheets.load("res/player.png", 1);
+	auto playerSprite = textures.load("res/player.png", 1);
 	player = world.createEntity<Player>(&cam, playerSprite);
 
-	auto cursorSprite = spriteSheets.load("res/crosshair.png", 1);
+	auto cursorSprite = textures.load("res/crosshair.png", 1);
 	cursor = world.createEntity<TileCursor>(cursorSprite);
 
 	glEnable(GL_BLEND);
@@ -50,8 +50,8 @@ void Game::update() {
 		cursor->pos = snapToGrid(screenToWorldSpace(getCursorPos()));
 	}
 
-	cam.update(glfwGetTime(), dt);
 	world.update(glfwGetTime(), dt);
+	cam.update(glfwGetTime(), dt);
 }
 
 void Game::render() {

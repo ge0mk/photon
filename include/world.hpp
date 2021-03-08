@@ -28,7 +28,7 @@ public:
 	void loadShader(const std::string &path);
 	void init();
 
-	void setTileSetPtr(const std::shared_ptr<TileSet> &tileset);
+	void setTexturePtr(const std::shared_ptr<TiledTexture> &texture);
 
 	Chunk* createChunk(ivec2 pos);
 	Chunk* getChunk(ivec2 pos);
@@ -82,6 +82,6 @@ public:
 
 	std::vector<std::unique_ptr<Chunk>> chunks;
 	std::vector<std::unique_ptr<Entity>> entities;
-	std::shared_ptr<TileSet> tileset;
+	std::shared_ptr<TiledTexture> texture;
 	const Camera *cam;
 };

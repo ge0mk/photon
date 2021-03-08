@@ -19,18 +19,18 @@ class World;
 
 class Entity {
 public:
-	Entity(std::shared_ptr<SpriteSheet> sprites);
+	Entity(std::shared_ptr<TiledTexture> texture);
 	virtual ~Entity();
 
 	virtual void update(float time, float dt, World *world);
 
 	mat4 getTransform();
 	mat4 getUVTransform();
-	SpriteSheet* getSpriteSheet();
+	TiledTexture* getTexturePtr();
 
 protected:
 	mat4 transform, uvtransform;
 
 private:
-	std::shared_ptr<SpriteSheet> spritesheet;
+	std::shared_ptr<TiledTexture> texture;
 };

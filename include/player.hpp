@@ -5,7 +5,7 @@
 
 class Player : public RigidBody {
 public:
-	Player(Camera *cam, const std::shared_ptr<SpriteSheet> &sprites);
+	Player(Camera *cam, const std::shared_ptr<TiledTexture> &sprites);
 	virtual void update(float time, float dt, World *world) override;
 
 private:

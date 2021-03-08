@@ -1,6 +1,6 @@
 #include <entity.hpp>
 
-Entity::Entity(std::shared_ptr<SpriteSheet> sprites) : spritesheet(sprites) {}
+Entity::Entity(std::shared_ptr<TiledTexture> texture) : texture(texture) {}
 
 Entity::~Entity() {}
 
@@ -14,6 +14,6 @@ mat4 Entity::getUVTransform() {
 	return uvtransform;
 }
 
-SpriteSheet* Entity::getSpriteSheet() {
-	return spritesheet.get();
+TiledTexture* Entity::getTexturePtr() {
+	return texture.get();
 }

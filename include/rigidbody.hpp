@@ -20,7 +20,7 @@ public:
 		bottom = 8
 	};
 
-	RigidBody(std::shared_ptr<SpriteSheet> sprites);
+	RigidBody(std::shared_ptr<TiledTexture> texture);
 	~RigidBody() override = default;
 
 	void applyForce(vec2 f);
@@ -32,7 +32,6 @@ public:
 	vec2 getPos();
 
 protected:
-
 	// body information
 	float mass = 1.0f;
 	vec2 pos = vec2(0);
@@ -41,8 +40,13 @@ protected:
 	vec2 hitbox = vec2(1);
 
 	// environment
+	// friction is only applied on the horizontal axis
+	float groundFriction = 0.9;
+	float airFriction = 0.99;
 	vec2 gravity = vec2(0, -50);
-	float groundFriction = 0.666;
+
+	// other config stuff
+	float maxSpeed = 1000.0f;
 
 	// collision
 	uint8_t collision;

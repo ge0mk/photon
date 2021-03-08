@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-RigidBody::RigidBody(std::shared_ptr<SpriteSheet> sprites) : Entity(sprites) {}
+RigidBody::RigidBody(std::shared_ptr<TiledTexture> texture) : Entity(texture) {}
 
 void RigidBody::applyForce(vec2 f) {
 	acceleration = f / mass;
@@ -101,11 +101,17 @@ void RigidBody::update(float time, float dt, World *world) {
 	if(!onGround()) {
 		speed += gravity * dt;
 	}
+	speed += acceleration * dt;
 
-	if(onGround() && abs(acceleration.x) < 0.0001f) {
+	if(onGround()) {
 		speed.x *= groundFriction;
 	}
-	speed += acceleration * dt;
+	else {
+		speed.x *= airFriction;
+	}
+	if(length(speed) > maxSpeed) {
+		speed = normalize(speed) * maxSpeed;
+	}
 
 	transform = mat4().translate(pos).scale(hitbox * 0.5).translate(vec3(1,1,0));
 }
