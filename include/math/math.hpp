@@ -18,16 +18,14 @@ namespace math{
 		return fabs(a - b) < epsilon;
 	}
 
-	inline float floor(float x){
-		return float(int(x));
+	template<typename type>
+	inline type fract(type x){
+		return x - std::floor(x);
 	}
 
-	inline float fract(float x){
-		return x - floor(x);
-	}
-
-	inline float mix(float x, float y, float a){
-		return x*(1.0f - a) + y*(a);
+	template<typename type>
+	inline type mix(type x, type y, type a){
+		return x * (1.0 - a) + y * (a);
 	}
 
 	template<typename type>

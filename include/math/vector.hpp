@@ -32,11 +32,13 @@ namespace math {
 		tvec2<type> operator-(const tvec2<type> &other) const {return tvec2<type>(x - other.x, y - other.y);}
 		tvec2<type> operator*(const tvec2<type> &other) const {return tvec2<type>(x * other.x, y * other.y);}
 		tvec2<type> operator/(const tvec2<type> &other) const {return tvec2<type>(x / other.x, y / other.y);}
+		tvec2<type> operator%(const tvec2<type> &other) const {return tvec2<type>(x % other.x, y % other.y);}
 
 		tvec2<type>& operator+=(const tvec2<type> &other) {x += other.x, y += other.y; return *this;}
 		tvec2<type>& operator-=(const tvec2<type> &other) {x -= other.x, y -= other.y; return *this;}
 		tvec2<type>& operator*=(const tvec2<type> &other) {x *= other.x, y *= other.y; return *this;}
 		tvec2<type>& operator/=(const tvec2<type> &other) {x /= other.x, y /= other.y; return *this;}
+		tvec2<type>& operator%=(const tvec2<type> &other) {x %= other.x, y %= other.y; return *this;}
 
 		tvec2<type>& operator=(const tvec2<type> &other){x = other.x, y = other.y; return *this;}
 		template <typename t2>
@@ -65,6 +67,16 @@ namespace math {
 		};
 	};
 
+	template <>
+	inline tvec2<float> tvec2<float>::operator%(const tvec2<float> &other) const {return tvec2<float>(std::fmod(x ,other.x), std::fmod(y, other.y));}
+	template <>
+	inline tvec2<float>& tvec2<float>::operator%=(const tvec2<float> &other) {x = std::fmod(x ,other.x); y = std::fmod(y, other.y); return *this;}
+
+	template <>
+	inline tvec2<double> tvec2<double>::operator%(const tvec2<double> &other) const {return tvec2<double>(std::fmod(x ,other.x), std::fmod(y, other.y));}
+	template <>
+	inline tvec2<double>& tvec2<double>::operator%=(const tvec2<double> &other) {x = std::fmod(x ,other.x); y = std::fmod(y, other.y); return *this;}
+
 	template<typename type>
 	class tvec3{
 	public:
@@ -83,11 +95,13 @@ namespace math {
 		tvec3<type> operator-(const tvec3<type> &other) const {return tvec3<type>(x - other.x, y - other.y, z - other.z);}
 		tvec3<type> operator*(const tvec3<type> &other) const {return tvec3<type>(x * other.x, y * other.y, z * other.z);}
 		tvec3<type> operator/(const tvec3<type> &other) const {return tvec3<type>(x / other.x, y / other.y, z / other.z);}
+		tvec3<type> operator%(const tvec3<type> &other) const {return tvec3<type>(x % other.x, y % other.y, z % other.z);}
 
 		tvec3<type>& operator+=(const tvec3<type> &other) {x += other.x, y += other.y, z += other.z; return *this;}
 		tvec3<type>& operator-=(const tvec3<type> &other) {x -= other.x, y -= other.y, z -= other.z; return *this;}
 		tvec3<type>& operator*=(const tvec3<type> &other) {x *= other.x, y *= other.y, z *= other.z; return *this;}
 		tvec3<type>& operator/=(const tvec3<type> &other) {x /= other.x, y /= other.y, z /= other.z; return *this;}
+		tvec3<type>& operator%=(const tvec3<type> &other) {x %= other.x, y %= other.y, z %= other.z; return *this;}
 
 		tvec3<type>& operator=(const tvec3<type> &other){x = other.x, y = other.y, z = other.z; return *this;}
 		template <typename t2>
@@ -114,6 +128,16 @@ namespace math {
 		};
 	};
 
+	template <>
+	inline tvec3<float> tvec3<float>::operator%(const tvec3<float> &other) const {return tvec3<float>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z));}
+	template <>
+	inline tvec3<float>& tvec3<float>::operator%=(const tvec3<float> &other) {x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z); return *this;}
+
+	template <>
+	inline tvec3<double> tvec3<double>::operator%(const tvec3<double> &other) const {return tvec3<double>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z));}
+	template <>
+	inline tvec3<double>& tvec3<double>::operator%=(const tvec3<double> &other) {x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z); return *this;}
+
 	template<typename type>
 	class tvec4{
 	public:
@@ -134,11 +158,13 @@ namespace math {
 		tvec4<type> operator-(const tvec4<type> &other) const {return tvec4<type>(x - other.x, y - other.y, z - other.z, w - other.w);}
 		tvec4<type> operator*(const tvec4<type> &other) const {return tvec4<type>(x * other.x, y * other.y, z * other.z, w * other.w);}
 		tvec4<type> operator/(const tvec4<type> &other) const {return tvec4<type>(x / other.x, y / other.y, z / other.z, w / other.w);}
+		tvec4<type> operator%(const tvec4<type> &other) const {return tvec4<type>(x % other.x, y % other.y, z % other.z, w % other.w);}
 
 		tvec4<type>& operator+=(const tvec4<type> &other) {x += other.x, y += other.y, z += other.z, w += other.w; return *this;}
 		tvec4<type>& operator-=(const tvec4<type> &other) {x -= other.x, y -= other.y, z -= other.z, w -= other.w; return *this;}
 		tvec4<type>& operator*=(const tvec4<type> &other) {x *= other.x, y *= other.y, z *= other.z, w *= other.w; return *this;}
 		tvec4<type>& operator/=(const tvec4<type> &other) {x /= other.x, y /= other.y, z /= other.z, w /= other.w; return *this;}
+		tvec4<type>& operator%=(const tvec4<type> &other) {x %= other.x, y %= other.y, z %= other.z, w %= other.w; return *this;}
 
 		tvec4<type>& operator=(const tvec4<type> &other){x = other.x, y = other.y, z = other.z, w = other.w; return *this;}
 		template <typename t2>
@@ -184,6 +210,16 @@ namespace math {
 			tvec3<type> rgb;
 		};
 	};
+
+	template <>
+	inline tvec4<float> tvec4<float>::operator%(const tvec4<float> &other) const {return tvec4<float>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z), std::fmod(w, other.w));}
+	template <>
+	inline tvec4<float>& tvec4<float>::operator%=(const tvec4<float> &other) {x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z), w = std::fmod(w, other.w); return *this;}
+
+	template <>
+	inline tvec4<double> tvec4<double>::operator%(const tvec4<double> &other) const {return tvec4<double>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z), std::fmod(w, other.w));}
+	template <>
+	inline tvec4<double>& tvec4<double>::operator%=(const tvec4<double> &other) {x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z), w = std::fmod(w, other.w); return *this;}
 
 	template<typename type>	tvec2<type>::tvec2(const tvec2<type> &other) : x(other.x), y(other.y) {}
 	template<typename type>	tvec2<type>::tvec2(const tvec3<type> &other) : x(other.x), y(other.y) {}
@@ -270,15 +306,41 @@ namespace math {
 
 	template<typename type>
 	tvec2<type> floor(const tvec2<type> &v) {
-		return tvec2<type>(floor(v.x), floor(v.y));
+		return tvec2<type>(std::floor(v.x), std::floor(v.y));
 	}
 	template<typename type>
 	tvec3<type> floor(const tvec3<type> &v) {
-		return tvec3<type>(floor(v.x), floor(v.y), floor(v.z));
+		return tvec3<type>(std::floor(v.x), std::floor(v.y), std::floor(v.z));
 	}
 	template<typename type>
 	tvec4<type> floor(const tvec4<type> &v) {
-		return tvec4<type>(floor(v.x), floor(v.y), floor(v.z), floor(v.w));
+		return tvec4<type>(std::floor(v.x), std::floor(v.y), std::floor(v.z), std::floor(v.w));
+	}
+
+	template<typename type>
+	tvec2<type> ceil(const tvec2<type> &v) {
+		return tvec2<type>(std::ceil(v.x), std::ceil(v.y));
+	}
+	template<typename type>
+	tvec3<type> ceil(const tvec3<type> &v) {
+		return tvec3<type>(std::ceil(v.x), std::ceil(v.y), std::ceil(v.z));
+	}
+	template<typename type>
+	tvec4<type> ceil(const tvec4<type> &v) {
+		return tvec4<type>(std::ceil(v.x), std::ceil(v.y), std::ceil(v.z), std::ceil(v.w));
+	}
+
+	template<typename type>
+	tvec2<type> round(const tvec2<type> &v) {
+		return tvec2<type>(std::round(v.x), std::round(v.y));
+	}
+	template<typename type>
+	tvec3<type> round(const tvec3<type> &v) {
+		return tvec3<type>(std::round(v.x), std::round(v.y), std::round(v.z));
+	}
+	template<typename type>
+	tvec4<type> round(const tvec4<type> &v) {
+		return tvec4<type>(std::round(v.x), std::round(v.y), std::round(v.z), std::round(v.w));
 	}
 
 	template<typename type>
