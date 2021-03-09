@@ -124,8 +124,12 @@ void World::render() {
 	}
 }
 
-void World::renderCollisions(RigidBody *entity) {
+void World::renderCollisions(RigidBody *entity, std::shared_ptr<TiledTexture> texture) {
 	shader.use();
+	if(texture) {
+		texture->activate();
+	}
+	cameraInfoUBO.update({cam->proj, cam->view});
 	renderInfoUBO.setData({vec4(1,0,0,1), cam->res, 0.0f, 0.0f});
 	for(ivec2 tile : entity->getCollidingTiles()) {
 		mat4 transform = mat4().translate(round(entity->getPos()) + vec2(tile)).scale(0.5).translate(vec3(1,1,0));

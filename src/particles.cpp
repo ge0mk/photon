@@ -1,8 +1,34 @@
 #include <particles.hpp>
 
+#include <world.hpp>
+
+Particle::Particle(uint32_t type, vec2 pos, vec2 speed, vec2 gravity, vec2 scale, float rotation, float rotspeed)
+: type(type), pos(pos), speed(speed), gravity(gravity), scale(scale), rotation(rotation), rotspeed(rotspeed) {
+	switch(type) {
+		case null: break;
+		case rain: {
+			uvtl = vec2(20.5/24.0, 0.5);
+			uvbr = vec2(20.5/24.0, 0.5);
+		} break;
+		case blood: {
+			uvtl = vec2(10.5/24.0, 0.5);
+			uvbr = vec2(10.5/24.0, 0.5);
+		} break;
+	}
+}
+
 void Particle::update(float time, float dt, World *world) {
 	pos += speed * dt;
 	speed += gravity * dt;
+	rotation += rotspeed * dt * 3;
+	lifetime += dt;
+	if(world->getTileOrEmpty(ivec2(pos) - ivec2(pos.x < 0 ? 1 : 0, pos.y < 0 ? 1 : 0)).type != Tile::null) {
+		speed = 0;
+		vec2 tmp = pos + vec2(rotspeed*dt, 0.1);
+		if(fract(pos.y) > 0.95 && world->getTileOrEmpty(ivec2(tmp) - ivec2(tmp.x < 0 ? 1 : 0, tmp.y < 0 ? 1 : 0)).type == Tile::null) {
+			pos.x += rotspeed * dt;
+		}
+	}
 }
 
 ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : Entity(texture), buffer(opengl::Buffer<Particle>::Array) {
@@ -16,7 +42,7 @@ ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : Entity(t
 
 	vao.bind();
 	this->buffer.bind();
-	vao.setVertexAttributes<vec4, vec4, vec4, vec2>();
+	vao.setVertexAttributes<vec4, vec4, vec4, vec4>();
 	vao.unbind();
 }
 

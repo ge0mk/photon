@@ -13,19 +13,29 @@
 #include <opengl/texture.hpp>
 #include <opengl/vao.hpp>
 
-#include "resources.hpp"
 #include "entity.hpp"
+#include "resources.hpp"
+#include "world.hpp"
 
 using namespace math;
 
 class World;
 
 struct Particle {
+	enum {
+		null = 0,
+		rain = 2,
+		blood = 4,
+	};
+
+	Particle(uint32_t type, vec2 pos, vec2 speed, vec2 gravity, vec2 scale, float rotation, float rotspeed);
+
 	vec2 pos = vec2(0), speed = vec2(0);
 	vec2 uvtl = vec2(0), uvbr = vec2(1);
-	vec2 gravity = vec2(0, -10);
-	float rotation = 0, time = 0;
-	vec2 scale = 0.1;
+	vec2 gravity = vec2(0, -10), scale = 0.1;
+	float rotation = 0, rotspeed = 0.0f;
+	float lifetime = 0;
+	uint32_t type;
 
 	void update(float time, float dt, World *world);
 };
@@ -47,6 +57,11 @@ public:
 
 	std::vector<Particle>::iterator begin();
 	std::vector<Particle>::iterator end();
+
+	template<typename func_t>
+	void erase(func_t func) {
+		std::erase_if(particles, func);
+	}
 
 private:
 	std::vector<Particle> particles;

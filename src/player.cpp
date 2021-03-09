@@ -1,7 +1,7 @@
 #include <player.hpp>
 
 Player::Player(Camera *cam, const std::shared_ptr<TiledTexture> &texture) : RigidBody(texture), cam(cam) {
-	hitbox = vec2(2, 2);
+	hitbox = vec2(1, 2);
 	pos = vec2(-2, 0);
 }
 

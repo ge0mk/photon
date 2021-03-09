@@ -1,10 +1,10 @@
 #version 460
 
 #if defined(VERTEX_SHADER)
-	layout(location = 0) in vec4 iPos;
-	layout(location = 1) in vec4 iUV;
-	layout(location = 2) in vec4 world;
-	layout(location = 3) in vec2 scale;
+	layout(location = 0) in vec4 posAndSpeed;
+	layout(location = 1) in vec4 uvs;
+	layout(location = 2) in vec4 gravityAndScale;
+	layout(location = 3) in vec4 rotationAndOther;
 
 	layout(std140, binding = 0) uniform CameraInfo {
 		mat4 proj, view;
@@ -21,14 +21,14 @@
 	} vs_out;
 
 	void main() {
-		vec4 pos = vec4(iPos.xy, 0.0f, 1.0f);
+		vec4 pos = vec4(posAndSpeed.xy, 0.0f, 1.0f);
 		gl_Position = scene.proj * scene.view * obj.transform * pos;
 
-		vs_out.pos = iPos.xy;
-		vs_out.uvtl = iUV.xy;
-		vs_out.uvbr = iUV.zw;
-		vs_out.rot = world.z;
-		vs_out.scale = scale;
+		vs_out.pos = posAndSpeed.xy;
+		vs_out.uvtl = uvs.xy;
+		vs_out.uvbr = uvs.zw;
+		vs_out.rot = rotationAndOther.x;
+		vs_out.scale = gravityAndScale.zw;
 	}
 
 #elif defined(GEOMETRY_SHADER)
@@ -95,7 +95,7 @@
 
 	void main() {
 		fragColor = texture(sampler, fUV);
-		fragColor = vec4(0.1, 0.25, 0.4, 0.666);
+		//fragColor = vec4(0.1, 0.25, 0.4, 0.666);
 	}
 
 #endif

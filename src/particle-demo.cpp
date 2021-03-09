@@ -20,7 +20,10 @@ public:
 	void update() override {
 		particles.update(glfwGetTime(), dt, nullptr);
 		if(particles.size() < 1000) {
-			particles.spawn({vec2(float(rand()) / float(RAND_MAX) * 2 - 1, 2), 0, 0, 0, vec2(0, -1), 0, 0, vec2(0.002, 0.05)});
+			vec2 pos = vec2(float(rand()) / float(RAND_MAX) * 2 - 1, 2);
+			vec2 scale = vec2(0.002, 0.05);
+			vec2 gravity = vec2(0, -1);
+			particles.spawn(Particle(Particle::rain, pos, 0, gravity, scale, 0, 0));
 		}
 		for(Particle &p : particles) {
 			if(p.pos.y < -1.1) {

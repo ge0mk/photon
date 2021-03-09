@@ -50,7 +50,7 @@ public:
 
 	void update(float time, float dt);
 	void render();
-	void renderCollisions(RigidBody *entity);
+	void renderCollisions(RigidBody *entity, std::shared_ptr<TiledTexture> texture = {});
 
 	Tile& operator[](const ivec2 &pos);
 	const Tile& operator[](const ivec2 &pos) const;
