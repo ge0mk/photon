@@ -86,6 +86,15 @@ namespace glfw {
 		glfwSetWindowTitle(handle, title.c_str());
 	}
 
+	void Window::setWindowIcon(const Image &icon) {
+		GLFWimage img = icon.getGLFWImage();
+		glfwSetWindowIcon(handle, 1, &img);
+	}
+
+	void Window::resetWindowIcon() {
+		glfwSetWindowIcon(handle, 0, nullptr);
+	}
+
 	math::ivec2 Window::getWindowPos() {
 		math::ivec2 pos;
 		glfwGetWindowPos(handle, &pos.x, &pos.y);

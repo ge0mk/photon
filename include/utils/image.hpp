@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include <glfw/glfw3.h>
+
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
@@ -28,6 +30,8 @@ public:
 	int bitdepth() const;
 
 	Pixel<uint8_t> operator[](const math::ivec2 &pos);
+
+	GLFWimage getGLFWImage() const;
 
 private:
 	std::vector<uint8_t> m_data;

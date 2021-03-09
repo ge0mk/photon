@@ -54,6 +54,13 @@ Pixel<uint8_t> Image::operator[](const math::ivec2 &pos) {
 	return Pixel<uint8_t>(&m_data[pos.y*m_size.x + pos.x], m_channels);
 }
 
+GLFWimage Image::getGLFWImage() const {
+	GLFWimage img;
+	img.width = m_size.x;
+	img.height = m_size.y;
+	img.pixels = (unsigned char*)m_data.data();
+	return img;
+}
 
 HDRImage::HDRImage(const std::string &filename) {
 	load(filename);

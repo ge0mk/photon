@@ -5,13 +5,16 @@
 #include <functional>
 #include <cassert>
 
-#include <glad/glad.h>
 #if defined(GLFW_ENABLE_VULKAN)
 	#include <vulkan/instance.hpp>
+#else
+	#include <glad/glad.h>
 #endif
 
 #include <math/vector.hpp>
 #include <spdlog/spdlog.h>
+#include <utils/image.hpp>
+
 #include "glfw3.h"
 #include "monitor.hpp"
 
@@ -39,6 +42,8 @@ namespace glfw {
 		bool windowShouldClose();
 		void setWindowShouldClose(bool value = true);
 		void setWindowTitle(const std::string &title);
+		void setWindowIcon(const Image &icon);
+		void resetWindowIcon();
 		math::ivec2 getWindowPos();
 		void setWindowPos(math::ivec2 pos);
 		math::ivec2 getWindowSize();
