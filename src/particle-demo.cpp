@@ -6,9 +6,6 @@
 class Game : public imgui::Application {
 public:
 	Game() : imgui::Application(1080, 720, "Particles!") {
-		auto texture = textures.load("res/crosshair.png", 1);
-		particles.setTexturePtr(texture);
-
 		glClearColor(0,0,0,0);
 		maximizeWindow();
 		glClear(GL_COLOR_BUFFER_BIT);

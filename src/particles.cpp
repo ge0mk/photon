@@ -35,7 +35,9 @@ void ParticleSystem::update(float time, float dt, World *world) {
 
 void ParticleSystem::render() {
 	prog.use();
-	texture->activate();
+	if(texture) {
+		texture->activate();
+	}
 	vao.bind();
 	glDrawArrays(GL_POINTS, 0, buffer.size());
 	vao.unbind();
