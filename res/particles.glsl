@@ -95,7 +95,7 @@
 
 	void main() {
 		fragColor = texture(sampler, fUV);
-		fragColor = vec4(0.2,0.5,0.8,1);
+		fragColor = vec4(0.1, 0.25, 0.4, 0.666);
 	}
 
 #endif
