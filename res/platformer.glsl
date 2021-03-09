@@ -33,7 +33,7 @@
 
 	uniform sampler2D sampler;
 
-	layout(location = 0) in vec4 iPos;
+	layout(location = 0) in vec3 iPos;
 	layout(location = 1) in vec2 iUV;
 
 	layout(location = 0) out vec4 fragColor;
