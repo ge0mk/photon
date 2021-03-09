@@ -32,16 +32,11 @@ Game::Game() : imgui::Application(1080, 720, "Game"), world("res/platformer.glsl
 
 	auto cursorSprite = textures.load("res/crosshair.png", 1);
 	cursor = world.createEntity<TileCursor>(cursorSprite);
-	particles.setTexturePtr(cursorSprite);
-	particles.createParticle(Particle{vec2(1,1)});
-	particles.createParticle(Particle{vec2(-1,1)});
-	particles.createParticle(Particle{vec2(-1,-1)});
-	particles.createParticle(Particle{vec2(1,-1)});
+
+	rain = world.createEntity<ParticleSystem>(cursorSprite);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
 }
 
 void Game::update() {
@@ -57,16 +52,24 @@ void Game::update() {
 
 	world.update(glfwGetTime(), dt);
 	cam.update(glfwGetTime(), dt);
+
+	rain->update(glfwGetTime(), dt, nullptr);
+	if(rain->size() < 10000) {
+		rain->spawn({vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20), 0, 0, 0, vec2(0, -0.5), 0, 0.03});
+	}
+	for(Particle &p : *rain) {
+		if(p.pos.y < 0) {
+			p.pos = vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20);
+			p.speed = 0;
+		}
+	}
 }
 
 void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	mat4 proj = mat4::projection(d2r(90), getAspectRatio(), 0.1, 100);
-
-	world.render(proj);
+	world.render();
 	world.renderCollisions(player);
-	particles.render();
 }
 
 void Game::renderUI() {

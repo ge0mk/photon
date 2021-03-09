@@ -1,7 +1,5 @@
 #pragma once
 
-#include <entt/entt.hpp>
-
 #include <imgui/app.hpp>
 #include <imgui/ImFileDialog.h>
 
@@ -14,13 +12,6 @@
 #include <opengl/program.hpp>
 #include <opengl/texture.hpp>
 #include <opengl/vao.hpp>
-
-#include <soloud/soloud.h>
-
-#include <spdlog/spdlog.h>
-
-#include <utils/image.hpp>
-#include <utils/json.hpp>
 
 #include "tile.hpp"
 #include "chunk.hpp"
@@ -70,7 +61,7 @@ private:
 	TileCursor *cursor;
 	Player* player;
 	ResourceCache<TiledTexture> textures;
-	ParticleSystem particles;
+	ParticleSystem *rain;
 };
 
 int main(int argc, const char *argv[]);

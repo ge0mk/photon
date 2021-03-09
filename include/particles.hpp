@@ -14,6 +14,7 @@
 #include <opengl/vao.hpp>
 
 #include "resources.hpp"
+#include "entity.hpp"
 
 using namespace math;
 
@@ -28,15 +29,15 @@ struct Particle {
 	void update(float time, float dt, World *world);
 };
 
-class ParticleSystem {
+class ParticleSystem : public Entity {
 public:
 	ParticleSystem(std::shared_ptr<TiledTexture> texture = {});
 
-	void setTexturePtr(std::shared_ptr<TiledTexture> texture);
-	void createParticle(const Particle &particle);
+	void update(float time, float dt, World *world) override;
+	void render() override;
+	bool customRenderFunction() const override;
 
-	void update(float time, float dt, World *world);
-	void render();
+	void spawn(const Particle &particle);
 
 	size_t size();
 
@@ -51,5 +52,4 @@ private:
 	opengl::Buffer<Particle> buffer;
 	opengl::VertexArray vao;
 	opengl::Program prog;
-	std::shared_ptr<TiledTexture> texture;
 };

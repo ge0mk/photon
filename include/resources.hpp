@@ -13,6 +13,7 @@ using namespace math;
 class TiledTexture {
 public:
 	TiledTexture(const std::string &path, ivec2 size);
+	TiledTexture(const Image &img);
 
 	vec2 scale() const;
 	ivec2 size() const;

@@ -1,10 +1,11 @@
 #include <particles.hpp>
 
 void Particle::update(float time, float dt, World *world) {
-	;
+	pos += speed * dt;
+	speed += gravity * dt;
 }
 
-ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : buffer(opengl::Buffer<Particle>::Array), texture(texture) {
+ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : Entity(texture), buffer(opengl::Buffer<Particle>::Array) {
 	std::ifstream src("res/particles.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
@@ -19,11 +20,7 @@ ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : buffer(o
 	vao.unbind();
 }
 
-void ParticleSystem::setTexturePtr(std::shared_ptr<TiledTexture> texture) {
-	this->texture = texture;
-}
-
-void ParticleSystem::createParticle(const Particle &particle) {
+void ParticleSystem::spawn(const Particle &particle) {
 	particles.push_back(particle);
 }
 
@@ -32,16 +29,20 @@ void ParticleSystem::update(float time, float dt, World *world) {
 		p.update(time, dt, world);
 	}
 	buffer.setData(particles, opengl::Buffer<Particle>::DynamicDraw);
+
+	Entity::update(time, dt, world);
 }
 
 void ParticleSystem::render() {
-	//prog.use();
-	glDisable(GL_BLEND);
+	prog.use();
 	texture->activate();
 	vao.bind();
-	glDrawArrays(GL_POINTS, buffer.size(), 0);
+	glDrawArrays(GL_POINTS, 0, buffer.size());
 	vao.unbind();
-	glEnable(GL_BLEND);
+}
+
+bool ParticleSystem::customRenderFunction() const {
+	return true;
 }
 
 size_t ParticleSystem::size() {

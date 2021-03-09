@@ -93,12 +93,12 @@ void World::update(float time, float dt) {
 	}
 }
 
-void World::render(mat4 proj) {
+void World::render() {
 	shader.use();
 	texture->activate();
 
 	cameraInfoUBO.update({cam->proj, cam->view});
-	renderInfoUBO.setData({vec4(0), cam->res, 0.0f, 0.0f});
+	renderInfoUBO.update({vec4(0), cam->res, 0.0f, 0.0f});
 
 	for(auto &chunk : chunks) {
 		mat4 transform = mat4().translate(vec3(chunk->getPos() * 32));
@@ -113,13 +113,19 @@ void World::render(mat4 proj) {
 		vec2 pos = transform * vec4(0,0,0,1);
 		if(dist(cam->pos.xy, pos) < 64) {
 			modelInfoUBO.update({transform, mat4()});
-			entity->getTexturePtr()->activate();
-			unitplane.drawElements();
+			if(entity->customRenderFunction()) {
+				entity->render();
+			}
+			else {
+				entity->getTexturePtr()->activate();
+				unitplane.drawElements();
+			}
 		}
 	}
 }
 
 void World::renderCollisions(RigidBody *entity) {
+	shader.use();
 	renderInfoUBO.setData({vec4(1,0,0,1), cam->res, 0.0f, 0.0f});
 	for(ivec2 tile : entity->getCollidingTiles()) {
 		mat4 transform = mat4().translate(round(entity->getPos()) + vec2(tile)).scale(0.5).translate(vec3(1,1,0));

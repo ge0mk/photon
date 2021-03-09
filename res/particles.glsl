@@ -21,12 +21,11 @@
 
 	void main() {
 		vec4 pos = vec4(iPos.xy, 0.0f, 1.0f);
-		pos = scene.proj * pos;
-		gl_Position = pos;
+		gl_Position = scene.proj * scene.view * obj.transform * pos;
 
 		vs_out.pos = iPos.xy;
-		vs_out.uvtl = (obj.uvtransform * vec4(iUV.xy, 0.0f, 1.0f)).xy;
-		vs_out.uvbr = (obj.uvtransform * vec4(iUV.zw, 0.0f, 1.0f)).xy;
+		vs_out.uvtl = iUV.xy;
+		vs_out.uvbr = iUV.zw;
 		vs_out.rot = world.z;
 		vs_out.scale = world.w;
 	}
@@ -52,7 +51,7 @@
 	} obj;
 
 	void vertex(vec2 pos, vec2 uv) {
-		gl_Position = scene.proj * vec4(pos, 0.0f, 1.0f);
+		gl_Position = scene.proj * scene.view * obj.transform * vec4(pos, 0.0f, 1.0f);
 		fUV = uv;
 		EmitVertex();
 	}
@@ -70,9 +69,9 @@
 		float scale = gs_in[0].scale;
 
 		// todo: implement rotation
-		vertex(pos + tl * scale, uvtl);
 		vertex(pos + tr * scale, vec2(uvbr.x, uvtl.y));
 		vertex(pos + br * scale, uvbr);
+		vertex(pos + tl * scale, uvtl);
 		vertex(pos + bl * scale, vec2(uvtl.x, uvbr.y));
 
 		EndPrimitive();
@@ -87,6 +86,7 @@
 
 	void main() {
 		fragColor = texture(sampler, fUV);
+		fragColor = vec4(0.2,0.5,0.8,1);
 	}
 
 #endif

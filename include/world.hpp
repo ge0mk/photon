@@ -14,6 +14,7 @@
 #include "camera.hpp"
 #include "chunk.hpp"
 #include "entity.hpp"
+#include "particles.hpp"
 #include "resources.hpp"
 
 using namespace math;
@@ -48,7 +49,7 @@ public:
 	bool getAutoGrow();
 
 	void update(float time, float dt);
-	void render(mat4 proj);
+	void render();
 	void renderCollisions(RigidBody *entity);
 
 	Tile& operator[](const ivec2 &pos);
@@ -72,7 +73,7 @@ public:
 		float time, dt;
 	};
 
-//private:
+private:
 	bool autogrow = false;
 	opengl::Mesh<vec3, vec2> unitplane;
 	opengl::UniformBuffer<ModelInfo> modelInfoUBO;
