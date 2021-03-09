@@ -16,7 +16,7 @@ ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : Entity(t
 
 	vao.bind();
 	this->buffer.bind();
-	vao.setVertexAttributes<vec4, vec4, vec4>();
+	vao.setVertexAttributes<vec4, vec4, vec4, vec2>();
 	vao.unbind();
 }
 

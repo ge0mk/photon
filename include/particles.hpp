@@ -24,7 +24,8 @@ struct Particle {
 	vec2 pos = vec2(0), speed = vec2(0);
 	vec2 uvtl = vec2(0), uvbr = vec2(1);
 	vec2 gravity = vec2(0, -10);
-	float rotation = 0, scale = 0.1;
+	float rotation = 0, time = 0;
+	vec2 scale = 0.1;
 
 	void update(float time, float dt, World *world);
 };

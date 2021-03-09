@@ -55,7 +55,7 @@ void Game::update() {
 
 	rain->update(glfwGetTime(), dt, nullptr);
 	if(rain->size() < 10000) {
-		rain->spawn({vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20), 0, 0, 0, vec2(0, -0.5), 0, 0.03});
+		rain->spawn({vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20), 0, 0, 0, vec2(0, -0.5), 1.5, 0, vec2(0.03, 0.1)});
 	}
 	for(Particle &p : *rain) {
 		if(p.pos.y < 0) {
