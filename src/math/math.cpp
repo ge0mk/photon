@@ -1,4 +1,5 @@
 #include <math/math.hpp>
+#include <stdint.h>
 
 #if defined(WINDOWS)
 	#include <intrin.h>
