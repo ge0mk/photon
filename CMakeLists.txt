@@ -50,6 +50,7 @@ add_executable(platformer
 	src/player.cpp
 	src/resources.cpp
 	src/rigidbody.cpp
+	src/text.cpp
 	src/tile.cpp
 	src/world.cpp)
 target_link_libraries(platformer PUBLIC photon)
