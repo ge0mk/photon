@@ -1,4 +1,4 @@
-#pragma once
+#pragma once //nur einmale includierung
 
 #include "rigidbody.hpp"
 #include "camera.hpp"
@@ -17,9 +17,9 @@ public:
 			heal = 64
 		};
 	};
-	struct Dir {
-		enum {
-			none = 0,
+	struct Dir { //ähnlich zu klasse, struct:enum zum erreichen
+		enum { //globale Konstante
+			none = 0, //alles spez binäres bit
 			left = 1,
 			up = 2,
 			right = 4,

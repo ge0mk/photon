@@ -42,16 +42,7 @@ elseif(UNIX)
 endif()
 
 add_executable(platformer
-	src/platformer.cpp
-	src/camera.cpp
-	src/chunk.cpp
-	src/entity.cpp
-	src/particles.cpp
-	src/player.cpp
-	src/resources.cpp
-	src/rigidbody.cpp
-	src/tile.cpp
-	src/world.cpp)
+	src/platformer.cpp)
 target_link_libraries(platformer PUBLIC photon)
 
 #add_executable(particles
