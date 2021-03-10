@@ -5,7 +5,7 @@
 RigidBody::RigidBody(std::shared_ptr<TiledTexture> texture) : Entity(texture) {}
 
 void RigidBody::applyForce(vec2 f) {
-	acceleration = f / mass;
+	forces += f;
 }
 
 bool RigidBody::checkIntersection(vec2 bl, vec2 tr) {
@@ -85,22 +85,59 @@ void RigidBody::update(float time, float dt, World *world) {
 				pos.x = floor(pos.x) - 0.001;
 				collision |= right;
 			}
-			else if(offset.y < 0) {
-				speed.y = 0;
-				pos.y = ceil(pos.y) + 0.001;
-				collision |= bottom;
-			}
-			else if(offset.y > 0) {
-				speed.y = 0;
-				pos.y = floor(pos.y) - 0.001;
-				collision |= top;
+			else if(length(speed) > 0.001) {
+				vec2 tmp = pos;
+				vec2 minspeed;
+				if(abs(speed.x) < abs(speed.y) && abs(speed.x) > 0.001) {
+					minspeed = vec2(speed.x, 0);
+				}
+				else if(abs(speed.y) > 0.001){
+					minspeed = vec2(0, speed.y);
+				}
+				else {
+					minspeed = speed;
+				}
+				for(int i = 0; i < 10 && checkIntersection(tile + offset, tile + offset + ivec2(1, 1)); i++) {
+					pos -= minspeed * dt * 0.1;
+				}
+				vec2 diff = tmp - pos;
+				if(length(diff) > 0.1) {
+					pos = tmp;
+					if(offset.y < 0) {
+						speed.y = 0;
+						pos.y = ceil(pos.y) + 0.001;
+						collision |= bottom;
+					}
+					else if(offset.y > 0) {
+						speed.y = 0;
+						pos.y = floor(pos.y) - 0.001;
+						collision |= top;
+					}
+				}
+				else if(abs(diff.x) > abs(diff.y)) {
+					speed.x = 0;
+					if(diff.x < 0) {
+						collision |= left;
+					}
+					else {
+						collision |= right;
+					}
+				}
+				else {
+					speed.y = 0;
+					if(diff.y < 0) {
+						collision |= bottom;
+					}
+					else {
+						collision |= top;
+					}
+				}
 			}
 		}
 	}
 
-	if(!onGround()) {
-		speed += gravity * dt;
-	}
+	speed += gravity * dt;
+	acceleration = forces / mass;
 	speed += acceleration * dt;
 
 	if(onGround()) {
@@ -109,11 +146,9 @@ void RigidBody::update(float time, float dt, World *world) {
 	else {
 		speed.x *= airFriction;
 	}
-	if(length(speed) > maxSpeed) {
-		speed = normalize(speed) * maxSpeed;
-	}
 
 	transform = mat4().translate(pos).scale(hitbox * 0.5).translate(vec3(1,1,0));
+	forces = 0;
 }
 
 std::vector<ivec2> RigidBody::getCollidingTiles() {

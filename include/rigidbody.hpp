@@ -37,6 +37,7 @@ protected:
 	vec2 pos = vec2(0);
 	vec2 speed = vec2(0);
 	vec2 acceleration = vec2(0);
+	vec2 forces = vec2(0);
 	vec2 hitbox = vec2(1);
 
 	// environment
@@ -44,9 +45,6 @@ protected:
 	float groundFriction = 0.9;
 	float airFriction = 0.99;
 	vec2 gravity = vec2(0, -50);
-
-	// other config stuff
-	float maxSpeed = 1000.0f;
 
 	// collision
 	uint8_t collision;
