@@ -11,21 +11,21 @@ Game::Game() : imgui::Application(1080, 720, "Game"), world("res/platformer.glsl
 	auto tileset = textures.load("res/tileset.png", ivec2(16, 16));
 
 	world.setTexturePtr(tileset);
+	world.setAutoGrow(true);
 	world.createChunk(ivec2(0, -1))->fill(Tile::stone);
 	world.createChunk(ivec2(-1, -1))->fill(Tile::stone);
-	for(int x = -31; x < 32; x++) {
-		//world[ivec2(x, -1)] = Tile::grass;
+	for(int x = -33; x < 32; x++) {
+		world[ivec2(x, -1)] = Tile::grass;
 	}
-	world.setAutoGrow(true);
 	for(int i = 0; i < 128; i++) {
 		world[ivec2(i)] = Tile::stone;
 	}
 	for(int i = 0; i < 8; i++) {
-		world[ivec2(-i - 3, 5)] = Tile::stone;
+		world[ivec2(-i - 4, 5)] = Tile::stone;
 	}
-	world[ivec2(-3,0)] = Tile::stone;
-	world[ivec2(-3,1)] = Tile::stone;
-	world[ivec2(-3,2)] = Tile::stone;
+	world[ivec2(-4,0)] = Tile::stone;
+	world[ivec2(-4,1)] = Tile::stone;
+	world[ivec2(-4,2)] = Tile::stone;
 
 	auto playerSprite = textures.load("res/player.png", 1);
 	player = world.createEntity<Player>(&cam, playerSprite);
@@ -42,16 +42,18 @@ Game::Game() : imgui::Application(1080, 720, "Game"), world("res/platformer.glsl
 }
 
 void Game::update() {
-	if(!io->WantCaptureKeyboard) {
-		float dx = getKey(GLFW_KEY_D) - getKey(GLFW_KEY_A);
-		float dy = getKey(GLFW_KEY_W) - getKey(GLFW_KEY_S);
+	if(getKey(GLFW_KEY_A))
+		player->moveLeft();
+	if(getKey(GLFW_KEY_D))
+		player->moveRight();
+	if(getKey(GLFW_KEY_SPACE))
+		player->jump();
+	if(getKey(GLFW_KEY_LEFT_ALT))
+		player->dash();
 
-		player->applyForce(vec2(dx, dy) * vec2(100, 200));
-		if(getKey(GLFW_KEY_SPACE))
-			createBloodParticles(cursor->pos);
-	}
-	if(!io->WantCaptureMouse) {
-		cursor->pos = snapToGrid(screenToWorldSpace(getCursorPos()));
+	cursor->pos = snapToGrid(screenToWorldSpace(getCursorPos()));
+	if(getMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) {
+		createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
 	}
 
 	world.update(glfwGetTime(), dt);
