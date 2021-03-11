@@ -2,3 +2,6 @@
 	path = glfw
 	url = https://github.com/glfw/glfw/
 	branch = latest
+[submodule "freetype"]
+	path = freetype
+	url = https://gitlab.freedesktop.org/freetype/freetype
