@@ -1,20 +1,20 @@
 #include <math/vector.hpp>
-#include <opengl/app.hpp>
+#include <opengl/window.hpp>
 #include <glad/glad.h>
 #include <spdlog/spdlog.h>
 
 namespace opengl {
-	Application::Application(int width, int height, std::string title)
-	 : glfw::Application(width, height, title) {
-	 	makeContextCurrent();
+	Window::Window(int width, int height, std::string title)
+	 : glfw::Window(width, height, title) {
+		makeContextCurrent();
 		if(!gladLoadGL()) {
 			spdlog::error("couldn't load gl!");
 		}
 		glViewport(0, 0, width, height);
 	}
-	Application::~Application() {}
+	Window::~Window() {}
 
-	int Application::exec() {
+	int Window::exec() {
 		while(!windowShouldClose()) {
 			pollEvents();
 			update();
@@ -24,13 +24,13 @@ namespace opengl {
 		return 0;
 	}
 
-	void Application::update() {}
+	void Window::update() {}
 
-	void Application::render() {
+	void Window::render() {
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	void Application::onFramebufferResized(math::ivec2 size) {
+	void Window::onFramebufferResized(math::ivec2 size) {
 		glViewport(0, 0, size.x, size.y);
 	}
 }

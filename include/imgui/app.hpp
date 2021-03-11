@@ -1,11 +1,11 @@
-#include <opengl/app.hpp>
+#include <opengl/window.hpp>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_stdlib.h"
 
 namespace imgui {
-	class Application : public opengl::Application {
+	class Application : public opengl::Window {
 	public:
 		Application(int width, int height, std::string title);
 		~Application();

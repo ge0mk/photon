@@ -1,8 +1,5 @@
 #pragma once
 
-#include <imgui/app.hpp>
-#include <imgui/ImFileDialog.h>
-
 #include <math/math.hpp>
 #include <math/quaternion.hpp>
 
@@ -12,6 +9,7 @@
 #include <opengl/program.hpp>
 #include <opengl/texture.hpp>
 #include <opengl/vao.hpp>
+#include <opengl/window.hpp>
 
 #include "tile.hpp"
 #include "chunk.hpp"
@@ -29,7 +27,7 @@ public:
 	vec2 pos;
 };
 
-class Game : public imgui::Application {
+class Game : public opengl::Window {
 public:
 	using Texture = opengl::Texture;
 	using Program = opengl::Program;
@@ -43,7 +41,7 @@ public:
 	// gameloop
 	void update() override;
 	void render() override;
-	void renderUI() override;
+	//void renderUI() override;
 
 	// mechanics
 	vec2 screenToWorldSpace(vec2 cursorpos);
@@ -54,7 +52,8 @@ public:
 	void onFramebufferResized(ivec2 size) override;
 
 private:
-	Camera cam = Camera(vec3(0, 0, -20), vec3(), vec2(1080, 720), 90);
+	double time = 0, dt = 0;
+	Camera cam = Camera(vec3(0, 0, -10), vec3(), vec2(1080, 720), 90);
 
 	World world;
 	TileCursor *cursor;

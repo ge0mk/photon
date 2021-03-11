@@ -1,10 +1,10 @@
-#include <glfw/app.hpp>
+#include <glfw/window.hpp>
 
 namespace opengl {
-	class Application : public glfw::Application {
+	class Window : public glfw::Window {
 	public:
-		Application(int width, int height, std::string title);
-		~Application();
+		Window(int width, int height, std::string title);
+		~Window();
 
 		virtual int exec();
 

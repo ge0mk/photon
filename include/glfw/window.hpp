@@ -34,6 +34,10 @@ namespace glfw {
 
 		Window(int width, int height, std::string title);
 		~Window();
+
+		virtual int exec();
+		inline int run() { return this->exec(); }
+
 		GLFWwindow* getHandle();
 
 		void makeContextCurrent();

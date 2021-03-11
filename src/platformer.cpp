@@ -6,11 +6,12 @@ void TileCursor::update(float time, float dt, World *world) {
 	transform = mat4().translate(pos).scale(0.5).translate(vec3(1,1,0)).scale(1.05);
 }
 
-Game::Game() : imgui::Application(1080, 720, "Game"), world("res/platformer.glsl", &cam) {
+Game::Game() : opengl::Window(1080, 720, "Game"), world("res/platformer.glsl", &cam) {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-	auto tileset = textures.load("res/tileset.png", ivec2(16, 16));
 
+	auto tileset = textures.load("res/tileset.png", ivec2(16, 16));
 	world.setTexturePtr(tileset);
+
 	world.setAutoGrow(true);
 	world.createChunk(ivec2(0, -1))->fill(Tile::stone);
 	world.createChunk(ivec2(-1, -1))->fill(Tile::stone);
@@ -41,6 +42,10 @@ Game::Game() : imgui::Application(1080, 720, "Game"), world("res/platformer.glsl
 }
 
 void Game::update() {
+	double current_time = glfwGetTime();
+	dt = time > 0.0 ? (current_time - time) : (1.0f / 60.0f);
+	time = current_time;
+
 	if(getKey(GLFW_KEY_A))
 		player->moveLeft();
 	if(getKey(GLFW_KEY_D))
@@ -65,7 +70,7 @@ void Game::render() {
 	world.render();
 	world.renderCollisions(player, textures.get(2));
 }
-
+/*
 void Game::renderUI() {
 	if(!io->WantCaptureMouse) {
 		if(getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -76,7 +81,7 @@ void Game::renderUI() {
 		}
 	}
 }
-
+*/
 vec2 Game::screenToWorldSpace(vec2 screenpos) {
 	mat4 view = mat4().translate(vec3(0, 0, cam.pos.z)).inverse();
 	mat4 proj = cam.proj;
@@ -107,7 +112,7 @@ vec2 Game::snapToGrid(vec2 worldpos) {
 
 void Game::onFramebufferResized(ivec2 size) {
 	cam.res = size;
-	imgui::Application::onFramebufferResized(size);
+	opengl::Window::onFramebufferResized(size);
 }
 
 int main(int argc, const char *argv[]) {

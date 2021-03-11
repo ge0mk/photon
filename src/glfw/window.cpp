@@ -62,6 +62,13 @@ namespace glfw {
 		glfwDestroyWindow(handle);
 	}
 
+	int Window::exec() {
+		while(!windowShouldClose()) {
+			pollEvents();
+		}
+		return 0;
+	}
+
 	GLFWwindow* Window::getHandle() {
 		return handle;
 	}

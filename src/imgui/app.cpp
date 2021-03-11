@@ -3,7 +3,7 @@
 
 namespace imgui {
 	Application::Application(int width, int height, std::string title)
-	 : opengl::Application(width, height, title) {
+	 : opengl::Window(width, height, title) {
 		initImgui();
 	}
 
@@ -91,7 +91,7 @@ namespace imgui {
 			io->DisplayFramebufferScale = ImVec2(displayScale.x, displayScale.y);
 		}
 
-		opengl::Application::onFramebufferResized(size);
+		opengl::Window::onFramebufferResized(size);
 	}
 
 	void Application::initImgui() {
