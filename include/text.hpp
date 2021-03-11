@@ -11,6 +11,7 @@
 #include <opengl/buffer.hpp>
 #include <opengl/mesh.hpp>
 #include <opengl/program.hpp>
+#include <opengl/uniform.hpp>
 #include <opengl/texture.hpp>
 #include <opengl/vao.hpp>
 
@@ -43,7 +44,7 @@ public:
 	void removeObject(const std::shared_ptr<TextObject> &object);
 
 	void update();
-	void render();
+	void render(mat4 transform);
 
 private:
 	freetype::Font font;
@@ -51,5 +52,6 @@ private:
 
 	opengl::Program prog;
 	opengl::Texture texture;
+	opengl::UniformBuffer<mat4> transformUBO;
 	Mesh mesh;
 };

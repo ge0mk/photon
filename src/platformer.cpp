@@ -33,9 +33,8 @@ Game::Game() : imgui::Application(1080, 720, "Game"), world("res/platformer.glsl
 	auto cursorSprite = textures.load("res/crosshair.png", 1);
 	cursor = world.createEntity<TileCursor>(cursorSprite);
 
-
 	auto palette = textures.load("res/palette.png", 1);
-	particles = world.createEntity<ParticleSystem>(palette);
+	world.setParticleTexturePtr(palette);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -53,32 +52,11 @@ void Game::update() {
 
 	cursor->pos = snapToGrid(screenToWorldSpace(getCursorPos()));
 	if(getMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) {
-		createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
+		world.createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
 	}
 
 	world.update(glfwGetTime(), dt);
 	cam.update(glfwGetTime(), dt);
-
-	if(particles->size() < 10000) {
-		for(unsigned i = 0; i < 10; i++) {
-			vec2 pos = vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20);
-			vec2 scale = vec2(0.02, 0.2);
-			vec2 gravity = vec2(0, -3);
-			particles->spawn(Particle(Particle::rain, pos, 0, gravity, scale, 0, 0));
-		}
-	}
-	for(Particle &p : *particles) {
-		if(p.type == Particle::rain && p.speed.y == 0.0) {
-			p.pos = vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20);
-			p.speed = 0;
-		}
-	}
-	particles->erase([](const Particle &p) -> bool {
-		if(p.type == Particle::blood && p.lifetime > 10) {
-			return true;
-		}
-		return false;
-	});
 }
 
 void Game::render() {
@@ -125,14 +103,6 @@ vec2 Game::worldToScreenSpace(vec2 worldpos) {
 
 vec2 Game::snapToGrid(vec2 worldpos) {
 	return ivec2(worldpos) - ivec2(worldpos.x < 0 ? 1 : 0, worldpos.y < 0 ? 1 : 0);
-}
-
-void Game::createBloodParticles(vec2 pos) {
-	for(int i = 0; i < 10; i++) {
-		vec2 speed = vec2(float(rand()) / float(RAND_MAX) * 2 - 1, float(rand()) / float(RAND_MAX) * 2 - 1);
-		float rspeed = float(rand()) / float(RAND_MAX) * 2 - 1;
-		particles->spawn(Particle(Particle::blood, pos + 0.5, speed, vec2(0, -5), vec2(0.08), 0, rspeed));
-	}
 }
 
 void Game::onFramebufferResized(ivec2 size) {

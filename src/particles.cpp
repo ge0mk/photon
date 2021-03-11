@@ -31,7 +31,7 @@ void Particle::update(float time, float dt, World *world) {
 	}
 }
 
-ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : Entity(texture), buffer(opengl::Buffer<Particle>::Array) {
+ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : texture(texture), buffer(opengl::Buffer<Particle>::Array) {
 	std::ifstream src("res/particles.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
@@ -39,6 +39,8 @@ ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : Entity(t
 	prog = opengl::Program::load(buffer, opengl::Shader::VertexStage | opengl::Shader::GeometryStage | opengl::Shader::FragmentStage);
 
 	this->buffer.initEmpty(opengl::Buffer<Particle>::DynamicDraw, 0);
+	transformUBO.bindBase(0);
+	transformUBO.setData(mat4());
 
 	vao.bind();
 	this->buffer.bind();
@@ -55,12 +57,12 @@ void ParticleSystem::update(float time, float dt, World *world) {
 		p.update(time, dt, world);
 	}
 	buffer.setData(particles, opengl::Buffer<Particle>::DynamicDraw);
-
-	Entity::update(time, dt, world);
 }
 
-void ParticleSystem::render() {
+void ParticleSystem::render(mat4 transform) {
 	prog.use();
+	transformUBO.bindBase(0);
+	transformUBO.update(transform);
 	if(texture) {
 		texture->activate();
 	}
@@ -69,8 +71,8 @@ void ParticleSystem::render() {
 	vao.unbind();
 }
 
-bool ParticleSystem::customRenderFunction() const {
-	return true;
+void ParticleSystem::setTexture(const std::shared_ptr<TiledTexture> &texture) {
+	this->texture = texture;
 }
 
 size_t ParticleSystem::size() {

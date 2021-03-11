@@ -16,6 +16,7 @@
 #include "entity.hpp"
 #include "particles.hpp"
 #include "resources.hpp"
+#include "text.hpp"
 
 using namespace math;
 
@@ -30,6 +31,7 @@ public:
 	void init();
 
 	void setTexturePtr(const std::shared_ptr<TiledTexture> &texture);
+	void setParticleTexturePtr(const std::shared_ptr<TiledTexture> &texture);
 
 	Chunk* createChunk(ivec2 pos);
 	Chunk* getChunk(ivec2 pos);
@@ -59,6 +61,8 @@ public:
 
 	Tile getTileOrEmpty(const ivec2 &pos) const;
 
+	void createBloodParticles(vec2 pos);
+
 	struct ModelInfo {
 		mat4 transform, uvtransform;
 	};
@@ -85,4 +89,7 @@ private:
 	std::vector<std::unique_ptr<Entity>> entities;
 	std::shared_ptr<TiledTexture> texture;
 	const Camera *cam;
+
+	ParticleSystem particleSystem;
+	TextRenderer textRenderer;
 };

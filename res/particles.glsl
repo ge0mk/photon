@@ -6,13 +6,9 @@
 	layout(location = 2) in vec4 gravityAndScale;
 	layout(location = 3) in vec4 rotationAndOther;
 
-	layout(std140, binding = 0) uniform CameraInfo {
-		mat4 proj, view;
-	} scene;
-
-	layout(std140, binding = 1) uniform ObjectInfo {
-		mat4 transform, uvtransform;
-	} obj;
+	layout(std140, binding = 0) uniform ObjectInfo {
+		mat4 transform;
+	};
 
 	out VS_OUT {
 		vec2 pos, scale;
@@ -22,7 +18,7 @@
 
 	void main() {
 		vec4 pos = vec4(posAndSpeed.xy, 0.0f, 1.0f);
-		gl_Position = scene.proj * scene.view * obj.transform * pos;
+		gl_Position = transform * pos;
 
 		vs_out.pos = posAndSpeed.xy;
 		vs_out.uvtl = uvs.xy;
@@ -43,13 +39,9 @@
 
 	layout(location = 0) out vec2 fUV;
 
-	layout(std140, binding = 0) uniform CameraInfo {
-		mat4 proj, view;
-	} scene;
-
-	layout(std140, binding = 1) uniform ObjectInfo {
-		mat4 transform, uvtransform;
-	} obj;
+	layout(std140, binding = 0) uniform ObjectInfo {
+		mat4 transform;
+	};
 
 	mat2 rotationZ(float angle) {
 		return mat2(
@@ -59,7 +51,7 @@
 	}
 
 	void vertex(vec2 pos, vec2 uv) {
-		gl_Position = scene.proj * scene.view * obj.transform * vec4(pos, 0.0f, 1.0f);
+		gl_Position = transform * vec4(pos, 0.0f, 1.0f);
 		fUV = uv;
 		EmitVertex();
 	}
@@ -76,12 +68,12 @@
 		vec2 uvbr = gs_in[0].uvbr;
 		float rot = gs_in[0].rot;
 
-		mat2 transform = rotationZ(rot);
+		mat2 mrot = rotationZ(rot);
 
-		vertex(pos + transform * (tr * scale), vec2(uvbr.x, uvtl.y));
-		vertex(pos + transform * (br * scale), uvbr);
-		vertex(pos + transform * (tl * scale), uvtl);
-		vertex(pos + transform * (bl * scale), vec2(uvtl.x, uvbr.y));
+		vertex(pos + mrot * (tr * scale), vec2(uvbr.x, uvtl.y));
+		vertex(pos + mrot * (br * scale), uvbr);
+		vertex(pos + mrot * (tl * scale), uvtl);
+		vertex(pos + mrot * (bl * scale), vec2(uvtl.x, uvbr.y));
 
 		EndPrimitive();
 	}
@@ -95,7 +87,6 @@
 
 	void main() {
 		fragColor = texture(sampler, fUV);
-		//fragColor = vec4(0.1, 0.25, 0.4, 0.666);
 	}
 
 #endif

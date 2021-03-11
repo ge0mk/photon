@@ -1,7 +1,7 @@
 #include <player.hpp>
 
 Player::Player(Camera *cam, const std::shared_ptr<TiledTexture> &texture) : RigidBody(texture), cam(cam) {
-	hitbox = vec2(1, 2);
+	hitbox = vec2(4, 10);
 	pos = vec2(-2, 0);
 }
 
@@ -58,12 +58,13 @@ void Player::jump() {
 		state = State::jump;
 		dir = Dir::up;
 		pos.y += 0.1;
+		collision ^= bottom;
 		applyForce(vec2(0, 3000));
 	}
 }
 
 void Player::dash() {
-	std::cout<<"dash\n";
+	;
 }
 
 void Player::attack() {

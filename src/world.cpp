@@ -5,9 +5,11 @@
 
 #include <rigidbody.hpp>
 
-World::World(const std::string &path, const Camera *cam) : cam(cam) {
+World::World(const std::string &path, const Camera *cam) : cam(cam), textRenderer(freetype::Font("res/jetbrains-mono.ttf")) {
 	loadShader(path);
 	init();
+
+	textRenderer.createObject("Hello World!", mat4().scale(0.05), vec4(1));
 }
 
 World::~World() {}
@@ -24,6 +26,7 @@ void World::loadShader(const std::string &path) {
 }
 
 void World::init() {
+	shader.use();
 	// init ubos
 	cameraInfoUBO.bindBase(0);
 	cameraInfoUBO.setData({mat4(), mat4()});
@@ -47,6 +50,10 @@ void World::init() {
 
 void World::setTexturePtr(const std::shared_ptr<TiledTexture> &texture) {
 	this->texture = texture;
+}
+
+void World::setParticleTexturePtr(const std::shared_ptr<TiledTexture> &texture) {
+	particleSystem.setTexture(texture);
 }
 
 Chunk* World::createChunk(ivec2 pos) {
@@ -91,11 +98,39 @@ void World::update(float time, float dt) {
 	for(auto &entity : entities) {
 		entity->update(time, dt, this);
 	}
+
+	if(particleSystem.size() < 10000) {
+		for(unsigned i = 0; i < 10; i++) {
+			vec2 pos = vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20);
+			vec2 scale = vec2(0.02, 0.2);
+			vec2 gravity = vec2(0, -3);
+			particleSystem.spawn(Particle(Particle::rain, pos, 0, gravity, scale, 0, 0));
+		}
+	}
+	for(Particle &p : particleSystem) {
+		if(p.type == Particle::rain && p.speed.y == 0.0) {
+			p.pos = vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20);
+			p.speed = 0;
+		}
+	}
+	particleSystem.erase([](const Particle &p) -> bool {
+		if(p.type == Particle::blood && p.lifetime > 10) {
+			return true;
+		}
+		return false;
+	});
+
+	particleSystem.update(time, dt, this);
+	textRenderer.update();
 }
 
 void World::render() {
 	shader.use();
 	texture->activate();
+
+	cameraInfoUBO.bindBase(0);
+	modelInfoUBO.bindBase(1);
+	renderInfoUBO.bindBase(2);
 
 	cameraInfoUBO.update({cam->proj, cam->view});
 	renderInfoUBO.update({vec4(0), cam->res, 0.0f, 0.0f});
@@ -113,15 +148,13 @@ void World::render() {
 		vec2 pos = transform * vec4(0,0,0,1);
 		if(dist(cam->pos.xy, pos) < 64) {
 			modelInfoUBO.update({transform, mat4()});
-			if(entity->customRenderFunction()) {
-				entity->render();
-			}
-			else {
-				entity->getTexturePtr()->activate();
-				unitplane.drawElements();
-			}
+			entity->getTexturePtr()->activate();
+			unitplane.drawElements();
 		}
 	}
+
+	particleSystem.render(cam->proj * cam->view);
+	textRenderer.render(cam->proj * cam->view);
 }
 
 void World::renderCollisions(RigidBody *entity, std::shared_ptr<TiledTexture> texture) {
@@ -129,8 +162,14 @@ void World::renderCollisions(RigidBody *entity, std::shared_ptr<TiledTexture> te
 	if(texture) {
 		texture->activate();
 	}
+
+	cameraInfoUBO.bindBase(0);
+	modelInfoUBO.bindBase(1);
+	renderInfoUBO.bindBase(2);
+
 	cameraInfoUBO.update({cam->proj, cam->view});
 	renderInfoUBO.setData({vec4(1,0,0,1), cam->res, 0.0f, 0.0f});
+
 	for(ivec2 tile : entity->getCollidingTiles()) {
 		mat4 transform = mat4().translate(round(entity->getPos()) + vec2(tile)).scale(0.5).translate(vec3(1,1,0));
 		modelInfoUBO.update({transform, mat4()});
@@ -166,4 +205,12 @@ Tile World::getTileOrEmpty(const ivec2 &pos) const {
 		tile = this->operator[](pos);
 	} catch(std::exception &e) {}
 	return tile;
+}
+
+void World::createBloodParticles(vec2 pos) {
+	for(int i = 0; i < 10; i++) {
+		vec2 speed = vec2(float(rand()) / float(RAND_MAX) * 2 - 1, float(rand()) / float(RAND_MAX) * 2 - 1);
+		float rspeed = float(rand()) / float(RAND_MAX) * 2 - 1;
+		particleSystem.spawn(Particle(Particle::blood, pos + 0.5, speed, vec2(0, -5), vec2(0.08), 0, rspeed));
+	}
 }

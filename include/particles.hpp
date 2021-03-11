@@ -11,11 +11,10 @@
 #include <opengl/buffer.hpp>
 #include <opengl/program.hpp>
 #include <opengl/texture.hpp>
+#include <opengl/uniform.hpp>
 #include <opengl/vao.hpp>
 
-#include "entity.hpp"
 #include "resources.hpp"
-#include "world.hpp"
 
 using namespace math;
 
@@ -40,13 +39,14 @@ struct Particle {
 	void update(float time, float dt, World *world);
 };
 
-class ParticleSystem : public Entity {
+class ParticleSystem {
 public:
 	ParticleSystem(std::shared_ptr<TiledTexture> texture = {});
 
-	void update(float time, float dt, World *world) override;
-	void render() override;
-	bool customRenderFunction() const override;
+	void update(float time, float dt, World *world);
+	void render(mat4 transform);
+
+	void setTexture(const std::shared_ptr<TiledTexture> &texture);
 
 	void spawn(const Particle &particle);
 
@@ -65,7 +65,9 @@ public:
 
 private:
 	std::vector<Particle> particles;
+	std::shared_ptr<TiledTexture> texture;
 	opengl::Buffer<Particle> buffer;
+	opengl::UniformBuffer<mat4> transformUBO;
 	opengl::VertexArray vao;
 	opengl::Program prog;
 };

@@ -19,8 +19,6 @@
 #include "resources.hpp"
 #include "entity.hpp"
 #include "player.hpp"
-#include "particles.hpp"
-#include "text.hpp"
 
 class TileCursor : public Entity {
 public:
@@ -52,19 +50,16 @@ public:
 	vec2 worldToScreenSpace(vec2 worldpos);
 	vec2 snapToGrid(vec2 worldpos);
 
-	void createBloodParticles(vec2 pos);
-
 	// events
 	void onFramebufferResized(ivec2 size) override;
 
 private:
-	Camera cam = Camera(vec3(0, 0, -8), vec3(), vec2(1080, 720), 90);
+	Camera cam = Camera(vec3(0, 0, -20), vec3(), vec2(1080, 720), 90);
 
 	World world;
 	TileCursor *cursor;
 	Player* player;
 	ResourceCache<TiledTexture> textures;
-	ParticleSystem *particles;
 };
 
 int main(int argc, const char *argv[]);

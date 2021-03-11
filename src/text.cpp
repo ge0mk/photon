@@ -9,7 +9,11 @@ TextRenderer::TextRenderer(freetype::Font &&font) : font(std::move(font)) {
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());
 	prog = opengl::Program::load(buffer, opengl::Shader::VertexStage | opengl::Shader::FragmentStage);
+	prog.use();
 	prog.setUniform("sampler", 0);
+
+	transformUBO.bindBase(0);
+	transformUBO.setData(mat4());
 
 	this->font.setPixelSizes(64);
 	this->font.buildFontAtlas();
@@ -22,7 +26,7 @@ std::shared_ptr<TextObject> TextRenderer::createObject(const std::string &text, 
 }
 
 void TextRenderer::removeObject(const std::shared_ptr<TextObject> &object) {
-	std::remove_if(objects.begin(), objects.end(), [&](const std::shared_ptr<TextObject> &o) -> bool {
+	std::erase_if(objects, [&](const std::shared_ptr<TextObject> &o) -> bool {
 		return o == object;
 	});
 }
@@ -77,8 +81,10 @@ void TextRenderer::update() {
 	mesh.setData({vertices, indices});
 }
 
-void TextRenderer::render() {
+void TextRenderer::render(mat4 transform) {
 	prog.use();
+	transformUBO.bindBase(0);
+	transformUBO.update(transform);
 	texture.bind();
 	texture.activate();
 	mesh.drawElements();
