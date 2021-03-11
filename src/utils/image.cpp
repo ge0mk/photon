@@ -26,7 +26,7 @@ void Image::load(const std::string &filename) {
 	stbi_image_free(data);
 }
 
-void Image::save(const std::string &filename) {
+void Image::save(const std::string &filename) const {
 	stbi_write_png(filename.c_str(), m_size.x, m_size.y, m_channels, m_data.data(), m_size.x * m_channels * m_bitdepth / 8);
 }
 
@@ -79,7 +79,7 @@ void HDRImage::load(const std::string &filename) {
 	stbi_image_free(data);
 }
 
-void HDRImage::save(const std::string &filename) {
+void HDRImage::save(const std::string &filename) const {
 	stbi_write_hdr(filename.c_str(), m_size.x, m_size.y, m_channels, m_data.data());
 }
 

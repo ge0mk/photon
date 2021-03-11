@@ -141,10 +141,13 @@ void Game::onFramebufferResized(ivec2 size) {
 }
 
 int main(int argc, const char *argv[]) {
-	std::vector<std::string> args(argv, argv + argc);
-
 	glfw::init();
-	atexit(glfw::cleanup);
+	freetype::init();
+
+	atexit([](){
+		glfw::cleanup();
+		freetype::cleanup();
+	});
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);

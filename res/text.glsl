@@ -37,7 +37,7 @@
 	layout(location = 0) out vec4 fragColor;
 
 	void main() {
-		fragColor = texture(sampler, iUV) * iColor;
+		fragColor = vec4(iColor.rgb, texture(sampler, iUV).r * iColor.a);
 	}
 
 #endif

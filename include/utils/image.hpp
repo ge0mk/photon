@@ -14,14 +14,16 @@ class Image {
 public:
 	Image() = default;
 	Image(const Image &other) = default;
+	Image(Image &&other) = default;
 	Image(const std::string &filename);
 	Image(math::ivec2 size, int channels);
 	Image(const std::vector<uint8_t> &data, math::ivec2 size, int channels);
 
 	void load(const std::string &filename);
-	void save(const std::string &filename);
+	void save(const std::string &filename) const;
 
 	Image& operator=(const Image &other) = default;
+	Image& operator=(Image &&other) = default;
 
 	uint8_t* data();
 	const uint8_t* data() const;
@@ -43,14 +45,16 @@ class HDRImage {
 public:
 	HDRImage() = default;
 	HDRImage(const HDRImage &other) = default;
+	HDRImage(HDRImage &&other) = default;
 	HDRImage(const std::string &filename);
 	HDRImage(math::ivec2 size, int channels);
 	HDRImage(const std::vector<float> &data, math::ivec2 size);
 
 	void load(const std::string &filename);
-	void save(const std::string &filename);
+	void save(const std::string &filename) const;
 
 	HDRImage& operator=(const HDRImage &other) = default;
+	HDRImage& operator=(HDRImage &&other) = default;
 
 	float* data();
 	const float* data() const;

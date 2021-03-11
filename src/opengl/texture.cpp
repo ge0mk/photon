@@ -78,8 +78,8 @@ namespace opengl {
 			case 32: atomic = GL_UNSIGNED_INT; break;
 		}
 		switch(image.channels()) {
-			case 1: format = GL_LUMINANCE; break;
-			case 2: format = GL_LUMINANCE_ALPHA; break;
+			case 1: format = GL_RED; break;
+			case 2: format = GL_RG; break;
 			case 3: format = GL_RGB; break;
 			case 4: format = GL_RGBA; break;
 		}
@@ -267,14 +267,38 @@ namespace opengl {
 	}
 
 	GLint Texture::calcInternalFormat(GLenum format, GLenum atomic) {
+		if(format == GL_RED && atomic == GL_FLOAT)
+			return GL_R32F;
+		if(format == GL_RED && atomic == GL_HALF_FLOAT)
+			return GL_R16F;
+		if(format == GL_RED && atomic == GL_UNSIGNED_BYTE)
+			return GL_R8;
+		if(format == GL_RED && atomic == GL_UNSIGNED_SHORT)
+			return GL_R16;
+		if(format == GL_RG && atomic == GL_FLOAT)
+			return GL_RG32F;
+		if(format == GL_RG && atomic == GL_HALF_FLOAT)
+			return GL_RG16F;
+		if(format == GL_RG && atomic == GL_UNSIGNED_BYTE)
+			return GL_RG8;
+		if(format == GL_RG && atomic == GL_UNSIGNED_SHORT)
+			return GL_RG16;
 		if(format == GL_RGB && atomic == GL_FLOAT)
 			return GL_RGB32F;
 		if(format == GL_RGB && atomic == GL_HALF_FLOAT)
 			return GL_RGB16F;
+		if(format == GL_RGB && atomic == GL_UNSIGNED_BYTE)
+			return GL_RGB8;
+		if(format == GL_RGB && atomic == GL_UNSIGNED_SHORT)
+			return GL_RGB16;
 		if(format == GL_RGBA && atomic == GL_FLOAT)
 			return GL_RGBA32F;
 		if(format == GL_RGBA && atomic == GL_HALF_FLOAT)
 			return GL_RGBA16F;
+		if(format == GL_RGBA && atomic == GL_UNSIGNED_BYTE)
+			return GL_RGBA8;
+		if(format == GL_RGBA && atomic == GL_UNSIGNED_SHORT)
+			return GL_RGBA16;
 		return format;
 	}
 }

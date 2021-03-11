@@ -20,6 +20,7 @@
 #include "entity.hpp"
 #include "player.hpp"
 #include "particles.hpp"
+#include "text.hpp"
 
 class TileCursor : public Entity {
 public:
