@@ -17,6 +17,8 @@ if(GLFW OR OPENGL OR VULKAN OR PHOTON_FULL) # build glfw
 	add_subdirectory(glfw)
 endif()
 
+add_subdirectory(freetype)
+
 if(WIN32)
 	add_compile_definitions(_GLFW_WIN32 WITH_WINMM WINDOWS)
 elseif(UNIX)
@@ -36,9 +38,9 @@ add_subdirectory(src)
 target_include_directories(photon PUBLIC include)
 
 if(WIN32)
-	target_link_libraries(photon PUBLIC glfw winmm)
+	target_link_libraries(photon PUBLIC glfw freetype winmm)
 elseif(UNIX)
-	target_link_libraries(photon PUBLIC dl m pthread glfw asound)
+	target_link_libraries(photon PUBLIC dl m pthread glfw freetype asound)
 endif()
 
 add_executable(platformer

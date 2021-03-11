@@ -1,3 +1,4 @@
+add_subdirectory(freetype)
 add_subdirectory(utils)
 add_subdirectory(spdlog)
 add_subdirectory(stb)
