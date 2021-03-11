@@ -50,4 +50,8 @@ private:
 	// other config stuff
 	vec2 maxSpeed = vec2(15.0f, 50);
 	float maxGroundSpeed = 10.0f;
+	const float dashTime = 0.2, jumpTimeout = 0.3;
+	const float dashSpeed = 100;
+	float dashTimer, jumpTimer;
+	vec2 speed2;
 };
