@@ -42,7 +42,7 @@ elseif(UNIX)
 endif()
 
 add_executable(platformer
-	src/platformer.cpp "include/opengl/shader-test.hpp")
+	src/platformer.cpp "include/opengl/shader.hpp")
 target_link_libraries(platformer PUBLIC photon)
 
 #add_executable(particles

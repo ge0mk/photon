@@ -22,6 +22,7 @@ void processInput(GLFWwindow* window);
 
 int main(int argc, const char *argv[]) {	
 
+	//initialising glfw -> User Input and  Window handling
 	glfw::init();
 	atexit(glfw::cleanup);
 
@@ -39,62 +40,22 @@ int main(int argc, const char *argv[]) {
 	}
 	glfwMakeContextCurrent(window);
 
-
+	//glad -> dealing with graphics card
 	if (!gladLoadGL()) //abweichung durch neuere OpenGL version!!!
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-
 	//glViewport(0, 0, 800, 600);
 
-	//void framebuffer_size_callback(GLFWwindow * window, int width, int height);
-
-
-	//GL functions nach Glad!!!!!!!!!
-
+	//GL functions after Glad!!!!!!!!!
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); //auto Viewport anpassung an Fenster Res
 
-	while (!glfwWindowShouldClose(window)) //Fenster zeigen, bis geschlossen wird, sonst nur für ein Frame geöffnet
-	{
-		//input
-		processInput(window); //funktion checkt jeden frame, ob taste gedrückt wurde
-
-		//commands for rendering
-		glClearColor(0.5f, 0.7f, 0.3f, 1.0f); //new floats for standard glclear function
-		glClear(GL_COLOR_BUFFER_BIT);
-
-
-		//output and eventlistener
-		glfwSwapBuffers(window); //output
-		glfwPollEvents(); //checks inputs/events and generates new window state, calls needed funktions
-	}
-
-
-	//start of vertex shader (position and transform of coordinates - vertices)
-
-	float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
-	};
-
-	unsigned int VBO; //VBO stores many Vertices in GPU Memory (Vertex Buffer Object)
-	//unsigned für  null bis 2^64; signed von -2^32 bis +2^32!!!
-	glGenBuffers(1, &VBO); //generates VBO with one Buffer
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO); //VBO and GL_ARRAY_BUFFER connection
-	//changes/calls to gl_array_buffer are made for bound buffer (vbo)!
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //writes vertex data in bound buffer 
-	//Buffer to save in, size of data, type of data, telling what to do with data
-
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER); //verstexshader erstellen
-
+	//creating vertex shader for dealing with coordinates
+	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);//create vertex shader
+	//vertexshadersource is code in opengl-language
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); //vertexshader soll mit dem String compiliert werden
-	glCompileShader(vertexShader); //comppile  auftrag
-
+	glCompileShader(vertexShader); //compile  auftrag
 	int  success;
 	char infoLog[512];
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success); //check if compilation was successfull
@@ -106,35 +67,26 @@ int main(int argc, const char *argv[]) {
 	}
 	//compiling of vertex shader finished
 
-
-
-
 	//start of fragment shader (color)
-
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
+	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
-
-	//int  success2;
-	//char infoLog[512];
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-
+	//checking correct compilation
 	if (!success)
 	{
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}//out compile error of fragment shader
 
-	//start shader programm to link created shaders, putting input and output (of each shader) together
 
+	//start shader programm to link created shaders, putting input and output (of each shader) together
 	unsigned int shaderProgram;
 	shaderProgram = glCreateProgram(); //create shaderprogram
 
 	//add vertex and fragment shader and link all shaders together in program
-	glAttachShader(vertexShader, shaderProgram);
-	glAttachShader(fragmentShader, shaderProgram);
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, vertexShader);
 	glLinkProgram(shaderProgram);
 
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -143,29 +95,62 @@ int main(int argc, const char *argv[]) {
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::Program::LINKING_FAILED\n" << infoLog << std::endl;
 	}
-	//linking program is ready
 
-	//run program
-	glUseProgram(shaderProgram);
-	//shaders after this call are ignored
-	//delete now all shaders, to free resources
+	//Smoother Attempt
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	//start of vertex shader (position and transform of coordinates - vertices)
+	float vertices[] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f
+	};
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	//generating VBO and VAO
+	unsigned int VBO, VAO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
 
-	/*// 0. copy our vertices array in a buffer for OpenGL to use
+	glBindVertexArray(VAO); //bind vao
+	//now call vbo's and attr pointer -> unbind vao later
+
+	//Bind VAO like VBO, just to use the functions for all VBO's stored in VAO
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// 1. then set the vertex attributes pointers
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	// 2. use our shader program when we want to render an object
-	glUseProgram(shaderProgram);
-	// 3. now draw the object 
-	//someOpenGLFunctionThatDrawsOurTriangle();*/
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+
+
+	//Loop contains rendercalls for every frame! -> put rendering triangle here!
+	while (!glfwWindowShouldClose(window)) //Fenster zeigen, bis geschlossen wird, sonst nur für ein Frame geöffnet
+	{
+		//input
+		processInput(window); //funktion checkt jeden frame, ob taste gedrückt wurde
+
+		//commands for rendering
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); //new floats for standard glclear function
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//call here the VAO and what to do with it
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		//for later drawing just bind the VAO with needed attributes
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		//output and eventlistener
+		glfwSwapBuffers(window); //output
+		glfwPollEvents(); //checks inputs/events and generates new window state, calls needed funktions
+	}
+
+	//delete now all shaders, to free resources, at end of execution
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+	glDeleteProgram(shaderProgram);
+
 
 	glfwTerminate(); //freigabe genutzter ressourcen
 	return 0;
