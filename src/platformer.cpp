@@ -86,7 +86,7 @@ int main(int argc, const char *argv[]) {
 
 	//add vertex and fragment shader and link all shaders together in program
 	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
 
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
