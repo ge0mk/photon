@@ -21,19 +21,25 @@ TextRenderer::TextRenderer(freetype::Font &&font) : font(std::move(font)) {
 }
 
 std::shared_ptr<TextObject> TextRenderer::createObject(const std::string &text, mat4 transform, vec4 color) {
+	std::lock_guard<std::mutex> lock(objectMutex);
 	objects.push_back(std::shared_ptr<TextObject>(new TextObject(text, transform, color)));
+	changed = true;
 	return objects.back();
 }
 
 void TextRenderer::removeObject(const std::shared_ptr<TextObject> &object) {
+	std::lock_guard<std::mutex> lock(objectMutex);
 	std::erase_if(objects, [&](const std::shared_ptr<TextObject> &o) -> bool {
 		return o == object;
 	});
+	changed = true;
 }
 
 void TextRenderer::update() {
-	std::vector<Vertex> vertices;
-	std::vector<unsigned> indices;
+	std::lock_guard<std::mutex> lock(objectMutex);
+	std::lock_guard<std::mutex> renderlock(renderMutex);
+	vertices.clear();
+	indices.clear();
 
 	for(const auto &object : objects) {
 		std::string text = object->text;
@@ -47,17 +53,17 @@ void TextRenderer::update() {
 				object->color
 			});
 			vertices.push_back(Vertex{
-				object->transform * vec4(pos + vec2(0)),
+				object->transform * vec4(pos + vec2(0), 0, 1),
 				(uv + vec2(0)) / texture.size(),
 				object->color
 			});
 			vertices.push_back(Vertex{
-				object->transform * vec4(pos + vec2(size.x, 0)),
+				object->transform * vec4(pos + vec2(size.x, 0), 0, 1),
 				(uv + vec2(size.x, 0)) / texture.size(),
 				object->color
 			});
 			vertices.push_back(Vertex{
-				object->transform * vec4(pos + vec2(size.x, -size.y)),
+				object->transform * vec4(pos + vec2(size.x, -size.y), 0, 1),
 				(uv + vec2(size)) / texture.size(),
 				object->color
 			});
@@ -77,11 +83,16 @@ void TextRenderer::update() {
 			x += advanceX;
 		}
 	}
-
-	mesh.setData({vertices, indices});
+	changed = true;
 }
 
 void TextRenderer::render(mat4 transform) {
+	if(changed) {
+		std::lock_guard<std::mutex> lock(renderMutex);
+		mesh.setData({vertices, indices});
+		changed = false;
+	}
+
 	prog.use();
 	transformUBO.bindBase(0);
 	transformUBO.update(transform);

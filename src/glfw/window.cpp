@@ -44,11 +44,10 @@ namespace glfw {
 		glfwPostEmptyEvent();
 	}
 
-	Window::Window(int width, int height, std::string title) {
-		handle = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+	Window::Window(math::ivec2 size, const std::string &title) {
+		handle = glfwCreateWindow(size.x, size.y, title.c_str(), NULL, NULL);
 		if(handle == nullptr) {
-			spdlog::error("couldn't create window!");
-			assert(false);
+			throw std::runtime_error("couldn't create window!");
 		}
 		glfwSetWindowUserPointer(handle, this);
 		pollEvents();
@@ -74,18 +73,22 @@ namespace glfw {
 	}
 
 	void Window::makeContextCurrent() {
+		std::scoped_lock<std::mutex> lock(mutex);
 		glfwMakeContextCurrent(handle);
 	}
 
 	void Window::swapBuffers() {
+		std::scoped_lock<std::mutex> lock(mutex);
 		glfwSwapBuffers(handle);
 	}
 
 	bool Window::windowShouldClose() {
+		std::scoped_lock<std::mutex> lock(mutex);
 		return glfwWindowShouldClose(handle);
 	}
 
 	void Window::setWindowShouldClose(bool value) {
+		std::scoped_lock<std::mutex> lock(mutex);
 		glfwSetWindowShouldClose(handle, value);
 	}
 

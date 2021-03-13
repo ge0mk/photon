@@ -3,7 +3,7 @@
 namespace opengl {
 	class Window : public glfw::Window {
 	public:
-		Window(int width, int height, std::string title);
+		Window(math::ivec2 size, const std::string &title);
 		~Window();
 
 		virtual int exec();

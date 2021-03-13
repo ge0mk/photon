@@ -1,9 +1,9 @@
 #pragma once
 
 #include <array>
-#include <string>
 #include <functional>
-#include <cassert>
+#include <mutex>
+#include <string>
 
 #if defined(GLFW_ENABLE_VULKAN)
 	#include <vulkan/instance.hpp>
@@ -32,7 +32,7 @@ namespace glfw {
 		static void postEmptyEvent();
 
 
-		Window(int width, int height, std::string title);
+		Window(math::ivec2 size, const std::string &title);
 		~Window();
 
 		virtual int exec();
@@ -116,5 +116,8 @@ namespace glfw {
 		std::array<Monitor, 2> windowModes;
 		bool fullscreen = false;
 		math::vec2 cursor;
+
+		// multi threading
+		std::mutex mutex;
 	};
 }

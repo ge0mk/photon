@@ -4,13 +4,13 @@
 #include <spdlog/spdlog.h>
 
 namespace opengl {
-	Window::Window(int width, int height, std::string title)
-	 : glfw::Window(width, height, title) {
+	Window::Window(math::ivec2 size, const std::string &title)
+	 : glfw::Window(size, title) {
 		makeContextCurrent();
 		if(!gladLoadGL()) {
 			spdlog::error("couldn't load gl!");
 		}
-		glViewport(0, 0, width, height);
+		glViewport(0, 0, size.x, size.y);
 	}
 	Window::~Window() {}
 

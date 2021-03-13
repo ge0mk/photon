@@ -56,10 +56,15 @@ void ParticleSystem::update(float time, float dt, World *world) {
 	for(Particle &p : particles) {
 		p.update(time, dt, world);
 	}
-	buffer.setData(particles, opengl::Buffer<Particle>::DynamicDraw);
+	changed = true;
 }
 
 void ParticleSystem::render(mat4 transform) {
+	if(changed) {
+		buffer.setData(particles, opengl::Buffer<Particle>::DynamicDraw);
+		changed = false;
+	}
+
 	prog.use();
 	transformUBO.bindBase(0);
 	transformUBO.update(transform);

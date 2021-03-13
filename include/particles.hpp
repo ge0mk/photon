@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <atomic>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -65,6 +66,8 @@ public:
 
 private:
 	std::vector<Particle> particles;
+	std::atomic<bool> changed;
+
 	std::shared_ptr<TiledTexture> texture;
 	opengl::Buffer<Particle> buffer;
 	opengl::UniformBuffer<mat4> transformUBO;

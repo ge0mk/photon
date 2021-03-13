@@ -53,5 +53,10 @@ private:
 	opengl::Program prog;
 	opengl::Texture texture;
 	opengl::UniformBuffer<mat4> transformUBO;
+
+	std::vector<Vertex> vertices;
+	std::vector<unsigned> indices;
+	std::atomic<bool> changed;
+	std::mutex objectMutex, renderMutex;
 	Mesh mesh;
 };

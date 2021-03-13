@@ -6,7 +6,7 @@ void TileCursor::update(float time, float dt, World *world) {
 	transform = mat4().translate(pos).scale(0.5).translate(vec3(1,1,0)).scale(1.05);
 }
 
-Game::Game() : opengl::Window(1080, 720, "Game"), world("res/platformer.glsl", &cam) {
+Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl", &cam) {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
 	auto tileset = textures.load("res/tileset.png", ivec2(16, 16));

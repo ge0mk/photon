@@ -3,7 +3,7 @@
 
 namespace imgui {
 	Application::Application(int width, int height, std::string title)
-	 : opengl::Window(width, height, title) {
+	 : opengl::Window({width, height}, title) {
 		initImgui();
 	}
 
