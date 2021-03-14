@@ -69,7 +69,7 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	world.render();
-	world.renderCollisions(player->collidingTiles, vec2(), textures.get(2));
+	world.renderCollisions(player->getCollidingTiles(), round(player->getPos()), textures.get(2));
 }
 /*
 void Game::renderUI() {

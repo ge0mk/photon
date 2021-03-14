@@ -147,7 +147,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		speed.x *= airFriction;
 	}
 
-	transform = mat4().translate(pos).scale(hitbox * 0.5).translate(vec3(1,1,0));
+	transform = mat4().translate(pos).scale(hitbox * 0.5).translate(vec3(1,1,0)).scale(2);
 	forces = 0;
 }
 
