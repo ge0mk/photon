@@ -39,10 +39,10 @@ void World::init() {
 
 	// init meshes
 	unitplane = opengl::Mesh<vec3, vec2>({
-		{ math::vec3( 1.0f, 1.0f, 0.0f), math::vec2(1,0) },
-		{ math::vec3(-1.0f, 1.0f, 0.0f), math::vec2(0,0) },
-		{ math::vec3(-1.0f,-1.0f, 0.0f), math::vec2(0,1) },
-		{ math::vec3( 1.0f,-1.0f, 0.0f), math::vec2(1,1) },
+		{ math::vec3( 0.5f, 0.5f, 0.0f), math::vec2(1,0) },
+		{ math::vec3(-0.5f, 0.5f, 0.0f), math::vec2(0,0) },
+		{ math::vec3(-0.5f,-0.5f, 0.0f), math::vec2(0,1) },
+		{ math::vec3( 0.5f,-0.5f, 0.0f), math::vec2(1,1) },
 	}, {
 		0, 1, 2, 2, 3, 0,
 	});
@@ -136,8 +136,8 @@ void World::render() {
 	renderInfoUBO.update({vec4(0), cam->res, 0.0f, 0.0f});
 
 	for(auto &chunk : chunks) {
-		mat4 transform = mat4().translate(vec3(chunk->getPos() * 32));
-		if(dist(cam->pos.xy, vec2(chunk->getPos()) * 32) < 64) {
+		mat4 transform = mat4().translate(vec3(chunk->getPos() * Chunk::size));
+		if(dist(cam->pos.xy, vec2(chunk->getPos()) * Chunk::size) < Chunk::size * 2) {
 			modelInfoUBO.update({transform, mat4()});
 			chunk->render();
 		}
@@ -146,7 +146,7 @@ void World::render() {
 	for(auto &entity : entities) {
 		mat4 transform = entity->getTransform();
 		vec2 pos = transform * vec4(0,0,0,1);
-		if(dist(cam->pos.xy, pos) < 64) {
+		if(dist(cam->pos.xy, pos) < Chunk::size * 2) {
 			modelInfoUBO.update({transform, mat4()});
 			entity->getTexturePtr()->activate();
 			unitplane.drawElements();
@@ -157,7 +157,7 @@ void World::render() {
 	textRenderer.render(cam->proj * cam->view);
 }
 
-void World::renderCollisions(RigidBody *entity, std::shared_ptr<TiledTexture> texture) {
+void World::renderCollisions(std::vector<ivec2> tiles, ivec2 pos, std::shared_ptr<TiledTexture> texture) {
 	shader.use();
 	if(texture) {
 		texture->activate();
@@ -170,23 +170,23 @@ void World::renderCollisions(RigidBody *entity, std::shared_ptr<TiledTexture> te
 	cameraInfoUBO.update({cam->proj, cam->view});
 	renderInfoUBO.setData({vec4(1,0,0,1), cam->res, 0.0f, 0.0f});
 
-	for(ivec2 tile : entity->getCollidingTiles()) {
-		mat4 transform = mat4().translate(round(entity->getPos()) + vec2(tile)).scale(0.5).translate(vec3(1,1,0));
+	for(ivec2 tile : tiles) {
+		mat4 transform = mat4().translate(vec3(pos + vec2(tile), 0)).scale(0.5).translate(vec3(1,1,0));
 		modelInfoUBO.update({transform, mat4()});
 		unitplane.drawElements();
 	}
 }
 
 Tile& World::operator[](const ivec2 &pos) {
-	ivec2 chunkpos = pos / ivec2(32) - ivec2(pos.x < 0, pos.y < 0);
-	ivec2 tilepos = (pos - chunkpos * 32) % 32;
+	ivec2 chunkpos = pos / ivec2(Chunk::size) - ivec2(pos.x < 0, pos.y < 0);
+	ivec2 tilepos = (pos - chunkpos * Chunk::size) % Chunk::size;
 	Chunk *chunk = getChunk(chunkpos);
 	return chunk->at(tilepos);
 }
 
 const Tile& World::operator[](const ivec2 &pos) const {
-	ivec2 chunkpos = pos / ivec2(32) - ivec2(pos.x < 0, pos.y < 0);
-	ivec2 tilepos = (pos - chunkpos * 32) % 32;
+	ivec2 chunkpos = pos / ivec2(Chunk::size) - ivec2(pos.x < 0, pos.y < 0);
+	ivec2 tilepos = (pos - chunkpos * Chunk::size) % Chunk::size;
 	const Chunk *chunk = getChunk(chunkpos);
 	return chunk->at(tilepos);
 }
@@ -195,8 +195,12 @@ Tile& World::at(const ivec2 &pos) {
 	return this->operator[](pos);
 }
 
-const Tile& World::at(const ivec2 &pos) const {
-	return this->operator[](pos);
+Tile World::at(const ivec2 &pos) const {
+	Tile tile;
+	try {
+		tile = this->operator[](pos);
+	} catch(std::exception &e) {}
+	return tile;
 }
 
 Tile World::getTileOrEmpty(const ivec2 &pos) const {
@@ -205,6 +209,10 @@ Tile World::getTileOrEmpty(const ivec2 &pos) const {
 		tile = this->operator[](pos);
 	} catch(std::exception &e) {}
 	return tile;
+}
+
+vec2 World::snapToGrid(vec2 worldpos) {
+	return ivec2(worldpos) - ivec2(worldpos.x < 0 ? 1 : 0, worldpos.y < 0 ? 1 : 0);
 }
 
 void World::createBloodParticles(vec2 pos) {

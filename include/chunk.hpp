@@ -48,11 +48,13 @@ public:
 	Tile& at(ivec2 pos);
 	const Tile& at(ivec2 pos) const;
 
+	static constexpr uint8_t size = 64;
+
 private:
 	friend class World;
 	World* world;
 	vec2 pos, tileScale;
-	std::array<Tile, 32*32> tiles;
+	std::array<Tile, size * size> tiles;
 	bool m_sync = false;
 
 private:

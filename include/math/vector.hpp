@@ -441,6 +441,14 @@ namespace math {
 	typedef tvec3<unsigned> uvec3;
 	typedef tvec4<unsigned> uvec4;
 
+	typedef tvec2<uint8_t> bvec2;
+	typedef tvec3<uint8_t> bvec3;
+	typedef tvec4<uint8_t> bvec4;
+
+	typedef tvec2<int16_t> svec2;
+	typedef tvec3<int16_t> svec3;
+	typedef tvec4<int16_t> svec4;
+
 	typedef tvec2<float> vec2;
 	typedef tvec3<float> vec3;
 	typedef tvec4<float> vec4;

@@ -27,6 +27,7 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	world[ivec2(-4,0)] = Tile::stone;
 	world[ivec2(-4,1)] = Tile::stone;
 	world[ivec2(-4,2)] = Tile::stone;
+	world[ivec2(-7,1)] = Tile::stone;
 
 	auto playerSprite = textures.load("res/player.png", 1);
 	player = world.createEntity<Player>(&cam, playerSprite);
@@ -55,7 +56,7 @@ void Game::update() {
 	if(getKey(GLFW_KEY_LEFT_ALT))
 		player->dash();
 
-	cursor->pos = snapToGrid(screenToWorldSpace(getCursorPos()));
+	cursor->pos = world.snapToGrid(screenToWorldSpace(getCursorPos()));
 	if(getMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) {
 		world.createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
 	}
@@ -68,7 +69,7 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	world.render();
-	world.renderCollisions(player, textures.get(2));
+	world.renderCollisions(player->collidingTiles, vec2(), textures.get(2));
 }
 /*
 void Game::renderUI() {
@@ -104,10 +105,6 @@ vec2 Game::worldToScreenSpace(vec2 worldpos) {
 	vec2 screenpos = normalizedpos * getFramebufferSize();
 
 	return screenpos;
-}
-
-vec2 Game::snapToGrid(vec2 worldpos) {
-	return ivec2(worldpos) - ivec2(worldpos.x < 0 ? 1 : 0, worldpos.y < 0 ? 1 : 0);
 }
 
 void Game::onFramebufferResized(ivec2 size) {

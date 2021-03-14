@@ -52,14 +52,16 @@ public:
 
 	void update(float time, float dt);
 	void render();
-	void renderCollisions(RigidBody *entity, std::shared_ptr<TiledTexture> texture = {});
+	void renderCollisions(std::vector<ivec2> tiles, ivec2 pos, std::shared_ptr<TiledTexture> texture = {});
 
 	Tile& operator[](const ivec2 &pos);
 	const Tile& operator[](const ivec2 &pos) const;
 	Tile& at(const ivec2 &pos);
-	const Tile& at(const ivec2 &pos) const;
+	Tile at(const ivec2 &pos) const;
 
 	Tile getTileOrEmpty(const ivec2 &pos) const;
+
+	vec2 snapToGrid(vec2 worldpos);
 
 	void createBloodParticles(vec2 pos);
 

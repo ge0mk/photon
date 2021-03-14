@@ -46,14 +46,13 @@ public:
 	// mechanics
 	vec2 screenToWorldSpace(vec2 cursorpos);
 	vec2 worldToScreenSpace(vec2 worldpos);
-	vec2 snapToGrid(vec2 worldpos);
 
 	// events
 	void onFramebufferResized(ivec2 size) override;
 
 private:
 	double time = 0, dt = 0;
-	Camera cam = Camera(vec3(0, 0, -10), vec3(), vec2(1080, 720), 90);
+	Camera cam = Camera(vec3(0, 0, -5), vec3(), vec2(1080, 720), 90);
 
 	World world;
 	TileCursor *cursor;

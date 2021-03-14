@@ -9,6 +9,7 @@ class Chunk;
 
 class Tile {
 public:
+	static constexpr uint8_t resolution = 32;
 	enum etype : uint32_t {
 		null = 0,
 		stone,
@@ -22,6 +23,7 @@ public:
 
 	void init(uint32_t type);
 	void update(float time, float dt, ivec2 pos, Chunk *chunk);
+	bvec4 hitbox() const ;
 	vec2 texture() const;	// tile position on the texture
 	bool render() const;
 	bool collision() const;

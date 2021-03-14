@@ -28,9 +28,9 @@ void Chunk::build() {
 		indices.push_back(indexBase + 0);
 	};
 
-	for(unsigned y = 0; y < 32; y++) {
-		for(unsigned x = 0; x < 32; x++) {
-			const Tile &current = tiles[y * 32 + x];
+	for(unsigned y = 0; y < size; y++) {
+		for(unsigned x = 0; x < size; x++) {
+			const Tile &current = tiles[y * size + x];
 			if(current.render()) {
 				vec2 bl = vec2(x, y);
 				vec2 tr = bl + vec2(1);
@@ -58,9 +58,9 @@ void Chunk::build() {
 }
 
 void Chunk::update(float time, float dt) {
-	for(unsigned y = 0; y < 32; y++) {
-		for(unsigned x = 0; x < 32; x++) {
-			tiles[y * 32 + x].update(time, dt, ivec2(x, y), this);
+	for(unsigned y = 0; y < size; y++) {
+		for(unsigned x = 0; x < size; x++) {
+			tiles[y * size + x].update(time, dt, ivec2(x, y), this);
 		}
 	}
 	if(rebuild) {
@@ -85,16 +85,16 @@ ivec2 Chunk::getPos() {
 }
 
 Tile& Chunk::operator[](ivec2 pos) {
-	if(pos.x >= 0 && pos.y >= 0 && pos.x < 32 && pos.y < 32) {
+	if(pos.x >= 0 && pos.y >= 0 && pos.x < size && pos.y < size) {
 		rebuild = true;
-		return tiles[pos.y * 32 + pos.x];
+		return tiles[pos.y * size + pos.x];
 	}
 	throw std::runtime_error(std::string("error: tile (") + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ") is not in this chunk!");
 }
 
 const Tile& Chunk::operator[](ivec2 pos) const {
-	if(pos.x >= 0 && pos.y >= 0 && pos.x < 32 && pos.y < 32) {
-		return tiles[pos.y * 32 + pos.x];
+	if(pos.x >= 0 && pos.y >= 0 && pos.x < size && pos.y < size) {
+		return tiles[pos.y * size + pos.x];
 	}
 	throw std::runtime_error(std::string("error: tile (") + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ") is not in this chunk!");
 }
