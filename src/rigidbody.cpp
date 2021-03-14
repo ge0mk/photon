@@ -41,7 +41,7 @@ void RigidBody::update(float time, float dt, World *world) {
 
 	if (speed.x >= 0.0f && checkRight(world, rightWallX)) {
 		if(oldPos.x + halfSize.x + aabbOffset.x <= rightWallX) {
-			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.032f;
+			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
 			mPushesRightWall = true;
 		}
 		speed.x = min(speed.x, 0.0f);
@@ -176,10 +176,10 @@ bool RigidBody::checkRight(World *world, float &rightX) {
 	vec2 newtr = vec2(newbr.x, newbr.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
 
 	float endX = world->snapToGrid(newbr.x).x;
-	float begX = max(world->snapToGrid(oldbr.x).x + 1.0f, endX);
+	float begX = max(world->snapToGrid(oldbr.x).x - 1.0f, endX);
 	float dist = max(abs(endX - begX), 1.0f);
 
-	for(int tileIndexX = begX; tileIndexX <= endX; tileIndexX++) {
+	for(int tileIndexX = begX; tileIndexX >= endX; tileIndexX--) {
 		vec2 bottomRight = lerp(newbr, oldbr, abs(endX - tileIndexX) / dist);
 		vec2 topRight = vec2(bottomRight.x, bottomRight.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
 
