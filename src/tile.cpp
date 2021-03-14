@@ -10,6 +10,12 @@ void Tile::update(float time, float dt, ivec2 pos, Chunk *chunk) {
 	switch(type) {}
 }
 
+bvec4 Tile::hitbox() const {
+	switch(type) {
+		default: return bvec4(0, 0, resolution, resolution);
+	}
+}
+
 vec2 Tile::texture() const {
 	switch(type) {
 		case null: return vec2(0,0);

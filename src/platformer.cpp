@@ -47,14 +47,11 @@ void Game::update() {
 	dt = time > 0.0 ? (current_time - time) : (1.0f / 60.0f);
 	time = current_time;
 
-	if(getKey(GLFW_KEY_A))
-		player->moveLeft();
-	if(getKey(GLFW_KEY_D))
-		player->moveRight();
+	player->setInput(Player::move, getKey(GLFW_KEY_D) - getKey(GLFW_KEY_A));
 	if(getKey(GLFW_KEY_SPACE))
-		player->jump();
-	if(getKey(GLFW_KEY_LEFT_ALT))
-		player->dash();
+		player->setInput(Player::jump, 1.0f);
+	if(getKey(GLFW_KEY_S))
+		player->setInput(Player::dash, 1.0f);
 
 	cursor->pos = world.snapToGrid(screenToWorldSpace(getCursorPos()));
 	if(getMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) {
