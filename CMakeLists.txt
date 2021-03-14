@@ -57,11 +57,7 @@ add_executable(platformer
 	src/world.cpp)
 target_link_libraries(platformer PUBLIC photon)
 
-#add_executable(particles
-#	src/particle-demo.cpp
-#	src/entity.cpp
-#	src/particles.cpp
-#	src/resources.cpp)
-#target_link_libraries(particles PUBLIC photon)
+add_executable(test src/main.cpp src/text.cpp)
+target_link_libraries(test PUBLIC photon)
 
 file(COPY res DESTINATION ${CMAKE_BINARY_DIR})
