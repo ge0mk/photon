@@ -61,6 +61,11 @@ namespace opengl {
 			setIndexData(data.second);
 		}
 
+		void setData(const std::vector<Vertex<Components...>> &vertices, const std::vector<unsigned> &indces) {
+			setVertexData(vertices);
+			setIndexData(indces);
+		}
+
 		void drawElements(GLenum mode = GL_TRIANGLES, const GLvoid *offset = 0) {
 			vao.bind();
 			glDrawElements(mode, indexBuffer.size(), GL_UNSIGNED_INT, offset);

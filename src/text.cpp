@@ -35,9 +35,14 @@ void TextRenderer::removeObject(const std::shared_ptr<TextObject> &object) {
 	changed = true;
 }
 
+void TextRenderer::clear() {
+	std::lock_guard<std::mutex> lock(objectMutex);
+	objects.clear();
+	changed = true;
+}
+
 void TextRenderer::update() {
 	std::lock_guard<std::mutex> lock(objectMutex);
-	std::lock_guard<std::mutex> renderlock(renderMutex);
 	vertices.clear();
 	indices.clear();
 
@@ -88,7 +93,7 @@ void TextRenderer::update() {
 
 void TextRenderer::render(mat4 transform) {
 	if(changed) {
-		std::lock_guard<std::mutex> lock(renderMutex);
+		std::lock_guard<std::mutex> lock(objectMutex);
 		mesh.setData({vertices, indices});
 		changed = false;
 	}

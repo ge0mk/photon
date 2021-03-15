@@ -79,9 +79,6 @@ public:
 			styleStack.pop_back();
 		}
 	}
-	void handleInputEvent(Event *event) {
-		;
-	}
 
 	int depth = 0;
 	math::vec2 cursor, content;
