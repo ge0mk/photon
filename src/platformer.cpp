@@ -58,6 +58,13 @@ void Game::update() {
 		world.createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
 	}
 
+	if (getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
+		world[cursor->pos] = Tile::stone;
+	}
+	else if (getMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
+		world[cursor->pos] = Tile::null;
+	}
+
 	world.update(glfwGetTime(), dt);
 	cam.update(glfwGetTime(), dt);
 }
@@ -68,18 +75,8 @@ void Game::render() {
 	world.render();
 	world.renderCollisions(player->collidingTiles, vec2(), textures.get(2));
 }
-/*
-void Game::renderUI() {
-	if(!io->WantCaptureMouse) {
-		if(getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-			world[cursor->pos] = Tile::stone;
-		}
-		else if(getMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
-			world[cursor->pos] = Tile::null;
-		}
-	}
-}
-*/
+
+
 vec2 Game::screenToWorldSpace(vec2 screenpos) {
 	mat4 view = mat4().translate(vec3(0, 0, cam.pos.z)).inverse();
 	mat4 proj = cam.proj;
