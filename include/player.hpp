@@ -24,15 +24,16 @@ public:
 	Player(Camera *cam, const std::shared_ptr<TiledTexture> &sprites);
 
 	void update(float time, float dt, World *world) override;
+	void updateAnimation(float time, float dt, World *world);
 	void setInput(uint8_t action, float value);
 
 protected:
-	bool inputStarted(uint8_t action);
-	bool inputStopped(uint8_t action);
-	float inputState(uint8_t action);
+	bool inputStarted(uint8_t action) const;
+	bool inputStopped(uint8_t action) const;
+	float inputState(uint8_t action) const;
 
 	std::array<float, Action::count> inputs, prevInputs;
 	State state = State::idle;
-	float jumpSpeed = 12, walkSpeed = 8, sneakSpeed = 5;
+	float jumpSpeed = 12.55, walkSpeed = 8, sneakSpeed = 5;
 	Camera *cam;
 };

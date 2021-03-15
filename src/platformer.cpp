@@ -76,7 +76,6 @@ void Game::render() {
 	world.renderCollisions(player->collidingTiles, vec2(), textures.get(2));
 }
 
-
 vec2 Game::screenToWorldSpace(vec2 screenpos) {
 	mat4 view = mat4().translate(vec3(0, 0, cam.pos.z)).inverse();
 	mat4 proj = cam.proj;

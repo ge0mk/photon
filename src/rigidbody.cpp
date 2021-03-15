@@ -224,6 +224,14 @@ bool RigidBody::checkRight(World *world, float &rightX) {
 	return false;
 }
 
-const std::vector<ivec2>& RigidBody::getCollidingTiles() {
+const std::vector<ivec2>& RigidBody::getCollidingTiles() const {
 	return collidingTiles;
+}
+
+vec2 RigidBody::getPos() const {
+	return pos;
+}
+
+vec2 RigidBody::getSpeed() const {
+	return speed;
 }

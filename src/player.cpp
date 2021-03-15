@@ -97,6 +97,8 @@ void Player::update(float time, float dt, World *world) {
 		default: break;
 	}
 
+	updateAnimation(time, dt, world);
+
 	RigidBody::update(time, dt, world);
 	transform = mat4().translate(rpos).scale(vec3(scale, 1));
 	cam->pos.xy = rpos;
@@ -112,6 +114,12 @@ void Player::update(float time, float dt, World *world) {
 	inputs = {0.0f, 0.0f, 0.0f, 0.0f};
 }
 
+void Player::updateAnimation(float time, float dt, World *world) {
+	switch(state) {
+		default: break;
+	}
+}
+
 void Player::setInput(uint8_t action, float value) {
 	if(action == move) {
 		inputs[action] = clamp(value, -1.0f, 1.0f);
@@ -121,14 +129,14 @@ void Player::setInput(uint8_t action, float value) {
 	}
 }
 
-bool Player::inputStarted(uint8_t action) {
+bool Player::inputStarted(uint8_t action) const {
 	return (inputs[action] != 0) && (prevInputs[action] == 0);
 }
 
-bool Player::inputStopped(uint8_t action) {
+bool Player::inputStopped(uint8_t action) const {
 	return (inputs[action] == 0) && (prevInputs[action] != 0);
 }
 
-float Player::inputState(uint8_t action) {
+float Player::inputState(uint8_t action) const {
 	return inputs[action];
 }

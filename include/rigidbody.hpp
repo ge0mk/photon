@@ -37,7 +37,9 @@ public:
 	bool checkLeft(World *world, float &leftX);
 	bool checkRight(World *world, float &rightX);
 
-	const std::vector<ivec2>& getCollidingTiles();
+	const std::vector<ivec2>& getCollidingTiles() const;
+	vec2 getPos() const;
+	vec2 getSpeed() const;
 
 public:
 	vec2 pos = 0, oldPos = 0, rpos = 0;
