@@ -98,17 +98,38 @@ int main(int argc, const char *argv[]) {
 
 	//Smoother Attempt
 
+	//start building a rectangle with two triangles
 	//start of vertex shader (position and transform of coordinates - vertices)
-	float vertices[] = {
+	/*
+	float vertices[] = { //coordinates are doubled -> not efficient
+	//first triangle
 	-0.5f, -0.5f, 0.0f,
 	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
+	 -0.5f,  0.5f, 0.0f,
+	 //second triangle
+	 0.5f, -0.5f, 0.0f,
+	 -0.5f, -0.5f, 0.0f,
+	 -0.5f,  0.5f, 0.0f
+	}; */
+
+
+	//define an vertice and an EBO (element buffer object), to just store needes vertice data
+	float vertices[] = {
+		0.5f, 0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f,
+		-0.5f, 0.5f, 0.0f
 	};
 
-	//generating VBO and VAO
-	unsigned int VBO, VAO;
+	unsigned int indices[] = {
+		0, 1, 3, //first triangle
+		1, 2, 3	//second one
+	};
+
+	unsigned int VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO); //bind vao
 	//now call vbo's and attr pointer -> unbind vao later
@@ -117,15 +138,18 @@ int main(int argc, const char *argv[]) {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+	//calls for gl-things between binds
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-
-	//Loop contains rendercalls for every frame! -> put rendering triangle here!
 	while (!glfwWindowShouldClose(window)) //Fenster zeigen, bis geschlossen wird, sonst nur für ein Frame geöffnet
 	{
 		//input
@@ -138,8 +162,9 @@ int main(int argc, const char *argv[]) {
 		//call here the VAO and what to do with it
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		//for later drawing just bind the VAO with needed attributes
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
 		//output and eventlistener
 		glfwSwapBuffers(window); //output
