@@ -3,7 +3,7 @@
 TileCursor::TileCursor(std::shared_ptr<TiledTexture> sprites) : Entity(sprites) {}
 
 void TileCursor::update(float time, float dt, World *world) {
-	transform = mat4().translate(pos).scale(0.5).translate(vec3(1,1,0)).scale(1.05);
+	transform = mat4().translate(pos + 0.5).scale(1.0f + 2.0f / Tile::resolution);
 }
 
 Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl", &cam) {
@@ -47,18 +47,22 @@ void Game::update() {
 	dt = time > 0.0 ? (current_time - time) : (1.0f / 60.0f);
 	time = current_time;
 
-	if(getKey(GLFW_KEY_A))
-		player->moveLeft();
-	if(getKey(GLFW_KEY_D))
-		player->moveRight();
+	player->setInput(Player::move, getKey(GLFW_KEY_D) - getKey(GLFW_KEY_A));
 	if(getKey(GLFW_KEY_SPACE))
-		player->jump();
-	if(getKey(GLFW_KEY_LEFT_ALT))
-		player->dash();
+		player->setInput(Player::jump, 1.0f);
+	if(getKey(GLFW_KEY_S))
+		player->setInput(Player::dash, 1.0f);
 
 	cursor->pos = world.snapToGrid(screenToWorldSpace(getCursorPos()));
 	if(getMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) {
 		world.createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
+	}
+
+	if (getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
+		world[cursor->pos] = Tile::stone;
+	}
+	else if (getMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
+		world[cursor->pos] = Tile::null;
 	}
 
 	world.update(glfwGetTime(), dt);
@@ -69,20 +73,9 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	world.render();
-	world.renderCollisions(player->getCollidingTiles(), round(player->getPos()), textures.get(2));
+	world.renderCollisions(player->collidingTiles, textures.get(2));
 }
-/*
-void Game::renderUI() {
-	if(!io->WantCaptureMouse) {
-		if(getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-			world[cursor->pos] = Tile::stone;
-		}
-		else if(getMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
-			world[cursor->pos] = Tile::null;
-		}
-	}
-}
-*/
+
 vec2 Game::screenToWorldSpace(vec2 screenpos) {
 	mat4 view = mat4().translate(vec3(0, 0, cam.pos.z)).inverse();
 	mat4 proj = cam.proj;

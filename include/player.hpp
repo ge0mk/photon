@@ -5,53 +5,35 @@
 
 class Player : public RigidBody {
 public:
-	struct State {
-		enum {
-			idle = 0,
-			walk = 1,
-			fall = 2,
-			jump = 4,
-			grab = 8,
-			dash = 16,
-			attack = 32,
-			heal = 64
-		};
+	enum Action : uint8_t {
+		move = 0,
+		jump,
+		dash,
+		sneak,
+		count
 	};
-	struct Dir {
-		enum {
-			none = 0,
-			left = 1,
-			up = 2,
-			right = 4,
-			down = 8
-		};
+
+	enum class State {
+		idle = 0,
+		walk, sneak,
+		jump, fall,
+		dash, grab,
+		count
 	};
 
 	Player(Camera *cam, const std::shared_ptr<TiledTexture> &sprites);
-	virtual void update(float time, float dt, World *world) override;
 
-	void moveLeft();
-	void moveRight();
-	void jump();
-	void dash();
-	void attack();
-	void heal();
+	void update(float time, float dt, World *world) override;
+	void updateAnimation(float time, float dt, World *world);
+	void setInput(uint8_t action, float value);
 
-	inline vec2 snapToGrid(vec2 worldpos) {
-		return ivec2(worldpos) - ivec2(worldpos.x < 0 ? 1 : 0, worldpos.y < 0 ? 1 : 0);
-	}
+protected:
+	bool inputStarted(uint8_t action) const;
+	bool inputStopped(uint8_t action) const;
+	float inputState(uint8_t action) const;
 
-private:
+	std::array<float, Action::count> inputs, prevInputs;
+	State state = State::idle;
+	float jumpSpeed = 12.55, walkSpeed = 8, sneakSpeed = 5;
 	Camera *cam;
-
-	uint8_t dir;
-	uint8_t state;
-
-	// other config stuff
-	vec2 maxSpeed = vec2(15.0f, 50);
-	float maxGroundSpeed = 10.0f;
-	const float dashTime = 0.2, jumpTimeout = 0.3;
-	const float dashSpeed = 100;
-	float dashTimer, jumpTimer;
-	vec2 speed2;
 };

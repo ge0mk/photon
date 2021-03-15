@@ -101,16 +101,17 @@ void World::update(float time, float dt) {
 
 	if(particleSystem.size() < 10000) {
 		for(unsigned i = 0; i < 10; i++) {
-			vec2 pos = vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20);
-			vec2 scale = vec2(0.02, 0.2);
-			vec2 gravity = vec2(0, -3);
-			particleSystem.spawn(Particle(Particle::rain, pos, 0, gravity, scale, 0, 0));
+			vec2 pos = vec2(float(rand()) / float(RAND_MAX) * 100 - 50, 40);
+			vec2 scale = vec2(0.02, 0.2) * ((float(rand()) / float(RAND_MAX) + 0.9) / 2 + 0.4);
+			vec2 speed = vec2(0.05, -float(rand()) / float(RAND_MAX) * 2 - 4);
+			vec2 gravity = vec2(0, 0);
+			particleSystem.spawn(Particle(Particle::rain, pos, speed, gravity, scale, 0, 0));
 		}
 	}
 	for(Particle &p : particleSystem) {
 		if(p.type == Particle::rain && p.speed.y == 0.0) {
-			p.pos = vec2(float(rand()) / float(RAND_MAX) * 50 - 25, 20);
-			p.speed = 0;
+			p.pos = vec2(float(rand()) / float(RAND_MAX) * 100 - 50, 40);
+			p.speed = vec2(0.05, -float(rand()) / float(RAND_MAX) * 2 - 4);
 		}
 	}
 	particleSystem.erase([](const Particle &p) -> bool {
@@ -145,7 +146,7 @@ void World::render() {
 
 	for(auto &entity : entities) {
 		mat4 transform = entity->getTransform();
-		vec2 pos = transform * vec4(0,0,0,1);
+		vec2 pos = transform * vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		if(dist(cam->pos.xy, pos) < Chunk::size * 2) {
 			modelInfoUBO.update({transform, mat4()});
 			entity->getTexturePtr()->activate();
@@ -157,7 +158,7 @@ void World::render() {
 	textRenderer.render(cam->proj * cam->view);
 }
 
-void World::renderCollisions(std::vector<ivec2> tiles, ivec2 pos, std::shared_ptr<TiledTexture> texture) {
+void World::renderCollisions(std::vector<ivec2> tiles, std::shared_ptr<TiledTexture> texture) {
 	shader.use();
 	if(texture) {
 		texture->activate();
@@ -168,10 +169,10 @@ void World::renderCollisions(std::vector<ivec2> tiles, ivec2 pos, std::shared_pt
 	renderInfoUBO.bindBase(2);
 
 	cameraInfoUBO.update({cam->proj, cam->view});
-	renderInfoUBO.setData({vec4(1,0,0,1), cam->res, 0.0f, 0.0f});
+	renderInfoUBO.setData({vec4(0.6f, 0.0f, 0.0f, 1.0f), cam->res, 0.0f, 0.0f});
 
 	for(ivec2 tile : tiles) {
-		mat4 transform = mat4().translate(vec3(pos + vec2(tile), 0)).scale(0.5).translate(vec3(1,1,0));
+		mat4 transform = mat4().translate(vec3(vec2(tile) + 0.5f, 0.0f)).scale(0.666f);
 		modelInfoUBO.update({transform, mat4()});
 		unitplane.drawElements();
 	}
@@ -219,6 +220,6 @@ void World::createBloodParticles(vec2 pos) {
 	for(int i = 0; i < 10; i++) {
 		vec2 speed = vec2(float(rand()) / float(RAND_MAX) * 2 - 1, float(rand()) / float(RAND_MAX) * 2 - 1);
 		float rspeed = float(rand()) / float(RAND_MAX) * 2 - 1;
-		particleSystem.spawn(Particle(Particle::blood, pos + 0.5, speed, vec2(0, -5), vec2(0.08), 0, rspeed));
+		particleSystem.spawn(Particle(Particle::blood, pos + 0.5, speed, vec2(0, -5), vec2(0.05), 0, rspeed));
 	}
 }

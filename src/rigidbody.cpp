@@ -2,163 +2,236 @@
 
 #include <algorithm>
 
+AABB::AABB(vec2 pos, vec2 halfSize) : pos(pos), halfSize(halfSize) {}
+
+bool AABB::intersects(const AABB &other) {
+	if(std::abs(pos.x - other.pos.x) > halfSize.x + other.halfSize.x) return false;
+	if(std::abs(pos.y - other.pos.y) > halfSize.y + other.halfSize.y) return false;
+	return true;
+}
+
 RigidBody::RigidBody(std::shared_ptr<TiledTexture> texture) : Entity(texture) {}
+
+void RigidBody::update(float time, float dt, World *world) {
+	oldPos = pos;
+	oldSpeed = speed;
+
+	mWasOnGround = mOnGround;
+	mPushedRightWall = mPushesRightWall;
+	mPushedLeftWall = mPushesLeftWall;
+	mWasAtCeiling = mAtCeiling;
+
+	pos += speed * dt;
+	acceleration = forces / mass;
+	speed += (gravity + acceleration) * dt;
+	forces = 0.0f;
+
+	float groundY = 0.0f, ceilingY = 0.0f;
+	float leftWallX = 0.0f, rightWallX = 0.0f;
+	collidingTiles.clear();
+
+	if (speed.x < 0.0f && checkLeft(world, leftWallX)) {
+		if(oldPos.x - halfSize.x + aabbOffset.x >= leftWallX) {
+			pos.x = leftWallX + halfSize.x + aabbOffset.x + 0.01f;
+			mPushesLeftWall = true;
+		}
+		speed.x = max(speed.x, 0.0f);
+	}
+	else {
+		mPushesLeftWall = false;
+	}
+
+	if (speed.x > 0.0f && checkRight(world, rightWallX)) {
+		if(oldPos.x + halfSize.x + aabbOffset.x <= rightWallX) {
+			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
+			mPushesRightWall = true;
+		}
+		speed.x = min(speed.x, 0.0f);
+	}
+	else {
+		mPushesRightWall = false;
+	}
+
+	if(speed.y <= 0.0f && checkGround(world, groundY)) {
+		pos.y = groundY + halfSize.y - aabbOffset.y;
+		speed.y = 0;
+		mOnGround = true;
+	}
+	else {
+		mOnGround = false;
+	}
+
+	if(speed.y >= 0.0f && checkCeiling(world, ceilingY)) {
+		pos.y = ceilingY - halfSize.y - aabbOffset.y;
+		speed.y = 0;
+		mAtCeiling = true;
+	}
+	else {
+		mAtCeiling = false;
+	}
+
+	if (speed.x == 0.0f && checkLeft(world, leftWallX)) {
+		if(oldPos.x - halfSize.x + aabbOffset.x >= leftWallX) {
+			pos.x = leftWallX + halfSize.x + aabbOffset.x + 0.01f;
+			mPushesLeftWall = true;
+		}
+	}
+	else {
+		mPushesLeftWall = false;
+	}
+
+	if (speed.x == 0.0f && checkRight(world, rightWallX)) {
+		if(oldPos.x + halfSize.x + aabbOffset.x <= rightWallX) {
+			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
+			mPushesRightWall = true;
+		}
+	}
+	else {
+		mPushesRightWall = false;
+	}
+
+	AABB::pos = pos + aabbOffset;
+
+	rpos = round((pos + aabbOffset) * Tile::resolution) / Tile::resolution;
+	transform = mat4().translate(rpos).scale(vec3(scale, 1.0f));
+}
 
 void RigidBody::applyForce(vec2 f) {
 	forces += f;
 }
 
-bool RigidBody::checkIntersection(vec2 bl, vec2 tr) {
-	vec2 mybl = pos;
-	vec2 mytr = pos + hitbox;
+bool RigidBody::checkGround(World *world, float &groundY) {
+	vec2 center = pos + aabbOffset;
+	vec2 oldCenter = oldPos + aabbOffset;
 
-	if(mybl.x > tr.x || mytr.x < bl.x) return false;
-	if(mybl.y > tr.y || mytr.y < bl.y) return false;
+	vec2 oldbl = oldCenter - halfSize + vec2(0.0f, -1.0f / Tile::resolution);
+	vec2 newbl = center - halfSize + vec2(0.0f, -1.0f / Tile::resolution);
+	vec2 newbr = vec2(newbl.x + halfSize.x * 2.0f, newbl.y);
 
-	return true;
+	float endY = world->snapToGrid(newbl.y).y;
+	float begY = max(world->snapToGrid(oldbl.y).y - 1.0f, endY);
+	float dist = max(abs(endY - begY), 1.0f);
+
+	for(int tileIndexY = begY; tileIndexY >= endY; tileIndexY--) {
+		vec2 bottomLeft = lerp(newbl, oldbl, abs(endY - tileIndexY) / dist);
+		vec2 bottomRight = vec2(bottomLeft.x + halfSize.x * 2.0f, bottomLeft.y);
+
+		for(vec2 checkedTile = newbl; checkedTile.x <= bottomRight.x; checkedTile.x += 1.0f) {
+			checkedTile.x = min(checkedTile.x, bottomRight.x);
+			ivec2 tileIndex = world->snapToGrid(checkedTile);
+			Tile tile = world->at(tileIndex);
+
+			if(tile.collision()) {
+				collidingTiles.push_back(tileIndex);
+				groundY = tileIndex.y + 1.0f;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
-void RigidBody::update(float time, float dt, World *world) {
-	vec2 prev = pos;
-	pos += speed * dt;
+bool RigidBody::checkCeiling(World *world, float &ceilingY) {
+	vec2 center = pos + aabbOffset;
+	vec2 oldCenter = oldPos + aabbOffset;
 
-	collidingTiles.clear();
-	const int rx = round(hitbox.x);
-	const int ry = round(hitbox.y);
-	const ivec2 tile = round(pos);
-	if(pos.x > tile.x) {
-		for(int y = -ry; y <= ry; y++) {
-			if(world->getTileOrEmpty(tile + ivec2(rx, y)).collision() && checkIntersection(tile + ivec2(rx, y), tile + ivec2(rx, y) + ivec2(1, 1))) {
-				collidingTiles.push_back(ivec2(rx, y));
+	vec2 oldtr = oldCenter + halfSize + vec2(0.0f, 1.0f / Tile::resolution);
+	vec2 newtr = center + halfSize + vec2(0.0f, 1.0f / Tile::resolution);
+	vec2 newtl = vec2(newtr.x - halfSize.x * 2.0f, newtr.y);
+
+	float endY = world->snapToGrid(newtr.y).y;
+	float begY = max(world->snapToGrid(oldtr.y).y - 1.0f, endY);
+	float dist = max(abs(endY - begY), 1.0f);
+
+	for(int tileIndexY = begY; tileIndexY >= endY; tileIndexY--) {
+		vec2 topRight = lerp(newtr, oldtr, abs(endY - tileIndexY) / dist);
+		vec2 topLeft = vec2(topRight.x - halfSize.x * 2.0f, topRight.y);
+
+		for(vec2 checkedTile = topLeft; checkedTile.x <= topRight.x; checkedTile.x += 1.0f) {
+			checkedTile.x = min(checkedTile.x, topRight.x);
+			ivec2 tileIndex = world->snapToGrid(checkedTile);
+			Tile tile = world->at(tileIndex);
+
+			if(tile.collision()) {
+				collidingTiles.push_back(tileIndex);
+				ceilingY = tileIndex.y;
+				return true;
 			}
 		}
 	}
-	else if(pos.x < tile.x) {
-		for(int y = -ry; y <= ry; y++) {
-			if(world->getTileOrEmpty(tile + ivec2(-1, y)).collision() && checkIntersection(tile + ivec2(-1, y), tile + ivec2(-1, y) + ivec2(1, 1))) {
-				collidingTiles.push_back(ivec2(-1, y));
-			}
-		}
-	}
-
-	if(pos.y > tile.y) {
-		for(int x = -rx; x <= rx; x++) {
-			if(world->getTileOrEmpty(tile + ivec2(x, ry)).collision() && checkIntersection(tile + ivec2(x, ry), tile + ivec2(x, ry) + ivec2(1, 1))) {
-				collidingTiles.push_back(ivec2(x, ry));
-			}
-		}
-	}
-	else if(pos.y < tile.y) {
-		for(int x = -rx; x <= rx; x++) {
-			if(world->getTileOrEmpty(tile + ivec2(x, -1)).collision() && checkIntersection(tile + ivec2(x, -1), tile + ivec2(x, -1) + ivec2(1, 1))) {
-				collidingTiles.push_back(ivec2(x, -1));
-			}
-		}
-	}
-
-	collidingTiles.erase(std::unique(collidingTiles.begin(), collidingTiles.end()), collidingTiles.end());
-	std::sort(collidingTiles.begin(), collidingTiles.end(), [](ivec2 a, ivec2 b) -> int {
-		return length(vec2(a)) < length(vec2(b));
-	});
-
-	collision = 0;
-
-	for(ivec2 offset : collidingTiles) {
-		if(checkIntersection(tile + offset, tile + offset + ivec2(1, 1))) {
-			if(offset.y == -1 && offset.x > -1 && offset.x < rx) {
-				speed.y = 0;
-				pos.y = ceil(pos.y) + 0.001;
-				collision |= bottom;
-			}
-			else if(offset.y == ry && offset.x > -1 && offset.x < rx) {
-				speed.y = 0;
-				pos.y = floor(pos.y) - 0.001;
-				collision |= top;
-			}
-			else if(offset.x == -1 && offset.y > -1 && offset.y < ry) {
-				speed.x = 0;
-				pos.x = ceil(pos.x) + 0.001;
-				collision |= left;
-			}
-			else if(offset.x == rx && offset.y > -1 && offset.y < ry) {
-				speed.x = 0;
-				pos.x = floor(pos.x) - 0.001;
-				collision |= right;
-			}
-			else if(length(speed) > 0.001) {
-				vec2 tmp = pos;
-				vec2 minspeed;
-				if(abs(speed.x) < abs(speed.y) && abs(speed.x) > 0.001) {
-					minspeed = vec2(speed.x, 0);
-				}
-				else if(abs(speed.y) > 0.001){
-					minspeed = vec2(0, speed.y);
-				}
-				else {
-					minspeed = speed;
-				}
-				for(int i = 0; i < 10 && checkIntersection(tile + offset, tile + offset + ivec2(1, 1)); i++) {
-					pos -= minspeed * dt * 0.1;
-				}
-				vec2 diff = tmp - pos;
-				if(length(diff) > 0.1) {
-					pos = tmp;
-					if(offset.y < 0) {
-						speed.y = 0;
-						pos.y = ceil(pos.y) + 0.001;
-						collision |= bottom;
-					}
-					else if(offset.y > 0) {
-						speed.y = 0;
-						pos.y = floor(pos.y) - 0.001;
-						collision |= top;
-					}
-				}
-				else if(abs(diff.x) > abs(diff.y)) {
-					speed.x = 0;
-					if(diff.x < 0) {
-						collision |= left;
-					}
-					else {
-						collision |= right;
-					}
-				}
-				else {
-					speed.y = 0;
-					if(diff.y < 0) {
-						collision |= bottom;
-					}
-					else {
-						collision |= top;
-					}
-				}
-			}
-		}
-	}
-
-	speed += gravity * dt;
-	acceleration = forces / mass;
-	speed += acceleration * dt;
-
-	if(onGround()) {
-		speed.x *= groundFriction;
-	}
-	else {
-		speed.x *= airFriction;
-	}
-
-	transform = mat4().translate(pos).scale(hitbox * 0.5).translate(vec3(1,1,0)).scale(2);
-	forces = 0;
+	return false;
 }
 
-std::vector<ivec2> RigidBody::getCollidingTiles() {
+bool RigidBody::checkLeft(World *world, float &leftX) {
+	vec2 center = pos + aabbOffset;
+	vec2 oldCenter = oldPos + aabbOffset;
+
+	vec2 oldbl = oldCenter - halfSize + vec2(-1.0f / Tile::resolution, 1.0f / Tile::resolution);
+	vec2 newbl = center - halfSize + vec2(-1.0f / Tile::resolution, 1.0f / Tile::resolution);
+	vec2 newtl = vec2(newbl.x, newbl.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
+
+	float endX = world->snapToGrid(newbl.x).x;
+	float begX = max(world->snapToGrid(oldbl.x).x - 1.0f, endX);
+	float dist = max(abs(endX - begX), 1.0f);
+
+	for(int tileIndexX = begX; tileIndexX >= endX; tileIndexX--) {
+		vec2 bottomLeft = lerp(newbl, oldbl, abs(endX - tileIndexX) / dist);
+		vec2 topLeft = vec2(bottomLeft.x, bottomLeft.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
+
+		for(vec2 checkedTile = bottomLeft; checkedTile.y <= topLeft.y; checkedTile.y += 1.0f) {
+			checkedTile.y = min(checkedTile.y, topLeft.y);
+			ivec2 tileIndex = world->snapToGrid(checkedTile);
+			Tile tile = world->at(tileIndex);
+
+			if(tile.collision()) {
+				collidingTiles.push_back(tileIndex);
+				leftX = tileIndex.x;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool RigidBody::checkRight(World *world, float &rightX) {
+	vec2 center = pos + aabbOffset;
+	vec2 oldCenter = oldPos + aabbOffset;
+
+	vec2 oldbr = oldCenter + vec2(halfSize.x, -halfSize.y) + vec2(1.0f / Tile::resolution, 1.0f / Tile::resolution);
+	vec2 newbr = center + vec2(halfSize.x, -halfSize.y) + vec2(1.0f / Tile::resolution, 1.0f / Tile::resolution);
+	vec2 newtr = vec2(newbr.x, newbr.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
+
+	float endX = world->snapToGrid(newbr.x).x;
+	float begX = max(world->snapToGrid(oldbr.x).x - 1.0f, endX);
+	float dist = max(abs(endX - begX), 1.0f);
+
+	for(int tileIndexX = begX; tileIndexX >= endX; tileIndexX--) {
+		vec2 bottomRight = lerp(newbr, oldbr, abs(endX - tileIndexX) / dist);
+		vec2 topRight = vec2(bottomRight.x, bottomRight.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
+
+		for(vec2 checkedTile = bottomRight; checkedTile.y <= topRight.y; checkedTile.y += 1.0f) {
+			checkedTile.y = min(checkedTile.y, topRight.y);
+			ivec2 tileIndex = world->snapToGrid(checkedTile);
+			Tile tile = world->at(tileIndex);
+
+			if(tile.collision()) {
+				collidingTiles.push_back(tileIndex);
+				rightX = tileIndex.x;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+const std::vector<ivec2>& RigidBody::getCollidingTiles() const {
 	return collidingTiles;
 }
 
-bool RigidBody::onGround() {
-	return collision & bottom;
+vec2 RigidBody::getPos() const {
+	return pos;
 }
 
-vec2 RigidBody::getPos() {
-	return pos;
+vec2 RigidBody::getSpeed() const {
+	return speed;
 }
