@@ -3,7 +3,7 @@
 TileCursor::TileCursor(std::shared_ptr<TiledTexture> sprites) : Entity(sprites) {}
 
 void TileCursor::update(float time, float dt, World *world) {
-	transform = mat4().translate(pos).scale(0.5).translate(vec3(1,1,0)).scale(1.05);
+	transform = mat4().translate(pos + 0.5).scale(1.0f + 2.0f / Tile::resolution);
 }
 
 Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl", &cam) {
@@ -73,7 +73,7 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	world.render();
-	world.renderCollisions(player->collidingTiles, vec2(), textures.get(2));
+	world.renderCollisions(player->collidingTiles, textures.get(2));
 }
 
 vec2 Game::screenToWorldSpace(vec2 screenpos) {

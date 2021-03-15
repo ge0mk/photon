@@ -146,7 +146,7 @@ void World::render() {
 
 	for(auto &entity : entities) {
 		mat4 transform = entity->getTransform();
-		vec2 pos = transform * vec4(0,0,0,1);
+		vec2 pos = transform * vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		if(dist(cam->pos.xy, pos) < Chunk::size * 2) {
 			modelInfoUBO.update({transform, mat4()});
 			entity->getTexturePtr()->activate();
@@ -158,7 +158,7 @@ void World::render() {
 	textRenderer.render(cam->proj * cam->view);
 }
 
-void World::renderCollisions(std::vector<ivec2> tiles, ivec2 pos, std::shared_ptr<TiledTexture> texture) {
+void World::renderCollisions(std::vector<ivec2> tiles, std::shared_ptr<TiledTexture> texture) {
 	shader.use();
 	if(texture) {
 		texture->activate();
@@ -169,10 +169,10 @@ void World::renderCollisions(std::vector<ivec2> tiles, ivec2 pos, std::shared_pt
 	renderInfoUBO.bindBase(2);
 
 	cameraInfoUBO.update({cam->proj, cam->view});
-	renderInfoUBO.setData({vec4(1,0,0,1), cam->res, 0.0f, 0.0f});
+	renderInfoUBO.setData({vec4(0.6f, 0.0f, 0.0f, 1.0f), cam->res, 0.0f, 0.0f});
 
 	for(ivec2 tile : tiles) {
-		mat4 transform = mat4().translate(vec3(pos + vec2(tile), 0)).scale(0.5).translate(vec3(1,1,0));
+		mat4 transform = mat4().translate(vec3(vec2(tile) + 0.5f, 0.0f)).scale(0.666f);
 		modelInfoUBO.update({transform, mat4()});
 		unitplane.drawElements();
 	}
