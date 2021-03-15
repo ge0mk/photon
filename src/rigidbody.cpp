@@ -28,7 +28,7 @@ void RigidBody::update(float time, float dt, World *world) {
 	float leftWallX = 0.0f, rightWallX = 0.0f;
 	collidingTiles.clear();
 
-	if (speed.x <= 0.0f && checkLeft(world, leftWallX)) {
+	if (speed.x < 0.0f && checkLeft(world, leftWallX)) {
 		if(oldPos.x - halfSize.x + aabbOffset.x >= leftWallX) {
 			pos.x = leftWallX + halfSize.x + aabbOffset.x + 0.01f;
 			mPushesLeftWall = true;
@@ -39,7 +39,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mPushesLeftWall = false;
 	}
 
-	if (speed.x >= 0.0f && checkRight(world, rightWallX)) {
+	if (speed.x > 0.0f && checkRight(world, rightWallX)) {
 		if(oldPos.x + halfSize.x + aabbOffset.x <= rightWallX) {
 			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
 			mPushesRightWall = true;
@@ -66,6 +66,26 @@ void RigidBody::update(float time, float dt, World *world) {
 	}
 	else {
 		mAtCeiling = false;
+	}
+
+	if (speed.x == 0.0f && checkLeft(world, leftWallX)) {
+		if(oldPos.x - halfSize.x + aabbOffset.x >= leftWallX) {
+			pos.x = leftWallX + halfSize.x + aabbOffset.x + 0.01f;
+			mPushesLeftWall = true;
+		}
+	}
+	else {
+		mPushesLeftWall = false;
+	}
+
+	if (speed.x == 0.0f && checkRight(world, rightWallX)) {
+		if(oldPos.x + halfSize.x + aabbOffset.x <= rightWallX) {
+			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
+			mPushesRightWall = true;
+		}
+	}
+	else {
+		mPushesRightWall = false;
 	}
 
 	AABB::pos = pos + aabbOffset;
