@@ -22,7 +22,9 @@ void RigidBody::update(float time, float dt, World *world) {
 	mWasAtCeiling = mAtCeiling;
 
 	pos += speed * dt;
-	speed += gravity * dt;
+	acceleration = forces / mass;
+	speed += (gravity + acceleration) * dt;
+	forces = 0.0f;
 
 	float groundY = 0.0f, ceilingY = 0.0f;
 	float leftWallX = 0.0f, rightWallX = 0.0f;
@@ -92,6 +94,10 @@ void RigidBody::update(float time, float dt, World *world) {
 
 	rpos = round((pos + aabbOffset) * Tile::resolution) / Tile::resolution;
 	transform = mat4().translate(rpos).scale(vec3(scale, 1.0f));
+}
+
+void RigidBody::applyForce(vec2 f) {
+	forces += f;
 }
 
 bool RigidBody::checkGround(World *world, float &groundY) {
@@ -216,4 +222,8 @@ bool RigidBody::checkRight(World *world, float &rightX) {
 		}
 	}
 	return false;
+}
+
+const std::vector<ivec2>& RigidBody::getCollidingTiles() {
+	return collidingTiles;
 }

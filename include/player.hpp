@@ -33,6 +33,6 @@ protected:
 
 	std::array<float, Action::count> inputs, prevInputs;
 	State state = State::idle;
-	float jumpSpeed = 10, walkSpeed = 5, sneakSpeed = 2;
+	float jumpSpeed = 12, walkSpeed = 8, sneakSpeed = 5;
 	Camera *cam;
 };

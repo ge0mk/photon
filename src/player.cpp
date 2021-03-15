@@ -15,8 +15,8 @@ void Player::update(float time, float dt, World *world) {
 				state = State::fall;
 			}
 			else if(inputState(jump) != 0.0f) {
-				state = State::jump;
 				speed.y = jumpSpeed;
+				state = State::jump;
 			}
 			else if(inputState(move) != 0.0f) {
 				state = State::walk;

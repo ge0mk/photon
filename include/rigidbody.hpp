@@ -30,17 +30,23 @@ public:
 	RigidBody(std::shared_ptr<TiledTexture> texture);
 
 	void update(float time, float dt, World *world) override;
+	void applyForce(vec2 f);
 
 	bool checkGround(World *world, float &groundY);
 	bool checkCeiling(World *world, float &ceilingY);
 	bool checkLeft(World *world, float &leftX);
 	bool checkRight(World *world, float &rightX);
 
+	const std::vector<ivec2>& getCollidingTiles();
+
 public:
 	vec2 pos = 0, oldPos = 0, rpos = 0;
 	vec2 speed = 0, oldSpeed = 0;
-	vec2 gravity = vec2(0, -10);
+	vec2 gravity = vec2(0, -20);
+	vec2 acceleration = 0;
+	vec2 forces = 0;
 	vec2 scale = 1;
+	float mass = 1;
 
 	vec2 aabbOffset = 0;
 
