@@ -21,8 +21,12 @@ void GuiStyleStack::popStyle() {
 	}
 }
 
+void GuiIO::onFramebufferResized(ivec2 size) {
+	frameBufferSize = size;
+}
+
 GuiSystem::GuiSystem(freetype::Font &&font) : textRenderer(std::move(font)) {
-	std::ifstream src("res/text.glsl", std::ios::ate);
+	std::ifstream src("res/gui.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());
@@ -48,15 +52,18 @@ void GuiSystem::endFrame() {
 }
 
 void GuiSystem::render(mat4 transform) {
-	transform = transform.scale(vec2(1.0f) / frameBufferSize);
+	transform = transform.translate(vec3(-1, 1, 0)).scale(vec3(vec2(1.0f) / frameBufferSize * 2.0f, 1.0f));
 	prog.use();
 	transformUBO.bindBase(0);
 	transformUBO.update(transform);
 	mesh.render();
-	textRenderer.render(mat4());
+
+	textRenderer.render(transform);
 }
 
 void GuiSystem::rect(vec2 tl, vec2 br, vec4 color, vec2 uvtl, vec2 uvbr) {
+	tl.y = -tl.y;
+	br.y = -br.y;
 	mesh.addQuad(
 		Vertex(tl, uvtl, color),
 		Vertex(vec2(br.x, tl.y), vec2(uvbr.x, uvtl.y), color),
@@ -75,14 +82,15 @@ void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, floa
 	}
 	segments = abs(segments);
 	float adist = abs(aend - astart) / segments;
+	center.y = -center.y;
 
 	if(innerRadius == 0.0f) {
 		for(int i = 0; i < segments; i++) {
 			float start = astart + float(i) * adist;
 			float end = astart + float(i + 1) * adist;
 
-			vec2 vtl = vec2(sin(start), cos(start)) * radius;
-			vec2 vtr = vec2(sin(end), cos(end)) * radius;
+			vec2 vtl = center + vec2(sin(start), cos(start)) * radius;
+			vec2 vtr = center + vec2(sin(end), cos(end)) * radius;
 
 			mesh.addTriangle(
 				Vertex(vec3(vtl, depth), vec2(0), color),
@@ -96,10 +104,10 @@ void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, floa
 			float start = astart + float(i) * adist;
 			float end = astart + float(i + 1) * adist;
 
-			vec2 vtl = vec2(sin(start), cos(start)) * radius;
-			vec2 vtr = vec2(sin(end), cos(end)) * radius;
-			vec2 vbl = vec2(sin(start), cos(start)) * innerRadius;
-			vec2 vbr = vec2(sin(end), cos(end)) * innerRadius;
+			vec2 vtl = center + vec2(sin(start), cos(start)) * radius;
+			vec2 vtr = center + vec2(sin(end), cos(end)) * radius;
+			vec2 vbl = center + vec2(sin(start), cos(start)) * innerRadius;
+			vec2 vbr = center + vec2(sin(end), cos(end)) * innerRadius;
 
 			mesh.addQuad(
 				Vertex(vec3(vtl, depth), vec2(0), color),
@@ -339,7 +347,8 @@ void GuiSystem::border(vec2 pos, vec2 size) {
 
 
 vec2 GuiSystem::text(const std::string &text, vec2 pos) {
-	auto obj = textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y, 0)), currentStyle().palette.text);
+	auto obj = textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y, 0)), vec4(1));
+	std::cout<<"rendering \""<<text<<"\" at "<<pos<<"\n";
 	vec2 size = 0;//textRenderer.calcSize(obj);
 	return size;
 }

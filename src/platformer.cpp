@@ -40,6 +40,8 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	onFramebufferResized(getFramebufferSize());
 }
 
 void Game::update() {
@@ -69,9 +71,9 @@ void Game::update() {
 	cam.update(glfwGetTime(), dt);
 
 	gui.beginFrame(glfwGetTime(), dt);
-		gui.circle(vec2(50.0f, 50.0f), 100.0f, 80.0f, vec4(0.3f, 1.0f, 0.5f, 1.0f), 10);
-		gui.rect(vec2(0, 0), vec2(1,1), vec4(0.3f, 1.0f, 0.5f, 1.0f));
-		gui.text("Hello World", vec2(0.0f, 0.0f));
+		gui.rect(vec2(0, 0), vec2(420.0f, 60.0f), vec4(0.3f, 0.5f, 1.0f, 1.0f));
+		gui.text("Hello World", vec2(0.0f, 50.0f));
+		gui.circle(vec2(600.0f, 100.0f), 100.0f, 80.0f, vec4(0.3f, 1.0f, 0.5f, 1.0f), 32);
 	gui.endFrame();
 }
 
@@ -110,6 +112,7 @@ vec2 Game::worldToScreenSpace(vec2 worldpos) {
 void Game::onFramebufferResized(ivec2 size) {
 	cam.res = size;
 	opengl::Window::onFramebufferResized(size);
+	gui.onFramebufferResized(size);
 }
 
 int main(int argc, const char *argv[]) {
