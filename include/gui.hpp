@@ -6,13 +6,14 @@
 #include <array>
 
 template<typename ...Components>
-class DrawList {
+class GuiMesh {
 public:
 	using Vertex = opengl::Vertex<Components...>;
 
 	void clear() {
 		vertices.clear();
 		indices.clear();
+		triangles = quads = vertexCount = indexCount = 0;
 	}
 
 	void update() {
@@ -33,6 +34,7 @@ public:
 
 	void addTriangle(unsigned ia, unsigned ib, unsigned ic) {
 		addIndices(ia, ib, ic);
+		triangles++;
 	}
 
 	void addQuad(const Vertex &a, const Vertex &b, const Vertex &c, const Vertex &d) {
@@ -47,16 +49,19 @@ public:
 	void addQuad(unsigned ia, unsigned ib, unsigned ic, unsigned id) {
 		addTriangle(ia, ib, ic);
 		addTriangle(ic, id, ia);
+		quads++;
 	}
 
 	unsigned addVertex(const Vertex &v) {
 		unsigned index = vertices.size();
 		vertices.push_back(v);
+		vertexCount++;
 		return index;
 	}
 
 	void addIndex(unsigned index) {
 		indices.push_back(index);
+		indexCount++;
 	}
 
 	void addIndices() {}
@@ -65,9 +70,13 @@ public:
 	void addIndices(unsigned index, Args... next) {
 		indices.push_back(index);
 		addIndices(next...);
+		indexCount++;
 	}
 
 private:
+	friend class GuiSystem;
+
+	int triangles, quads, vertexCount, indexCount;
 	std::vector<Vertex> vertices;
 	std::vector<unsigned> indices;
 
@@ -123,36 +132,47 @@ protected:
 	std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> buttons;
 };
 
-class GuiSystem : public GuiIO {
+class GuiStyleStack {
 public:
-	using Vertex = opengl::Vertex<vec3, vec4, vec2>;
-
-	void beginFrame(float time, float dt);
-	void endFrame();
-	void render(mat4 transform = mat4());
-
 	void pushStyle(const GuiStyle &style);
 	GuiStyle& currentStyle();
 	GuiStyle& defaultStyle();
 	void popStyle();
 
+private:
+	std::vector<GuiStyle> styles;
+	GuiStyle m_defaultStyle;
+};
+
+class GuiSystem : public GuiIO, GuiStyleStack {
+public:
+	using Vertex = opengl::Vertex<vec3, vec2, vec4>;
+
+	GuiSystem(freetype::Font &&font);
+
+	void beginFrame(float time, float dt);
+	void endFrame();
+	void render(mat4 transform = mat4());
+
 	void empty(vec2 size);
 	void text(const std::string &text);
 	bool button(const std::string &text);
 
-protected:
-	vec2 widget(vec2 pos, vec2 size);
-	vec2 text(const std::string &text, vec2 pos);
+	void rect(vec2 tl, vec2 br, vec4 color, vec2 uvtl = vec2(0, 0), vec2 uvbr = vec2(1, 1));
+	void circle(vec2 center, float radius, float innerRadius, vec4 color, int segments = 0);
+	void circleSegment(vec2 center, float radius, float innerRadius, float astart, float aend, vec4 color, int segments = 0);
 
 	void rect(vec2 pos, vec2 size);
 	void border(vec2 pos, vec2 size);
 
+	vec2 widget(vec2 pos, vec2 size);
+	vec2 text(const std::string &text, vec2 pos);
+
 private:
-	TextRenderer textRenderer;
-	DrawList<vec3, vec4, vec2> drawList;
-	std::vector<GuiStyle> styleStack;
-	GuiStyle m_defaultStyle;
+	GuiMesh<vec3, vec2, vec4> mesh;
 
 	opengl::UniformBuffer<mat4> transformUBO;
 	opengl::Program prog;
+
+	TextRenderer textRenderer;
 };

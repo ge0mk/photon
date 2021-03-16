@@ -13,6 +13,7 @@
 
 #include "tile.hpp"
 #include "chunk.hpp"
+#include "gui.hpp"
 #include "world.hpp"
 #include "resources.hpp"
 #include "entity.hpp"
@@ -58,6 +59,7 @@ private:
 	TileCursor *cursor;
 	Player* player;
 	ResourceCache<TiledTexture> textures;
+	GuiSystem gui;
 };
 
 int main(int argc, const char *argv[]);

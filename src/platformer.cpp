@@ -6,7 +6,7 @@ void TileCursor::update(float time, float dt, World *world) {
 	transform = mat4().translate(pos + 0.5).scale(1.0f + 2.0f / Tile::resolution);
 }
 
-Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl", &cam) {
+Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl", &cam), gui(freetype::Font("res/jetbrains-mono.ttf")) {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
 	auto tileset = textures.load("res/tileset.png", ivec2(16, 16));
@@ -67,6 +67,12 @@ void Game::update() {
 
 	world.update(glfwGetTime(), dt);
 	cam.update(glfwGetTime(), dt);
+
+	gui.beginFrame(glfwGetTime(), dt);
+		gui.circle(vec2(50.0f, 50.0f), 100.0f, 80.0f, vec4(0.3f, 1.0f, 0.5f, 1.0f), 10);
+		gui.rect(vec2(0, 0), vec2(1,1), vec4(0.3f, 1.0f, 0.5f, 1.0f));
+		gui.text("Hello World", vec2(0.0f, 0.0f));
+	gui.endFrame();
 }
 
 void Game::render() {
@@ -74,6 +80,7 @@ void Game::render() {
 
 	world.render();
 	world.renderCollisions(player->collidingTiles, textures.get(2));
+	gui.render();
 }
 
 vec2 Game::screenToWorldSpace(vec2 screenpos) {
