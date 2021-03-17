@@ -121,6 +121,16 @@ public:
 	void onWindowFocusChanged(bool focussed);
 	void onFramebufferResized(ivec2 size);
 
+	bool keyPressed(int key);
+	bool keyReleased(int key);
+	bool keyJustReleased(int key);
+
+	bool buttonPressed(int button);
+	bool buttonReleased(int button);
+	bool buttonJustReleased(int button);
+
+	void endFrame();
+
 protected:
 	vec2 mousePos, dmouse;
 	vec2 frameBufferSize, contentScale;
@@ -128,8 +138,8 @@ protected:
 	float depth;
 	bool focus;
 
-	std::array<bool, GLFW_KEY_LAST + 1> keys;
-	std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> buttons;
+	std::array<uint8_t, GLFW_KEY_LAST + 1> keys;
+	std::array<uint8_t, GLFW_MOUSE_BUTTON_LAST + 1> buttons;
 };
 
 class GuiStyleStack {
@@ -146,7 +156,7 @@ private:
 
 class GuiSystem : public GuiIO, GuiStyleStack {
 public:
-	using Vertex = opengl::Vertex<vec3, vec2, vec4>;
+	using Vertex = opengl::Vertex<vec3, vec4>;
 
 	GuiSystem(freetype::Font &&font);
 
@@ -158,18 +168,19 @@ public:
 	void text(const std::string &text);
 	bool button(const std::string &text);
 
-	void rect(vec2 tl, vec2 br, vec4 color, vec2 uvtl = vec2(0, 0), vec2 uvbr = vec2(1, 1));
+	void rect(vec2 tl, vec2 br, vec4 color);
 	void circle(vec2 center, float radius, float innerRadius, vec4 color, int segments = 0);
 	void circleSegment(vec2 center, float radius, float innerRadius, float astart, float aend, vec4 color, int segments = 0);
+	bool button(const std::string &text, vec2 pos, vec4 bgcolor, vec4 textcolor = vec4(1.0f));
 
 	void rect(vec2 pos, vec2 size);
 	void border(vec2 pos, vec2 size);
 
 	vec2 widget(vec2 pos, vec2 size);
-	vec2 text(const std::string &text, vec2 pos);
+	vec2 text(const std::string &text, vec2 pos, vec4 color = vec4(1.0f));
 
 private:
-	GuiMesh<vec3, vec2, vec4> mesh;
+	GuiMesh<vec3, vec4> mesh;
 
 	opengl::UniformBuffer<mat4> transformUBO;
 	opengl::Program prog;

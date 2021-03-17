@@ -42,6 +42,7 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	onFramebufferResized(getFramebufferSize());
+	glfwSwapInterval(1);
 }
 
 void Game::update() {
@@ -70,10 +71,22 @@ void Game::update() {
 	world.update(glfwGetTime(), dt);
 	cam.update(glfwGetTime(), dt);
 
+	auto to_string = [](float v, int precision = 3) -> std::string {
+		std::stringstream stream;
+		stream<<std::fixed<<std::setprecision(precision)<<v;
+		return stream.str();
+	};
+
 	gui.beginFrame(glfwGetTime(), dt);
-		gui.rect(vec2(0, 0), vec2(420.0f, 60.0f), vec4(0.3f, 0.5f, 1.0f, 1.0f));
-		gui.text("Hello World", vec2(0.0f, 50.0f));
-		gui.circle(vec2(600.0f, 100.0f), 100.0f, 80.0f, vec4(0.3f, 1.0f, 0.5f, 1.0f), 32);
+		gui.rect(vec2(0, 0), vec2(420.0f, 60.0f), vec4(0.2f, 0.2f, 0.2f, 1.0f));
+		gui.text("Hello World", vec2(0.0f, 50.0f), vec4(0.0f, 0.9f, 0.1f, 1.0f));
+		gui.circle(vec2(600.0f, 100.0f), 70.0f, 0.0f, vec4(0.05, 0.5f, 0.1f, 1.0f));
+		gui.circleSegment(vec2(600.0f, 100.0f), 100.0f, 80.0f, pi/2.0f, pi*2.0f, vec4(0.5, 0.05f, 0.1f, 1.0f), 96);
+		gui.circleSegment(vec2(600.0f, 100.0f), 100.0f, 80.0f, 0.0f, pi/2.0f, vec4(0.1f, 0.2f, 0.8f, 1.0f), 32);
+		gui.text(to_string(round(10.0f / dt) / 10.0f) + " fps", vec2(getFramebufferSize().x - 450.0f, 50.0f), vec4(1.0f));
+		if(gui.button("Click me!", vec2(10, 100), vec4(0.2f, 0.2f, 0.2f, 1.0f))) {
+			std::cout<<"click!\n";
+		}
 	gui.endFrame();
 }
 
@@ -108,6 +121,32 @@ vec2 Game::worldToScreenSpace(vec2 worldpos) {
 
 	return screenpos;
 }
+
+void Game::onKeyTyped(int key) {}
+
+void Game::onKeyChanged(int key, int scancode, int modifier, int action) {}
+
+void Game::onKeyPressed(int key, int scancode, int modifier, bool repeat) {}
+
+void Game::onKeyReleased(int key, int scancode, int modifier) {}
+
+void Game::onMouseMoved(vec2 pos, vec2 dir) {
+	gui.onMouseMoved(pos, dir);
+}
+
+void Game::onMousePressed(int button, int modifier) {
+	gui.onMousePressed(button, modifier);
+}
+
+void Game::onMouseReleased(int button, int modifier) {
+	gui.onMouseReleased(button, modifier);
+}
+
+void Game::onScrollEvent(vec2 dir) {}
+
+void Game::onWindowContentScaleChanged(vec2 scale) {}
+
+void Game::onWindowFocusChanged(bool focussed) {}
 
 void Game::onFramebufferResized(ivec2 size) {
 	cam.res = size;

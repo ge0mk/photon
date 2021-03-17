@@ -21,8 +21,71 @@ void GuiStyleStack::popStyle() {
 	}
 }
 
+void GuiIO::onKeyTyped(int key) {}
+
+void GuiIO::onKeyChanged(int key, int scancode, int modifier, int action) {}
+
+void GuiIO::onKeyPressed(int key, int scancode, int modifier, bool repeat) {
+	keys[key] = 1;
+}
+
+void GuiIO::onKeyReleased(int key, int scancode, int modifier) {
+	keys[key] = 2;
+}
+
+void GuiIO::onMouseMoved(vec2 pos, vec2 dir) {
+	mousePos = pos;
+}
+
+void GuiIO::onMousePressed(int button, int modifier) {
+	buttons[button] = 1;
+}
+
+void GuiIO::onMouseReleased(int button, int modifier) {
+	buttons[button] = 2;
+}
+
+void GuiIO::onScrollEvent(vec2 dir) {}
+
+void GuiIO::onWindowContentScaleChanged(vec2 scale) {}
+
+void GuiIO::onWindowFocusChanged(bool focussed) {}
+
 void GuiIO::onFramebufferResized(ivec2 size) {
 	frameBufferSize = size;
+}
+
+bool GuiIO::keyPressed(int key) {
+	return keys[key] == 1;
+}
+
+bool GuiIO::keyReleased(int key) {
+	return keys[key] == 2 || keys[key] == 0;
+}
+
+bool GuiIO::keyJustReleased(int key) {
+	return keys[key] == 2;
+}
+
+bool GuiIO::buttonPressed(int button) {
+	return buttons[button] == 1;
+}
+
+bool GuiIO::buttonReleased(int button) {
+	return buttons[button] == 2 || buttons[button] == 0;
+}
+
+bool GuiIO::buttonJustReleased(int button) {
+	return buttons[button] == 2;
+}
+
+void GuiIO::endFrame() {
+	for(unsigned i = 0; i < keys.size(); i++) {
+		keys[i] %= 2;	// when keys[i] == 2 -> keys[i] becomes 0, but when keys[i] == 1 nothing changes
+	}
+	for(unsigned i = 0; i < buttons.size(); i++) {
+		buttons[i] %= 2;	// same as above
+	}
 }
 
 GuiSystem::GuiSystem(freetype::Font &&font) : textRenderer(std::move(font)) {
@@ -45,6 +108,7 @@ void GuiSystem::beginFrame(float time, float dt) {
 }
 
 void GuiSystem::endFrame() {
+	GuiIO::endFrame();
 	mesh.update();
 	textRenderer.update();
 	//std::cout<<mesh.vertexCount<<" vertices, "<<mesh.indexCount<<" indices\n";
@@ -61,24 +125,24 @@ void GuiSystem::render(mat4 transform) {
 	textRenderer.render(transform);
 }
 
-void GuiSystem::rect(vec2 tl, vec2 br, vec4 color, vec2 uvtl, vec2 uvbr) {
+void GuiSystem::rect(vec2 tl, vec2 br, vec4 color) {
 	tl.y = -tl.y;
 	br.y = -br.y;
 	mesh.addQuad(
-		Vertex(tl, uvtl, color),
-		Vertex(vec2(br.x, tl.y), vec2(uvbr.x, uvtl.y), color),
-		Vertex(br, uvbr, color),
-		Vertex(vec2(tl.x, br.y), vec2(uvtl.x, uvbr.y), color)
+		Vertex(tl, color),
+		Vertex(vec2(br.x, tl.y), color),
+		Vertex(br, color),
+		Vertex(vec2(tl.x, br.y), color)
 	);
 }
 
 void GuiSystem::circle(vec2 center, float radius, float innerRadius, vec4 color, int segments) {
-	circleSegment(center, radius, innerRadius, 0, 3.141592654f * 2.0f, color, segments);
+	circleSegment(center, radius, innerRadius, 0, pi * 2.0f, color, segments);
 }
 
 void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, float astart, float aend, vec4 color, int segments) {
 	if(segments == 0) {
-		segments = abs(aend - astart) / 3.141592654f * 5;
+		segments = abs(aend - astart) / pi * 16;
 	}
 	segments = abs(segments);
 	float adist = abs(aend - astart) / segments;
@@ -93,9 +157,9 @@ void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, floa
 			vec2 vtr = center + vec2(sin(end), cos(end)) * radius;
 
 			mesh.addTriangle(
-				Vertex(vec3(vtl, depth), vec2(0), color),
-				Vertex(vec3(vtr, depth), vec2(0), color),
-				Vertex(vec3(center, depth), vec2(0), color)
+				Vertex(vec3(vtl, depth), color),
+				Vertex(vec3(vtr, depth), color),
+				Vertex(vec3(center, depth), color)
 			);
 		}
 	}
@@ -110,13 +174,31 @@ void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, floa
 			vec2 vbr = center + vec2(sin(end), cos(end)) * innerRadius;
 
 			mesh.addQuad(
-				Vertex(vec3(vtl, depth), vec2(0), color),
-				Vertex(vec3(vtr, depth), vec2(0), color),
-				Vertex(vec3(vbr, depth), vec2(0), color),
-				Vertex(vec3(vbl, depth), vec2(0), color)
+				Vertex(vec3(vtl, depth), color),
+				Vertex(vec3(vtr, depth), color),
+				Vertex(vec3(vbr, depth), color),
+				Vertex(vec3(vbl, depth), color)
 			);
 		}
 	}
+}
+
+bool GuiSystem::button(const std::string &text, vec2 pos, vec4 bgcolor, vec4 textcolor) {
+	vec2 size = textRenderer.calcSize(text);
+	rect(pos, pos + size, bgcolor);
+	textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y - size.y, 0)), textcolor);
+	vec2 mouse = mousePos - pos;
+	if(mouse.x > 0 && mouse.x < size.x && mouse.y > 0 && mouse.y < size.y && buttonJustReleased(GLFW_MOUSE_BUTTON_LEFT)) {
+		return true;
+	}
+	return false;
+}
+
+vec2 GuiSystem::text(const std::string &text, vec2 pos, vec4 color) {
+	auto obj = textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y, 0)), color);
+	//std::cout<<"rendering \""<<text<<"\" at "<<pos<<"\n";
+	vec2 size = 0;//textRenderer.calcSize(obj);
+	return size;
 }
 
 void GuiSystem::rect(vec2 pos, vec2 size) {
@@ -145,21 +227,21 @@ void GuiSystem::rect(vec2 pos, vec2 size) {
 	vec2 mbr = br + vec2(right, 0);
 	vec2 mrb = br + vec2(0, bottom);
 
-	unsigned vitl = mesh.addVertex(Vertex(vec3(itl, depth), vec2(0), style.palette.background));
-	unsigned vitr = mesh.addVertex(Vertex(vec3(itr, depth), vec2(0), style.palette.background));
-	unsigned vibr = mesh.addVertex(Vertex(vec3(ibr, depth), vec2(0), style.palette.background));
-	unsigned vibl = mesh.addVertex(Vertex(vec3(ibl, depth), vec2(0), style.palette.background));
+	unsigned vitl = mesh.addVertex(Vertex(vec3(itl, depth), style.palette.background));
+	unsigned vitr = mesh.addVertex(Vertex(vec3(itr, depth), style.palette.background));
+	unsigned vibr = mesh.addVertex(Vertex(vec3(ibr, depth), style.palette.background));
+	unsigned vibl = mesh.addVertex(Vertex(vec3(ibl, depth), style.palette.background));
 
 	mesh.addQuad(vitl, vitr, vibr, vibl);
 
-	unsigned vmtl = mesh.addVertex(Vertex(vec3(mtl, depth), vec2(0), style.palette.background));
-	unsigned vmtr = mesh.addVertex(Vertex(vec3(mtr, depth), vec2(0), style.palette.background));
-	unsigned vmlt = mesh.addVertex(Vertex(vec3(mlt, depth), vec2(0), style.palette.background));
-	unsigned vmrt = mesh.addVertex(Vertex(vec3(mrt, depth), vec2(0), style.palette.background));
-	unsigned vmbr = mesh.addVertex(Vertex(vec3(mbr, depth), vec2(0), style.palette.background));
-	unsigned vmbl = mesh.addVertex(Vertex(vec3(mbl, depth), vec2(0), style.palette.background));
-	unsigned vmrb = mesh.addVertex(Vertex(vec3(mrb, depth), vec2(0), style.palette.background));
-	unsigned vmlb = mesh.addVertex(Vertex(vec3(mlb, depth), vec2(0), style.palette.background));
+	unsigned vmtl = mesh.addVertex(Vertex(vec3(mtl, depth), style.palette.background));
+	unsigned vmtr = mesh.addVertex(Vertex(vec3(mtr, depth), style.palette.background));
+	unsigned vmlt = mesh.addVertex(Vertex(vec3(mlt, depth), style.palette.background));
+	unsigned vmrt = mesh.addVertex(Vertex(vec3(mrt, depth), style.palette.background));
+	unsigned vmbr = mesh.addVertex(Vertex(vec3(mbr, depth), style.palette.background));
+	unsigned vmbl = mesh.addVertex(Vertex(vec3(mbl, depth), style.palette.background));
+	unsigned vmrb = mesh.addVertex(Vertex(vec3(mrb, depth), style.palette.background));
+	unsigned vmlb = mesh.addVertex(Vertex(vec3(mlb, depth), style.palette.background));
 
 	mesh.addQuad(vitl, vmtl, vmtr, vitr);
 	mesh.addQuad(vitr, vmrt, vmrb, vibr);
@@ -188,18 +270,18 @@ void GuiSystem::rect(vec2 pos, vec2 size) {
 			vec2 cbl1 = ibl + vec2(-v1.x, v1.y);
 			vec2 cbl2 = ibl + vec2(-v2.x, v2.y);
 
-			unsigned vctl0 = mesh.addVertex(Vertex(vec3(ctl0, depth), vec2(0), style.palette.background));
-			unsigned vctl1 = mesh.addVertex(Vertex(vec3(ctl1, depth), vec2(0), style.palette.background));
-			unsigned vctl2 = mesh.addVertex(Vertex(vec3(ctl2, depth), vec2(0), style.palette.background));
-			unsigned vctr0 = mesh.addVertex(Vertex(vec3(ctr0, depth), vec2(0), style.palette.background));
-			unsigned vctr1 = mesh.addVertex(Vertex(vec3(ctr1, depth), vec2(0), style.palette.background));
-			unsigned vctr2 = mesh.addVertex(Vertex(vec3(ctr2, depth), vec2(0), style.palette.background));
-			unsigned vcbr0 = mesh.addVertex(Vertex(vec3(cbr0, depth), vec2(0), style.palette.background));
-			unsigned vcbr1 = mesh.addVertex(Vertex(vec3(cbr1, depth), vec2(0), style.palette.background));
-			unsigned vcbr2 = mesh.addVertex(Vertex(vec3(cbr2, depth), vec2(0), style.palette.background));
-			unsigned vcbl0 = mesh.addVertex(Vertex(vec3(cbl0, depth), vec2(0), style.palette.background));
-			unsigned vcbl1 = mesh.addVertex(Vertex(vec3(cbl1, depth), vec2(0), style.palette.background));
-			unsigned vcbl2 = mesh.addVertex(Vertex(vec3(cbl2, depth), vec2(0), style.palette.background));
+			unsigned vctl0 = mesh.addVertex(Vertex(vec3(ctl0, depth), style.palette.background));
+			unsigned vctl1 = mesh.addVertex(Vertex(vec3(ctl1, depth), style.palette.background));
+			unsigned vctl2 = mesh.addVertex(Vertex(vec3(ctl2, depth), style.palette.background));
+			unsigned vctr0 = mesh.addVertex(Vertex(vec3(ctr0, depth), style.palette.background));
+			unsigned vctr1 = mesh.addVertex(Vertex(vec3(ctr1, depth), style.palette.background));
+			unsigned vctr2 = mesh.addVertex(Vertex(vec3(ctr2, depth), style.palette.background));
+			unsigned vcbr0 = mesh.addVertex(Vertex(vec3(cbr0, depth), style.palette.background));
+			unsigned vcbr1 = mesh.addVertex(Vertex(vec3(cbr1, depth), style.palette.background));
+			unsigned vcbr2 = mesh.addVertex(Vertex(vec3(cbr2, depth), style.palette.background));
+			unsigned vcbl0 = mesh.addVertex(Vertex(vec3(cbl0, depth), style.palette.background));
+			unsigned vcbl1 = mesh.addVertex(Vertex(vec3(cbl1, depth), style.palette.background));
+			unsigned vcbl2 = mesh.addVertex(Vertex(vec3(cbl2, depth), style.palette.background));
 
 			mesh.addTriangle(vctl0, vctl1, vctl2);
 			mesh.addTriangle(vctr0, vctr1, vctr2);
@@ -250,28 +332,28 @@ void GuiSystem::border(vec2 pos, vec2 size) {
 	vec2 obr = mix(ibr + vec2(0, (innerRadius + style.border.w)), br, rounding);
 
 	mesh.addQuad(
-		Vertex(vec3(mtl, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(mtr, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(otr, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(otl, depth + 0.5), style.palette.primary, vec2(0))
+		Vertex(vec3(mtl, depth + 0.5), style.palette.primary),
+		Vertex(vec3(mtr, depth + 0.5), style.palette.primary),
+		Vertex(vec3(otr, depth + 0.5), style.palette.primary),
+		Vertex(vec3(otl, depth + 0.5), style.palette.primary)
 	);
 	mesh.addQuad(
-		Vertex(vec3(mlt, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(mlb, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(olb, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(olt, depth + 0.5), style.palette.primary, vec2(0))
+		Vertex(vec3(mlt, depth + 0.5), style.palette.primary),
+		Vertex(vec3(mlb, depth + 0.5), style.palette.primary),
+		Vertex(vec3(olb, depth + 0.5), style.palette.primary),
+		Vertex(vec3(olt, depth + 0.5), style.palette.primary)
 	);
 	mesh.addQuad(
-		Vertex(vec3(mrt, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(mrb, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(orb, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(ort, depth + 0.5), style.palette.primary, vec2(0))
+		Vertex(vec3(mrt, depth + 0.5), style.palette.primary),
+		Vertex(vec3(mrb, depth + 0.5), style.palette.primary),
+		Vertex(vec3(orb, depth + 0.5), style.palette.primary),
+		Vertex(vec3(ort, depth + 0.5), style.palette.primary)
 	);
 	mesh.addQuad(
-		Vertex(vec3(mbl, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(mbr, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(obr, depth + 0.5), style.palette.primary, vec2(0)),
-		Vertex(vec3(obl, depth + 0.5), style.palette.primary, vec2(0))
+		Vertex(vec3(mbl, depth + 0.5), style.palette.primary),
+		Vertex(vec3(mbr, depth + 0.5), style.palette.primary),
+		Vertex(vec3(obr, depth + 0.5), style.palette.primary),
+		Vertex(vec3(obl, depth + 0.5), style.palette.primary)
 	);
 
 	//corners
@@ -320,22 +402,22 @@ void GuiSystem::border(vec2 pos, vec2 size) {
 			vec2 cbl2 = ibl + mix(vec2(-v2b.x, v2b.y), -vec2(left, bottom), rounding);
 			vec2 cbl3 = ibl + mix(vec2(-v3b.x, v3b.y), -vec2(left, bottom), rounding);
 
-			unsigned vctl0 = mesh.addVertex(Vertex(vec3(ctl0, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vctl1 = mesh.addVertex(Vertex(vec3(ctl1, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vctl2 = mesh.addVertex(Vertex(vec3(ctl2, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vctl3 = mesh.addVertex(Vertex(vec3(ctl3, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vctr0 = mesh.addVertex(Vertex(vec3(ctr0, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vctr1 = mesh.addVertex(Vertex(vec3(ctr1, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vctr2 = mesh.addVertex(Vertex(vec3(ctr2, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vctr3 = mesh.addVertex(Vertex(vec3(ctr3, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vcbr0 = mesh.addVertex(Vertex(vec3(cbr0, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vcbr1 = mesh.addVertex(Vertex(vec3(cbr1, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vcbr2 = mesh.addVertex(Vertex(vec3(cbr2, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vcbr3 = mesh.addVertex(Vertex(vec3(cbr3, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vcbl0 = mesh.addVertex(Vertex(vec3(cbl0, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vcbl1 = mesh.addVertex(Vertex(vec3(cbl1, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vcbl2 = mesh.addVertex(Vertex(vec3(cbl2, depth + 0.5), style.palette.primary, vec2(0)));
-			unsigned vcbl3 = mesh.addVertex(Vertex(vec3(cbl3, depth + 0.5), style.palette.primary, vec2(0)));
+			unsigned vctl0 = mesh.addVertex(Vertex(vec3(ctl0, depth + 0.5), style.palette.primary));
+			unsigned vctl1 = mesh.addVertex(Vertex(vec3(ctl1, depth + 0.5), style.palette.primary));
+			unsigned vctl2 = mesh.addVertex(Vertex(vec3(ctl2, depth + 0.5), style.palette.primary));
+			unsigned vctl3 = mesh.addVertex(Vertex(vec3(ctl3, depth + 0.5), style.palette.primary));
+			unsigned vctr0 = mesh.addVertex(Vertex(vec3(ctr0, depth + 0.5), style.palette.primary));
+			unsigned vctr1 = mesh.addVertex(Vertex(vec3(ctr1, depth + 0.5), style.palette.primary));
+			unsigned vctr2 = mesh.addVertex(Vertex(vec3(ctr2, depth + 0.5), style.palette.primary));
+			unsigned vctr3 = mesh.addVertex(Vertex(vec3(ctr3, depth + 0.5), style.palette.primary));
+			unsigned vcbr0 = mesh.addVertex(Vertex(vec3(cbr0, depth + 0.5), style.palette.primary));
+			unsigned vcbr1 = mesh.addVertex(Vertex(vec3(cbr1, depth + 0.5), style.palette.primary));
+			unsigned vcbr2 = mesh.addVertex(Vertex(vec3(cbr2, depth + 0.5), style.palette.primary));
+			unsigned vcbr3 = mesh.addVertex(Vertex(vec3(cbr3, depth + 0.5), style.palette.primary));
+			unsigned vcbl0 = mesh.addVertex(Vertex(vec3(cbl0, depth + 0.5), style.palette.primary));
+			unsigned vcbl1 = mesh.addVertex(Vertex(vec3(cbl1, depth + 0.5), style.palette.primary));
+			unsigned vcbl2 = mesh.addVertex(Vertex(vec3(cbl2, depth + 0.5), style.palette.primary));
+			unsigned vcbl3 = mesh.addVertex(Vertex(vec3(cbl3, depth + 0.5), style.palette.primary));
 
 			mesh.addQuad(vctl0, vctl1, vctl2, vctl3);
 			mesh.addQuad(vctr0, vctr1, vctr2, vctr3);
@@ -343,12 +425,4 @@ void GuiSystem::border(vec2 pos, vec2 size) {
 			mesh.addQuad(vcbl0, vcbl1, vcbl2, vcbl3);
 		}
 	}
-}
-
-
-vec2 GuiSystem::text(const std::string &text, vec2 pos) {
-	auto obj = textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y, 0)), vec4(1));
-	std::cout<<"rendering \""<<text<<"\" at "<<pos<<"\n";
-	vec2 size = 0;//textRenderer.calcSize(obj);
-	return size;
 }

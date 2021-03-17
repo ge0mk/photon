@@ -19,6 +19,9 @@
 #include "entity.hpp"
 #include "player.hpp"
 
+#include <sstream>
+#include <iomanip>
+
 class TileCursor : public Entity {
 public:
 	TileCursor(std::shared_ptr<TiledTexture> sprites);
@@ -49,6 +52,16 @@ public:
 	vec2 worldToScreenSpace(vec2 worldpos);
 
 	// events
+	void onKeyTyped(int key) override;
+	void onKeyChanged(int key, int scancode, int modifier, int action) override;
+	void onKeyPressed(int key, int scancode, int modifier, bool repeat) override;
+	void onKeyReleased(int key, int scancode, int modifier) override;
+	void onMouseMoved(vec2 pos, vec2 dir) override;
+	void onMousePressed(int button, int modifier) override;
+	void onMouseReleased(int button, int modifier) override;
+	void onScrollEvent(vec2 dir) override;
+	void onWindowContentScaleChanged(vec2 scale) override;
+	void onWindowFocusChanged(bool focussed) override;
 	void onFramebufferResized(ivec2 size) override;
 
 private:
