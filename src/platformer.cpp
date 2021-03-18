@@ -1,17 +1,24 @@
 #include <glfw/window.hpp>
 
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
+const char* vertexShaderSource = R"(#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+
+out vec3 ourColor;
+
+void main()
+{
+	gl_Position = vec4(aPos, 1.0);
+	ourColor = aColor;
+})";
 
 const char* fragmentShaderSource = R"(#version 330 core
 out vec4 FragColor;
+in vec3 ourColor;
+
 void main()
 {
-	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+	FragColor = vec4(ourColor, 1.0f);
 })"; //ganzer String, ohne lästiges zeug
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -98,38 +105,18 @@ int main(int argc, const char *argv[]) {
 
 	//Smoother Attempt
 
-	//start building a rectangle with two triangles
-	//start of vertex shader (position and transform of coordinates - vertices)
-	/*
-	float vertices[] = { //coordinates are doubled -> not efficient
-	//first triangle
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 -0.5f,  0.5f, 0.0f,
-	 //second triangle
-	 0.5f, -0.5f, 0.0f,
-	 -0.5f, -0.5f, 0.0f,
-	 -0.5f,  0.5f, 0.0f
-	}; */
-
-
 	//define an vertice and an EBO (element buffer object), to just store needes vertice data
 	float vertices[] = {
-		0.5f, 0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		-0.5f, 0.5f, 0.0f
+		//position			//color of each point
+		0.5f, -0.5f, 0.0f,	1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f,
+		0.0f, 0.5f, 0.0f,	0.0f, 0.0f, 1.0f
 	};
 
-	unsigned int indices[] = {
-		0, 1, 3, //first triangle
-		1, 2, 3	//second one
-	};
-
-	unsigned int VBO, VAO, EBO;
+	//generating VBO and VAO
+	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO); //bind vao
 	//now call vbo's and attr pointer -> unbind vao later
@@ -138,18 +125,20 @@ int main(int argc, const char *argv[]) {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	//calls for gl-things between binds
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	//Attrib config for Position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);//first Position
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	//Attrib config for Color
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+	glEnableVertexAttribArray(1); //second position
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+
+	//Loop contains rendercalls for every frame! -> put rendering triangle here!
 	while (!glfwWindowShouldClose(window)) //Fenster zeigen, bis geschlossen wird, sonst nur für ein Frame geöffnet
 	{
 		//input
@@ -162,9 +151,18 @@ int main(int argc, const char *argv[]) {
 		//call here the VAO and what to do with it
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+		//for later drawing just bind the VAO with needed attributes
+
+		//to use time and changing color, i have to put it of course in the "update" function
+		float timeValue = glfwGetTime();
+		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+		//shader must be initialized before i can use the uniform
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		//glUseProgram(shaderProgram); called 10 lines above
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		//before drawing change color each frame
+
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//output and eventlistener
 		glfwSwapBuffers(window); //output
@@ -176,6 +174,10 @@ int main(int argc, const char *argv[]) {
 	glDeleteShader(fragmentShader);
 	glDeleteProgram(shaderProgram);
 
+	int nrAttributes;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+	std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
+	//it is 16 on my laptop
 
 	glfwTerminate(); //freigabe genutzter ressourcen
 	return 0;
