@@ -35,5 +35,5 @@ void TiledTexture::activate() {
 }
 
 mat4 TiledTexture::getUVTransform(ivec2 pos) const {
-	return mat4().scale(scale()).translate(vec3(pos.x, pos.y));
+	return mat4().scale(vec3(scale(), 1.0f)).translate(vec3(pos.x, pos.y, 0.0f));
 }

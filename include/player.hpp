@@ -36,4 +36,6 @@ protected:
 	State state = State::idle;
 	float jumpSpeed = 12.55, walkSpeed = 8, sneakSpeed = 5;
 	Camera *cam;
+
+	ivec2 uvpos;
 };

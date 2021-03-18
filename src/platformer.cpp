@@ -29,7 +29,7 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	world[ivec2(-4,2)] = Tile::stone;
 	world[ivec2(-7,1)] = Tile::stone;
 
-	auto playerSprite = textures.load("res/player.png", 1);
+	auto playerSprite = textures.load("res/player.png", ivec2(16, 13));
 	player = world.createEntity<Player>(&cam, playerSprite);
 
 	auto cursorSprite = textures.load("res/crosshair.png", 1);
