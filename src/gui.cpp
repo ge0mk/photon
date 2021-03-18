@@ -116,6 +116,8 @@ void GuiSystem::endFrame() {
 }
 
 void GuiSystem::render(mat4 transform) {
+	glClear(GL_DEPTH_BUFFER_BIT);
+
 	transform = transform.translate(vec3(-1, 1, 0)).scale(vec3(vec2(1.0f) / frameBufferSize * 2.0f, 1.0f));
 	prog.use();
 	transformUBO.bindBase(0);
@@ -125,22 +127,22 @@ void GuiSystem::render(mat4 transform) {
 	textRenderer.render(transform);
 }
 
-void GuiSystem::rect(vec2 tl, vec2 br, vec4 color) {
+void GuiSystem::rect(vec2 tl, vec2 br, vec4 color, float z) {
 	tl.y = -tl.y;
 	br.y = -br.y;
 	mesh.addQuad(
-		Vertex(tl, color),
-		Vertex(vec2(br.x, tl.y), color),
-		Vertex(br, color),
-		Vertex(vec2(tl.x, br.y), color)
+		Vertex(vec3(tl, z), color),
+		Vertex(vec3(br.x, tl.y, z), color),
+		Vertex(vec3(br, z), color),
+		Vertex(vec3(tl.x, br.y, z), color)
 	);
 }
 
-void GuiSystem::circle(vec2 center, float radius, float innerRadius, vec4 color, int segments) {
-	circleSegment(center, radius, innerRadius, 0, pi * 2.0f, color, segments);
+void GuiSystem::circle(vec2 center, float radius, float innerRadius, vec4 color, int segments, float z) {
+	circleSegment(center, radius, innerRadius, 0, pi * 2.0f, color, segments, z);
 }
 
-void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, float astart, float aend, vec4 color, int segments) {
+void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, float astart, float aend, vec4 color, int segments, float z) {
 	if(segments == 0) {
 		segments = abs(aend - astart) / pi * 16;
 	}
@@ -157,9 +159,9 @@ void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, floa
 			vec2 vtr = center + vec2(sin(end), cos(end)) * radius;
 
 			mesh.addTriangle(
-				Vertex(vec3(vtl, depth), color),
-				Vertex(vec3(vtr, depth), color),
-				Vertex(vec3(center, depth), color)
+				Vertex(vec3(vtl, z), color),
+				Vertex(vec3(vtr, z), color),
+				Vertex(vec3(center, z), color)
 			);
 		}
 	}
@@ -174,31 +176,29 @@ void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, floa
 			vec2 vbr = center + vec2(sin(end), cos(end)) * innerRadius;
 
 			mesh.addQuad(
-				Vertex(vec3(vtl, depth), color),
-				Vertex(vec3(vtr, depth), color),
-				Vertex(vec3(vbr, depth), color),
-				Vertex(vec3(vbl, depth), color)
+				Vertex(vec3(vtl, z), color),
+				Vertex(vec3(vtr, z), color),
+				Vertex(vec3(vbr, z), color),
+				Vertex(vec3(vbl, z), color)
 			);
 		}
 	}
 }
 
-bool GuiSystem::button(const std::string &text, vec2 pos, vec4 bgcolor, vec4 textcolor) {
+vec2 GuiSystem::text(const std::string &text, vec2 pos, vec4 color, float z) {
+	auto obj = textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y, z)), color);
+	return textRenderer.calcSize(obj);
+}
+
+bool GuiSystem::button(const std::string &text, vec2 pos, vec4 bgcolor, vec4 textcolor, float z) {
 	vec2 size = textRenderer.calcSize(text);
-	rect(pos, pos + size, bgcolor);
-	textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y - size.y, 0)), textcolor);
+	rect(pos, pos + size, bgcolor, z);
+	textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y - size.y, z)), textcolor);
 	vec2 mouse = mousePos - pos;
 	if(mouse.x > 0 && mouse.x < size.x && mouse.y > 0 && mouse.y < size.y && buttonJustReleased(GLFW_MOUSE_BUTTON_LEFT)) {
 		return true;
 	}
 	return false;
-}
-
-vec2 GuiSystem::text(const std::string &text, vec2 pos, vec4 color) {
-	auto obj = textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y, 0)), color);
-	//std::cout<<"rendering \""<<text<<"\" at "<<pos<<"\n";
-	vec2 size = 0;//textRenderer.calcSize(obj);
-	return size;
 }
 
 void GuiSystem::rect(vec2 pos, vec2 size) {
