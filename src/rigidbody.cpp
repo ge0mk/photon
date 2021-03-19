@@ -104,26 +104,26 @@ bool RigidBody::checkGround(World *world, float &groundY) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
-	vec2 oldbl = oldCenter - halfSize + vec2(0.0f, -1.0f / Tile::resolution);
-	vec2 newbl = center - halfSize + vec2(0.0f, -1.0f / Tile::resolution);
+	vec2 oldbl = oldCenter - halfSize + vec2(0.0f, -1.0f);
+	vec2 newbl = center - halfSize + vec2(0.0f, -1.0f);
 	vec2 newbr = vec2(newbl.x + halfSize.x * 2.0f, newbl.y);
 
-	float endY = world->snapToGrid(newbl.y).y;
-	float begY = max(world->snapToGrid(oldbl.y).y - 1.0f, endY);
+	float endY = world->getTileIndex(newbl.y).y;
+	float begY = max(world->getTileIndex(oldbl.y).y - 1.0f, endY);
 	float dist = max(abs(endY - begY), 1.0f);
 
 	for(int tileIndexY = begY; tileIndexY >= endY; tileIndexY--) {
 		vec2 bottomLeft = lerp(newbl, oldbl, abs(endY - tileIndexY) / dist);
-		vec2 bottomRight = vec2(bottomLeft.x + halfSize.x * 2.0f, bottomLeft.y);
+		vec2 bottomRight = vec2(bottomLeft.x + halfSize.x * 2.0f + Tile::resolution, bottomLeft.y);
 
-		for(vec2 checkedTile = newbl; checkedTile.x <= bottomRight.x; checkedTile.x += 1.0f) {
+		for(vec2 checkedTile = newbl; checkedTile.x <= bottomRight.x; checkedTile.x += Tile::resolution) {
 			checkedTile.x = min(checkedTile.x, bottomRight.x);
-			ivec2 tileIndex = world->snapToGrid(checkedTile);
+			ivec2 tileIndex = world->getTileIndex(checkedTile);
 			Tile tile = world->at(tileIndex);
 
-			if(tile.collision()) {
+			if(tile.collision() && AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution).intersects(*this)) {
 				collidingTiles.push_back(tileIndex);
-				groundY = tileIndex.y + 1.0f;
+				groundY = tileIndex.y * Tile::resolution + Tile::resolution;
 				return true;
 			}
 		}
@@ -135,26 +135,26 @@ bool RigidBody::checkCeiling(World *world, float &ceilingY) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
-	vec2 oldtr = oldCenter + halfSize + vec2(0.0f, 1.0f / Tile::resolution);
-	vec2 newtr = center + halfSize + vec2(0.0f, 1.0f / Tile::resolution);
+	vec2 oldtr = oldCenter + halfSize + vec2(0.0f, 1.0f);
+	vec2 newtr = center + halfSize + vec2(0.0f, 1.0f);
 	vec2 newtl = vec2(newtr.x - halfSize.x * 2.0f, newtr.y);
 
-	float endY = world->snapToGrid(newtr.y).y;
-	float begY = max(world->snapToGrid(oldtr.y).y - 1.0f, endY);
+	float endY = world->getTileIndex(newtr.y).y;
+	float begY = max(world->getTileIndex(oldtr.y).y - 1.0f, endY);
 	float dist = max(abs(endY - begY), 1.0f);
 
 	for(int tileIndexY = begY; tileIndexY >= endY; tileIndexY--) {
 		vec2 topRight = lerp(newtr, oldtr, abs(endY - tileIndexY) / dist);
 		vec2 topLeft = vec2(topRight.x - halfSize.x * 2.0f, topRight.y);
 
-		for(vec2 checkedTile = topLeft; checkedTile.x <= topRight.x; checkedTile.x += 1.0f) {
+		for(vec2 checkedTile = topLeft; checkedTile.x <= topRight.x; checkedTile.x += Tile::resolution) {
 			checkedTile.x = min(checkedTile.x, topRight.x);
-			ivec2 tileIndex = world->snapToGrid(checkedTile);
+			ivec2 tileIndex = world->getTileIndex(checkedTile);
 			Tile tile = world->at(tileIndex);
 
 			if(tile.collision()) {
 				collidingTiles.push_back(tileIndex);
-				ceilingY = tileIndex.y;
+				ceilingY = tileIndex.y * Tile::resolution;
 				return true;
 			}
 		}
@@ -166,26 +166,26 @@ bool RigidBody::checkLeft(World *world, float &leftX) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
-	vec2 oldbl = oldCenter - halfSize + vec2(-1.0f / Tile::resolution, 1.0f / Tile::resolution);
-	vec2 newbl = center - halfSize + vec2(-1.0f / Tile::resolution, 1.0f / Tile::resolution);
-	vec2 newtl = vec2(newbl.x, newbl.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
+	vec2 oldbl = oldCenter - halfSize + vec2(-1.0f, 1.0f);
+	vec2 newbl = center - halfSize + vec2(-1.0f, 1.0f);
+	vec2 newtl = vec2(newbl.x, newbl.y + halfSize.y * 2.0f - 2.0f);
 
-	float endX = world->snapToGrid(newbl.x).x;
-	float begX = max(world->snapToGrid(oldbl.x).x - 1.0f, endX);
+	float endX = world->getTileIndex(newbl.x).x;
+	float begX = max(world->getTileIndex(oldbl.x).x - 1.0f, endX);
 	float dist = max(abs(endX - begX), 1.0f);
 
 	for(int tileIndexX = begX; tileIndexX >= endX; tileIndexX--) {
 		vec2 bottomLeft = lerp(newbl, oldbl, abs(endX - tileIndexX) / dist);
-		vec2 topLeft = vec2(bottomLeft.x, bottomLeft.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
+		vec2 topLeft = vec2(bottomLeft.x, bottomLeft.y + halfSize.y * 2.0f - 2.0f);
 
-		for(vec2 checkedTile = bottomLeft; checkedTile.y <= topLeft.y; checkedTile.y += 1.0f) {
+		for(vec2 checkedTile = bottomLeft; checkedTile.y <= topLeft.y; checkedTile.y += Tile::resolution) {
 			checkedTile.y = min(checkedTile.y, topLeft.y);
-			ivec2 tileIndex = world->snapToGrid(checkedTile);
+			ivec2 tileIndex = world->getTileIndex(checkedTile);
 			Tile tile = world->at(tileIndex);
 
 			if(tile.collision()) {
 				collidingTiles.push_back(tileIndex);
-				leftX = tileIndex.x;
+				leftX = tileIndex.x * Tile::resolution - Tile::resolution;
 				return true;
 			}
 		}
@@ -197,26 +197,26 @@ bool RigidBody::checkRight(World *world, float &rightX) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
-	vec2 oldbr = oldCenter + vec2(halfSize.x, -halfSize.y) + vec2(1.0f / Tile::resolution, 1.0f / Tile::resolution);
-	vec2 newbr = center + vec2(halfSize.x, -halfSize.y) + vec2(1.0f / Tile::resolution, 1.0f / Tile::resolution);
-	vec2 newtr = vec2(newbr.x, newbr.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
+	vec2 oldbr = oldCenter + vec2(halfSize.x, -halfSize.y) + vec2(1.0f, 1.0f);
+	vec2 newbr = center + vec2(halfSize.x, -halfSize.y) + vec2(1.0f, 1.0f);
+	vec2 newtr = vec2(newbr.x, newbr.y + halfSize.y * 2.0f - 2.0f);
 
-	float endX = world->snapToGrid(newbr.x).x;
-	float begX = max(world->snapToGrid(oldbr.x).x - 1.0f, endX);
+	float endX = world->getTileIndex(newbr.x).x;
+	float begX = max(world->getTileIndex(oldbr.x).x - 1.0f, endX);
 	float dist = max(abs(endX - begX), 1.0f);
 
 	for(int tileIndexX = begX; tileIndexX >= endX; tileIndexX--) {
 		vec2 bottomRight = lerp(newbr, oldbr, abs(endX - tileIndexX) / dist);
-		vec2 topRight = vec2(bottomRight.x, bottomRight.y + halfSize.y * 2.0f - 2.0f / Tile::resolution);
+		vec2 topRight = vec2(bottomRight.x, bottomRight.y + halfSize.y * 2.0f - 2.0f);
 
-		for(vec2 checkedTile = bottomRight; checkedTile.y <= topRight.y; checkedTile.y += 1.0f) {
+		for(vec2 checkedTile = bottomRight; checkedTile.y <= topRight.y; checkedTile.y += Tile::resolution) {
 			checkedTile.y = min(checkedTile.y, topRight.y);
-			ivec2 tileIndex = world->snapToGrid(checkedTile);
+			ivec2 tileIndex = world->getTileIndex(checkedTile);
 			Tile tile = world->at(tileIndex);
 
 			if(tile.collision()) {
 				collidingTiles.push_back(tileIndex);
-				rightX = tileIndex.x;
+				rightX = tileIndex.x * Tile::resolution;
 				return true;
 			}
 		}

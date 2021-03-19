@@ -32,8 +32,8 @@ void Chunk::build() {
 		for(unsigned x = 0; x < size; x++) {
 			const Tile &current = tiles[y * size + x];
 			if(current.render()) {
-				vec2 bl = vec2(x, y);
-				vec2 tr = bl + vec2(1);
+				vec2 bl = vec2(x, y) * Tile::resolution;
+				vec2 tr = bl + vec2(1) * Tile::resolution;
 				vec2 tl = vec2(bl.x, tr.y);
 				vec2 br = vec2(tr.x, bl.y);
 

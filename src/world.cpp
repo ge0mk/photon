@@ -101,17 +101,17 @@ void World::update(float time, float dt) {
 
 	if(particleSystem.size() < 10000) {
 		for(unsigned i = 0; i < 10; i++) {
-			vec2 pos = vec2(float(rand()) / float(RAND_MAX) * 100 - 50, 40);
-			vec2 scale = vec2(0.02, 0.2) * ((float(rand()) / float(RAND_MAX) + 0.9) / 2 + 0.4);
-			vec2 speed = vec2(0.05, -float(rand()) / float(RAND_MAX) * 2 - 4);
+			vec2 pos = vec2(float(rand()) / float(RAND_MAX) * 100 - 50, 40) * 8;
+			vec2 scale = vec2(0.02, 0.2) * ((float(rand()) / float(RAND_MAX) + 0.9) / 2 + 0.4) * 8;
+			vec2 speed = vec2(0.05, -float(rand()) / float(RAND_MAX) * 2 - 4) * 8;
 			vec2 gravity = vec2(0, 0);
 			particleSystem.spawn(Particle(Particle::rain, pos, speed, gravity, scale, 0, 0));
 		}
 	}
 	for(Particle &p : particleSystem) {
 		if(p.type == Particle::rain && p.speed.y == 0.0) {
-			p.pos = vec2(float(rand()) / float(RAND_MAX) * 100 - 50, 40);
-			p.speed = vec2(0.05, -float(rand()) / float(RAND_MAX) * 2 - 4);
+			p.pos = vec2(float(rand()) / float(RAND_MAX) * 100 - 50, 40) * 8;
+			p.speed = vec2(0.05, -float(rand()) / float(RAND_MAX) * 2 - 4) * 8;
 		}
 	}
 	particleSystem.erase([](const Particle &p) -> bool {
@@ -137,8 +137,8 @@ void World::render() {
 	renderInfoUBO.update({vec4(0), cam->res, 0.0f, 0.0f});
 
 	for(auto &chunk : chunks) {
-		mat4 transform = mat4().translate(vec3(chunk->getPos() * Chunk::size));
-		if(dist(cam->pos.xy, vec2(chunk->getPos()) * Chunk::size) < Chunk::size * 2) {
+		mat4 transform = mat4().translate(vec3(chunk->getPos() * Chunk::size * Tile::resolution));
+		if(dist(cam->pos.xy, vec2(chunk->getPos()) * Chunk::size * Tile::resolution) < Chunk::size * Tile::resolution * 2) {
 			modelInfoUBO.update({transform, mat4()});
 			chunk->render();
 		}
@@ -216,10 +216,14 @@ vec2 World::snapToGrid(vec2 worldpos) {
 	return ivec2(worldpos) - ivec2(worldpos.x < 0 ? 1 : 0, worldpos.y < 0 ? 1 : 0);
 }
 
+ivec2 World::getTileIndex(vec2 worldpos) {
+	return snapToGrid(worldpos / Tile::resolution);
+}
+
 void World::createBloodParticles(vec2 pos) {
 	for(int i = 0; i < 10; i++) {
-		vec2 speed = vec2(float(rand()) / float(RAND_MAX) * 2 - 1, float(rand()) / float(RAND_MAX) * 2 - 1);
-		float rspeed = float(rand()) / float(RAND_MAX) * 2 - 1;
-		particleSystem.spawn(Particle(Particle::blood, pos + 0.5, speed, vec2(0, -5), vec2(0.05), 0, rspeed));
+		vec2 speed = vec2(float(rand()) / float(RAND_MAX) * 16 - 8, float(rand()) / float(RAND_MAX) * 16 - 8);
+		float rspeed = float(rand()) / float(RAND_MAX) * 8 - 4;
+		particleSystem.spawn(Particle(Particle::blood, pos + 0.5, speed, vec2(0, -32), vec2(0.5), 0, rspeed));
 	}
 }

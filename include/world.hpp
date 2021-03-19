@@ -62,6 +62,7 @@ public:
 	Tile getTileOrEmpty(const ivec2 &pos) const;
 
 	vec2 snapToGrid(vec2 worldpos);
+	ivec2 getTileIndex(vec2 worldpos);
 
 	void createBloodParticles(vec2 pos);
 

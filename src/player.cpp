@@ -1,10 +1,10 @@
 #include <player.hpp>
 
 Player::Player(Camera *cam, const std::shared_ptr<TiledTexture> &texture) : RigidBody(texture), cam(cam) {
-	pos = vec2(0, 5);
-	AABB::halfSize = vec2(0.5, 1.2);
-	aabbOffset = vec2(0.5, 1.2);
-	scale = vec2(50, 37) / 37.0f * 3.0f;
+	pos = vec2(0, 0);
+	AABB::halfSize = vec2(6, 15);
+	aabbOffset = vec2(8, 10);
+	scale = vec2(50, 37);
 	uvpos = ivec2(1, 6);
 }
 
@@ -101,7 +101,7 @@ void Player::update(float time, float dt, World *world) {
 	updateAnimation(time, dt, world);
 
 	RigidBody::update(time, dt, world);
-	transform = mat4().translate(rpos + vec3(0.0f, 0.315f, 0.0f)).scale(vec3(scale, 1)).translate(vec3(0, -0.0275, 0));
+	transform = mat4().translate(rpos + vec3(0, 2.5, 0)).scale(vec3(scale, 1));
 	uvtransform = texture->getUVTransform(uvpos);
 	cam->pos.xy = rpos;
 

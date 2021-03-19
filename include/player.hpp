@@ -34,7 +34,7 @@ protected:
 
 	std::array<float, Action::count> inputs, prevInputs;
 	State state = State::idle;
-	float jumpSpeed = 12.55, walkSpeed = 8, sneakSpeed = 5;
+	float jumpSpeed = 128, walkSpeed = 64, sneakSpeed = 5;
 	Camera *cam;
 
 	ivec2 uvpos;
