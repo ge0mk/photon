@@ -7,7 +7,7 @@ class Player : public RigidBody {
 public:
 	enum Action : uint8_t {
 		move = 0,
-		sprint,
+		walk,
 		jump,
 		dash,
 		sneak,
@@ -30,6 +30,7 @@ public:
 		a_run_sword,
 		a_fall,
 		a_jump,
+		a_doublejump,
 		a_crouch_jump,
 	};
 
@@ -47,10 +48,15 @@ protected:
 
 	std::array<float, Action::count> inputs, prevInputs;
 	State state = State::idle;
-	float jumpSpeed = 128, walkSpeed = 40, sprintSpeed = 100, sneakSpeed = 5;
+	float jumpSpeed = 128, walkSpeed = 64, sprintSpeed = 128, sneakSpeed = 5;
 	Camera *cam;
+	float animspeed = 2.0f;
+
 	float jumptime;
 	const float jumpanimtime = 0.5f;
+
+	uint8_t doublejump = 0;
+	const uint8_t doublejumpcount = 1;
 
 	ivec2 uvpos;
 	uint8_t animationState;

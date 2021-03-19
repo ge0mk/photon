@@ -8,6 +8,7 @@ const std::vector<std::vector<ivec2>> Player::animations = {
 	{ivec2(0, 9), ivec2(1, 9), ivec2(2, 9), ivec2(3, 9), ivec2(4, 9), ivec2(5, 9)},
 	{ivec2(5, 5), ivec2(6, 5)},
 	{ivec2(14, 6), ivec2(15, 6)},
+	{ivec2(11, 10), ivec2(12, 10), ivec2(13, 10), ivec2(14, 10)},
 	{ivec2(12, 6), ivec2(13, 6), ivec2(14, 6), ivec2(15, 6)},
 };
 
@@ -35,11 +36,11 @@ void Player::update(float time, float dt, World *world) {
 				jumptime = 0.0f;
 			}
 			else if(inputState(move) != 0.0f) {
-				if(inputState(sprint)) {
-					speed.x = sprintSpeed * (inputState(move) < 0 ? -1 : 1);
+				if(inputState(walk)) {
+					speed.x = walkSpeed * (inputState(move) < 0 ? -1 : 1);
 				}
 				else {
-					speed.x = walkSpeed * (inputState(move) < 0 ? -1 : 1);
+					speed.x = sprintSpeed * (inputState(move) < 0 ? -1 : 1);
 				}
 				state = State::walk;
 			}
@@ -50,11 +51,11 @@ void Player::update(float time, float dt, World *world) {
 				speed = 0;
 			}
 			else if(inputState(move) > 0.0f) {
-				if(inputState(sprint)) {
-					speed.x = sprintSpeed;
+				if(inputState(walk)) {
+					speed.x = walkSpeed;
 				}
 				else {
-					speed.x = walkSpeed;
+					speed.x = sprintSpeed;
 				}
 				if(mPushesRightWall) {
 					speed.x = 0.0f;
@@ -62,11 +63,11 @@ void Player::update(float time, float dt, World *world) {
 				scale.x = abs(scale.x);
 			}
 			else if(inputState(move) < 0.0f) {
-				if(inputState(sprint)) {
-					speed.x = -sprintSpeed;
+				if(inputState(walk)) {
+					speed.x = -walkSpeed;
 				}
 				else {
-					speed.x = -walkSpeed;
+					speed.x = -sprintSpeed;
 				}
 				if(mPushesLeftWall) {
 					speed.x = 0.0f;
@@ -89,11 +90,11 @@ void Player::update(float time, float dt, World *world) {
 				speed.x = 0;
 			}
 			else if(inputState(move) > 0.0f) {
-				if(inputState(sprint)) {
-					speed.x = sprintSpeed;
+				if(inputState(walk)) {
+					speed.x = walkSpeed;
 				}
 				else {
-					speed.x = walkSpeed;
+					speed.x = sprintSpeed;
 				}
 				if(mPushesRightWall) {
 					speed.x = 0.0f;
@@ -101,11 +102,11 @@ void Player::update(float time, float dt, World *world) {
 				scale.x = abs(scale.x);
 			}
 			else if(inputState(move) < 0.0f) {
-				if(inputState(sprint)) {
-					speed.x = -sprintSpeed;
+				if(inputState(walk)) {
+					speed.x = -walkSpeed;
 				}
 				else {
-					speed.x = -walkSpeed;
+					speed.x = -sprintSpeed;
 				}
 				if(mPushesLeftWall) {
 					speed.x = 0.0f;
@@ -118,11 +119,11 @@ void Player::update(float time, float dt, World *world) {
 				speed.x = 0;
 			}
 			else if(inputState(move) > 0.0f) {
-				if(inputState(sprint)) {
-					speed.x = sprintSpeed;
+				if(inputState(walk)) {
+					speed.x = walkSpeed;
 				}
 				else {
-					speed.x = walkSpeed;
+					speed.x = sprintSpeed;
 				}
 				if(mPushesRightWall) {
 					speed.x = 0.0f;
@@ -130,24 +131,26 @@ void Player::update(float time, float dt, World *world) {
 				scale.x = abs(scale.x);
 			}
 			else if(inputState(move) < 0.0f) {
-				if(inputState(sprint)) {
-					speed.x = -sprintSpeed;
+				if(inputState(walk)) {
+					speed.x = -walkSpeed;
 				}
 				else {
-					speed.x = -walkSpeed;
+					speed.x = -sprintSpeed;
 				}
 				if(mPushesLeftWall) {
 					speed.x = 0.0f;
 				}
 				scale.x = -abs(scale.x);
 			}
-			if(inputState(jump) && (jumptime > jumpanimtime || jumptime < 0.0f)) {
+			if(inputState(jump) && (jumptime > jumpanimtime || jumptime < 0.0f) && doublejump < doublejumpcount) {
+				doublejump++;
 				speed.y = jumpSpeed;
 				state = State::jump;
 				jumptime = 0.0f;
 			}
 			else if(mOnGround) {
 				state = State::idle;
+				doublejump = 0;
 			}
 		} break;
 		case State::dash: {} break;
@@ -180,20 +183,26 @@ void Player::updateAnimation(float time, float dt, World *world) {
 			uvpos = animations[a_idle][int(time * frames) % frames];
 		} break;
 		case State::walk: {
-			if(inputState(sprint)) {
+			if(!inputState(walk)) {
 				int frames = animations[a_run].size();
-				uvpos = animations[a_run][int(time * frames) % frames];
+				uvpos = animations[a_run][int(time * frames * 1.5f) % frames];
 			}
 			else {
 				int frames = animations[a_walk].size();
-				uvpos = animations[a_walk][int(time * frames) % frames];
+				uvpos = animations[a_walk][int(time * frames * 1.8f) % frames];
 			}
 		} break;
 		case State::jump:
 		case State::fall: {
 			if(jumptime >= 0.0f && jumptime < jumpanimtime) {	// jump
-				int frames = animations[a_jump].size();
-				uvpos = animations[a_jump][int(jumptime / jumpanimtime * frames) % frames];
+				if(doublejump) {
+					int frames = animations[a_doublejump].size();
+					uvpos = animations[a_doublejump][int(jumptime / jumpanimtime * frames) % frames];
+				}
+				else {
+					int frames = animations[a_jump].size();
+					uvpos = animations[a_jump][int(jumptime / jumpanimtime * frames * 1.2f) % frames];
+				}
 			}
 			else {	// fall
 				jumptime = -1.0f;

@@ -12,8 +12,9 @@ public:
 	static constexpr uint8_t resolution = 8;
 	enum etype : uint32_t {
 		null = 0,
-		stone,
 		grass,
+		dirt,
+		stone,
 	};
 
 	Tile(uint32_t type = null);
