@@ -90,9 +90,8 @@ void RigidBody::update(float time, float dt, World *world) {
 		mPushesRightWall = false;
 	}
 
-	AABB::pos = pos + aabbOffset;
-
-	rpos = round((pos + aabbOffset) * Tile::resolution) / Tile::resolution;
+	rpos = round((pos + aabbOffset) * 2.0f) / 2;
+	AABB::pos = rpos;
 	transform = mat4().translate(rpos).scale(vec3(scale, 1.0f));
 }
 

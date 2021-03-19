@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import os
 import json
 import re
@@ -59,7 +61,7 @@ maxh = 0
 
 for file in os.listdir("./sprites"):
     if(file.endswith(".png")):
-        animation = file[0:-7]
+        animation = file[0:-7].replace("adventurer-", "")
         index = int(file[-6:-4])
         if(animation not in sprites):
             sprites[animation] = dict()
@@ -107,3 +109,24 @@ out = fix_json_indent(out, 3)
 
 with open("sprites.json", "w") as f:
     f.write(out)
+
+with open("anim.cpp", "w") as f:
+    f.write("enum Animation : uint8_t {\n")
+    index = 0
+    for animname in sorted(sprites.keys()):
+        enumname = "a_" + animname.replace("-", "_")
+        f.write("\t" + enumname + ",\n")
+        index += 1
+    f.write("};\n")
+
+    f.write("\n")
+
+    f.write("const std::vector<std::vector<ivec2>> Player::animations = {\n")
+    for animname in sorted(sprites.keys()):
+        line = ""
+        for uv in sprites[animname]["uvs"]:
+            x = uv[0]
+            y = uv[1]
+            line += "ivec2(" + str(x) + ", " + str(y) + "), "
+        f.write("\t{" + line[:-2] + "},\n")
+    f.write("};\n")

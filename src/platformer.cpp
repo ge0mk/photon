@@ -23,6 +23,7 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	}
 	for(int i = 5; i < 128; i++) {
 		world[ivec2(i + 4, i)] = Tile::stone;
+		world[ivec2(i + 4, i - 1)] = Tile::stone;
 	}
 	for(int i = 0; i < 16; i++) {
 		world[ivec2(-i - 5, 8)] = Tile::stone;
