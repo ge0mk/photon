@@ -101,7 +101,7 @@ for name, animation in sorted(sprites.items()):
 
     sprites[name]["uvs"] = uvs
 
-atlas.save("atlas.png")
+atlas.save("player.png")
 
 out = json.dumps(sprites, sort_keys=True, indent=4)
 
