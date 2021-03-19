@@ -39,6 +39,7 @@ public:
 		a_crnr_grb,
 		a_crnr_jmp,
 		a_crouch,
+		a_crouch_jump,
 		a_crouch_walk,
 		a_die,
 		a_drop_kick,

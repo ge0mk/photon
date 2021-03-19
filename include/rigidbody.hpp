@@ -50,6 +50,8 @@ public:
 	vec2 scale = 1;
 	float mass = 1;
 
+	float maxspeed = 512.0f;
+
 	vec2 aabbOffset = 0;
 
 	bool mPushedRightWall = false;

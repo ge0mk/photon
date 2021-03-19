@@ -357,6 +357,19 @@ namespace math {
 	}
 
 	template<typename type>
+	tvec2<type> clamp(const tvec2<type> &v, type min, type max) {
+		return tvec2<type>(clamp(v.x, min, max), clamp(v.y, min, max));
+	}
+	template<typename type>
+	tvec3<type> clamp(const tvec3<type> &v, type min, type max) {
+		return tvec3<type>(clamp(v.x, min, max), clamp(v.y, min, max), clamp(v.z, min, max));
+	}
+	template<typename type>
+	tvec4<type> clamp(const tvec4<type> &v, type min, type max) {
+		return tvec4<type>(clamp(v.x, min, max), clamp(v.y, min, max), clamp(v.z, min, max), clamp(v.w, min, max));
+	}
+
+	template<typename type>
 	tvec2<type> mix(const tvec2<type> &a, const tvec2<type> &b, float amnt) {
 		return tvec2<type>(mix(a.x, b.x, amnt), mix(a.y, b.y, amnt));
 	}
