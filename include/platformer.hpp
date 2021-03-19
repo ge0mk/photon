@@ -52,7 +52,7 @@ public:
 
 private:
 	double time = 0, dt = 0;
-	Camera cam = Camera(vec3(0, 0, -64), vec3(), vec2(1080, 720), 90);
+	Camera cam = Camera(vec3(0, 0, -128), vec3(), vec2(1080, 720), 90, 2, 256);
 
 	World world;
 	TileCursor *cursor;

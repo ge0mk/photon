@@ -59,6 +59,8 @@ void Game::update() {
 		player->setInput(Player::jump, 1.0f);
 	if(getKey(GLFW_KEY_S))
 		player->setInput(Player::dash, 1.0f);
+	if(getKey(GLFW_KEY_LEFT_SHIFT))
+		player->setInput(Player::sprint, 1.0f);
 
 	cursor->pos = world.getTileIndex(screenToWorldSpace(getCursorPos())) * Tile::resolution;
 	if(getMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) {
