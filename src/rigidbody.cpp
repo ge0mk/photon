@@ -90,7 +90,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mPushesRightWall = false;
 	}
 
-	speed = clamp(speed, -maxspeed, maxspeed);
+	//speed = clamp(speed, -maxspeed, maxspeed);
 
 	rpos = round((pos + aabbOffset) * 2.0f) / 2;
 	AABB::pos = rpos;
@@ -109,20 +109,23 @@ bool RigidBody::checkGround(World *world, float &groundY) {
 	vec2 newbl = center - halfSize + vec2(0.0f, -1.0f);
 	vec2 newbr = vec2(newbl.x + halfSize.x * 2.0f, newbl.y);
 
-	float endY = world->getTileIndex(newbl.y).y;
-	float begY = max(world->getTileIndex(oldbl.y).y - 1.0f, endY);
+	float endY = std::floor(newbl.y);
+	float begY = max(std::ceil(oldbl.y) - 1.0f, endY);
 	float dist = max(abs(endY - begY), 1.0f);
 
-	for(int tileIndexY = begY; tileIndexY >= endY; tileIndexY--) {
-		vec2 bottomLeft = lerp(newbl, oldbl, abs(endY - tileIndexY) / dist);
+	for(float tileY = begY; tileY >= endY; tileY -= 1.0f) {
+		vec2 bottomLeft = lerp(newbl, oldbl, abs(endY - tileY) / dist);
 		vec2 bottomRight = vec2(bottomLeft.x + halfSize.x * 2.0f + Tile::resolution, bottomLeft.y);
 
-		for(vec2 checkedTile = newbl; checkedTile.x <= bottomRight.x; checkedTile.x += Tile::resolution) {
-			checkedTile.x = min(checkedTile.x, bottomRight.x);
-			ivec2 tileIndex = world->getTileIndex(checkedTile);
+		for(vec2 checkedPixel = newbl; checkedPixel.x <= bottomRight.x; checkedPixel.x += 1.0f) {
+			checkedPixel.x = min(checkedPixel.x, bottomRight.x);
+			ivec2 tileIndex = world->getTileIndex(checkedPixel);
 			Tile tile = world->at(tileIndex);
 
-			if(tile.collision() && AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution).intersects(*this)) {
+			AABB testaabb = AABB(lerp(pos, oldPos, abs(endY - tileY) / dist) + aabbOffset, halfSize);
+			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
+
+			if(tile.collision() && tileaabb.intersects(testaabb)) {
 				collidingTiles.push_back(tileIndex);
 				groundY = tileIndex.y * Tile::resolution + Tile::resolution;
 				return true;
@@ -140,20 +143,23 @@ bool RigidBody::checkCeiling(World *world, float &ceilingY) {
 	vec2 newtr = center + halfSize + vec2(0.0f, 1.0f);
 	vec2 newtl = vec2(newtr.x - halfSize.x * 2.0f, newtr.y);
 
-	float endY = world->getTileIndex(newtr.y).y;
-	float begY = max(world->getTileIndex(oldtr.y).y - 1.0f, endY);
+	float endY = std::ceil(newtr.y);
+	float begY = max(std::floor(oldtr.y) - 1.0f, endY);
 	float dist = max(abs(endY - begY), 1.0f);
 
-	for(int tileIndexY = begY; tileIndexY >= endY; tileIndexY--) {
-		vec2 topRight = lerp(newtr, oldtr, abs(endY - tileIndexY) / dist);
+	for(float tileY = begY; tileY >= endY; tileY -= 1.0f) {
+		vec2 topRight = lerp(newtr, oldtr, abs(endY - tileY) / dist);
 		vec2 topLeft = vec2(topRight.x - halfSize.x * 2.0f, topRight.y);
 
-		for(vec2 checkedTile = topLeft; checkedTile.x <= topRight.x; checkedTile.x += Tile::resolution) {
-			checkedTile.x = min(checkedTile.x, topRight.x);
-			ivec2 tileIndex = world->getTileIndex(checkedTile);
+		for(vec2 checkedPixel = topLeft; checkedPixel.x <= topRight.x; checkedPixel.x += 1.0f) {
+			checkedPixel.x = min(checkedPixel.x, topRight.x);
+			ivec2 tileIndex = world->getTileIndex(checkedPixel);
 			Tile tile = world->at(tileIndex);
 
-			if(tile.collision()) {
+			AABB testaabb = AABB(lerp(pos, oldPos, abs(endY - tileY) / dist) + aabbOffset, halfSize);
+			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
+
+			if(tile.collision() && tileaabb.intersects(testaabb)) {
 				collidingTiles.push_back(tileIndex);
 				ceilingY = tileIndex.y * Tile::resolution;
 				return true;
@@ -171,20 +177,23 @@ bool RigidBody::checkLeft(World *world, float &leftX) {
 	vec2 newbl = center - halfSize + vec2(-1.0f, 1.0f);
 	vec2 newtl = vec2(newbl.x, newbl.y + halfSize.y * 2.0f - 2.0f);
 
-	float endX = world->getTileIndex(newbl.x).x;
-	float begX = max(world->getTileIndex(oldbl.x).x - 1.0f, endX);
+	float endX = std::floor(newbl.x);
+	float begX = max(std::ceil(oldbl.x) - 1.0f, endX);
 	float dist = max(abs(endX - begX), 1.0f);
 
-	for(int tileIndexX = begX; tileIndexX >= endX; tileIndexX--) {
-		vec2 bottomLeft = lerp(newbl, oldbl, abs(endX - tileIndexX) / dist);
+	for(float tileX = begX; tileX >= endX; tileX -= 1.0f) {
+		vec2 bottomLeft = lerp(newbl, oldbl, abs(endX - tileX) / dist);
 		vec2 topLeft = vec2(bottomLeft.x, bottomLeft.y + halfSize.y * 2.0f - 2.0f);
 
-		for(vec2 checkedTile = bottomLeft; checkedTile.y <= topLeft.y; checkedTile.y += Tile::resolution) {
-			checkedTile.y = min(checkedTile.y, topLeft.y);
-			ivec2 tileIndex = world->getTileIndex(checkedTile);
+		for(vec2 checkedPixel = bottomLeft; checkedPixel.y <= topLeft.y; checkedPixel.y += 1.0f) {
+			checkedPixel.y = min(checkedPixel.y, topLeft.y);
+			ivec2 tileIndex = world->getTileIndex(checkedPixel);
 			Tile tile = world->at(tileIndex);
 
-			if(tile.collision()) {
+			AABB testaabb = AABB(lerp(pos, oldPos, abs(endX - tileX) / dist) + aabbOffset, halfSize);
+			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
+
+			if(tile.collision() && tileaabb.intersects(testaabb)) {
 				collidingTiles.push_back(tileIndex);
 				leftX = tileIndex.x * Tile::resolution - Tile::resolution;
 				return true;
@@ -202,20 +211,23 @@ bool RigidBody::checkRight(World *world, float &rightX) {
 	vec2 newbr = center + vec2(halfSize.x, -halfSize.y) + vec2(1.0f, 1.0f);
 	vec2 newtr = vec2(newbr.x, newbr.y + halfSize.y * 2.0f - 2.0f);
 
-	float endX = world->getTileIndex(newbr.x).x;
-	float begX = max(world->getTileIndex(oldbr.x).x - 1.0f, endX);
+	float endX = std::ceil(newbr.x);
+	float begX = max(std::floor(oldbr.x) - 1.0f, endX);
 	float dist = max(abs(endX - begX), 1.0f);
 
-	for(int tileIndexX = begX; tileIndexX >= endX; tileIndexX--) {
-		vec2 bottomRight = lerp(newbr, oldbr, abs(endX - tileIndexX) / dist);
+	for(float tileX = begX; tileX >= endX; tileX -= 1.0f) {
+		vec2 bottomRight = lerp(newbr, oldbr, abs(endX - tileX) / dist);
 		vec2 topRight = vec2(bottomRight.x, bottomRight.y + halfSize.y * 2.0f - 2.0f);
 
-		for(vec2 checkedTile = bottomRight; checkedTile.y <= topRight.y; checkedTile.y += Tile::resolution) {
-			checkedTile.y = min(checkedTile.y, topRight.y);
-			ivec2 tileIndex = world->getTileIndex(checkedTile);
+		for(vec2 checkedPixel = bottomRight; checkedPixel.y <= topRight.y; checkedPixel.y += 1.0f) {
+			checkedPixel.y = min(checkedPixel.y, topRight.y);
+			ivec2 tileIndex = world->getTileIndex(checkedPixel);
 			Tile tile = world->at(tileIndex);
 
-			if(tile.collision()) {
+			AABB testaabb = AABB(lerp(pos, oldPos, abs(endX - tileX) / dist) + aabbOffset, halfSize);
+			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
+
+			if(tile.collision() && tileaabb.intersects(testaabb)) {
 				collidingTiles.push_back(tileIndex);
 				rightX = tileIndex.x * Tile::resolution;
 				return true;
