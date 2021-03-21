@@ -44,11 +44,13 @@ public:
 public:
 	vec2 pos = 0, oldPos = 0, rpos = 0;
 	vec2 speed = 0, oldSpeed = 0;
-	vec2 gravity = vec2(0, -20);
+	vec2 gravity = vec2(0, -256);
 	vec2 acceleration = 0;
 	vec2 forces = 0;
 	vec2 scale = 1;
 	float mass = 1;
+
+	float maxspeed = 512.0f;
 
 	vec2 aabbOffset = 0;
 

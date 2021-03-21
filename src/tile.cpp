@@ -7,6 +7,7 @@ void Tile::init(uint32_t type) {
 }
 
 void Tile::update(float time, float dt, ivec2 pos, Chunk *chunk) {
+	variant = (pos.x % 2) + ((pos.y - 1) % 2) * 2;
 	switch(type) {}
 }
 
@@ -18,9 +19,16 @@ bvec4 Tile::hitbox() const {
 
 vec2 Tile::texture() const {
 	switch(type) {
-		case null: return vec2(0,0);
-		case stone: return vec2(0,7);
-		case grass: return vec2(0,1);
+		case null: return vec2(0, 0);
+		case grass: {
+			return vec2(0 + (variant & 1), 2 + ((variant & 2)>>1));
+			if(variant == 0) return vec2(0, 2);
+			if(variant == 1) return vec2(1, 2);
+			if(variant == 2) return vec2(0, 3);
+			if(variant == 3) return vec2(1, 3);
+		}
+		case dirt: return vec2(0 + (variant & 1), 4 + ((variant & 2)>>1));
+		case stone: return vec2(0 + (variant & 1), 14 + ((variant & 2)>>1));
 		default: return vec2();
 	}
 }

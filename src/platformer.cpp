@@ -3,13 +3,13 @@
 TileCursor::TileCursor(std::shared_ptr<TiledTexture> sprites) : Entity(sprites) {}
 
 void TileCursor::update(float time, float dt, World *world) {
-	transform = mat4().translate(pos + 0.5).scale(1.0f + 2.0f / Tile::resolution);
+	transform = mat4().translate(pos + 0.5 * Tile::resolution).scale(Tile::resolution + 1.0f);
 }
 
 Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl", &cam), gui(freetype::Font("res/jetbrains-mono.ttf")) {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
-	auto tileset = textures.load("res/tileset.png", ivec2(16, 16));
+	auto tileset = textures.load("res/tileset.png", ivec2(32));
 	world.setTexturePtr(tileset);
 
 	world.setAutoGrow(true);
@@ -17,19 +17,23 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	world.createChunk(ivec2(-1, -1))->fill(Tile::stone);
 	for(int x = -33; x < 32; x++) {
 		world[ivec2(x, -1)] = Tile::grass;
+		world[ivec2(x, -2)] = Tile::grass;
+		world[ivec2(x, -3)] = Tile::dirt;
+		world[ivec2(x, -4)] = Tile::dirt;
 	}
-	for(int i = 0; i < 128; i++) {
-		world[ivec2(i)] = Tile::stone;
+	for(int i = 5; i < 128; i++) {
+		world[ivec2(i + 4, i)] = Tile::stone;
+		world[ivec2(i + 4, i - 1)] = Tile::stone;
 	}
-	for(int i = 0; i < 8; i++) {
-		world[ivec2(-i - 4, 5)] = Tile::stone;
+	for(int i = 0; i < 16; i++) {
+		world[ivec2(-i - 5, 8)] = Tile::stone;
 	}
-	world[ivec2(-4,0)] = Tile::stone;
-	world[ivec2(-4,1)] = Tile::stone;
-	world[ivec2(-4,2)] = Tile::stone;
-	world[ivec2(-7,1)] = Tile::stone;
+	world[ivec2(-5,0)] = Tile::stone;
+	world[ivec2(-5,1)] = Tile::stone;
+	world[ivec2(-5,2)] = Tile::stone;
+	world[ivec2(-5,3)] = Tile::stone;
 
-	auto playerSprite = textures.load("res/player.png", 1);
+	auto playerSprite = textures.load("res/player.png", ivec2(16, 13));
 	player = world.createEntity<Player>(&cam, playerSprite);
 
 	auto cursorSprite = textures.load("res/crosshair.png", 1);
@@ -55,17 +59,19 @@ void Game::update() {
 		player->setInput(Player::jump, 1.0f);
 	if(getKey(GLFW_KEY_S))
 		player->setInput(Player::dash, 1.0f);
+	if(getKey(GLFW_KEY_LEFT_SHIFT))
+		player->setInput(Player::walk, 1.0f);
 
-	cursor->pos = world.snapToGrid(screenToWorldSpace(getCursorPos()));
+	cursor->pos = world.getTileIndex(screenToWorldSpace(getCursorPos())) * Tile::resolution;
 	if(getMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) {
 		world.createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
 	}
 
 	if (getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-		world[cursor->pos] = Tile::stone;
+		world[cursor->pos / Tile::resolution] = Tile::stone;
 	}
 	else if (getMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
-		world[cursor->pos] = Tile::null;
+		world[cursor->pos / Tile::resolution] = Tile::null;
 	}
 
 	world.update(glfwGetTime(), dt);
