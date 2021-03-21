@@ -147,7 +147,7 @@ void World::render() {
 	for(auto &entity : entities) {
 		mat4 transform = entity->getTransform();
 		vec2 pos = transform * vec4(0.0f, 0.0f, 0.0f, 1.0f);
-		if(dist(cam->pos.xy, pos) < Chunk::size * 2) {
+		if(dist(cam->pos.xy, pos) < Chunk::size * Tile::resolution * 2) {
 			modelInfoUBO.update({transform, entity->getUVTransform()});
 			entity->getTexturePtr()->activate();
 			unitplane.drawElements();

@@ -86,7 +86,7 @@ protected:
 	Camera *cam;
 	float animspeed = 2.0f;
 
-	float jumptime;
+	float jumptime, falltime;
 	const float jumpanimtime = 0.5f;
 
 	uint8_t doublejump = 0;

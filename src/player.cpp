@@ -149,6 +149,7 @@ void Player::update(float time, float dt, World *world) {
 			}
 		} break;
 		case State::fall: {
+			falltime += dt;
 			if(inputState(move) == 0.0f) {
 				speed.x = 0;
 			}
@@ -177,7 +178,9 @@ void Player::update(float time, float dt, World *world) {
 				scale.x = -abs(scale.x);
 			}
 			if(inputState(jump) && (jumptime > jumpanimtime || jumptime < 0.0f) && doublejump < doublejumpcount) {
-				doublejump++;
+				if(falltime > 0.2) {
+					doublejump++;
+				}
 				speed.y = jumpSpeed;
 				state = State::jump;
 				jumptime = 0.0f;
@@ -185,6 +188,7 @@ void Player::update(float time, float dt, World *world) {
 			else if(mOnGround) {
 				state = State::idle;
 				doublejump = 0;
+				falltime = 0;
 			}
 		} break;
 		case State::dash: {} break;
