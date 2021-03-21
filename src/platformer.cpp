@@ -67,16 +67,22 @@ void Game::update() {
 		world.createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
 	}
 
-	if (getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-		world[cursor->pos / Tile::resolution] = Tile::stone;
-	}
-	else if (getMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
-		world[cursor->pos / Tile::resolution] = Tile::null;
+	updateui();
+
+	if(!gui.usesMouse()) {
+		if (getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
+			world[cursor->pos / Tile::resolution] = Tile::stone;
+		}
+		else if (getMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
+			world[cursor->pos / Tile::resolution] = Tile::null;
+		}
 	}
 
 	world.update(glfwGetTime(), dt);
 	cam.update(glfwGetTime(), dt);
+}
 
+void Game::updateui() {
 	auto to_string = [](float v, int precision = 3) -> std::string {
 		std::stringstream stream;
 		stream<<std::fixed<<std::setprecision(precision)<<v;
@@ -100,8 +106,9 @@ void Game::update() {
 		gui.circleSegment(vec2(600.0f, 100.0f), 100.0f, 80.0f, pi/2.0f, pi*2.0f, vec4(0.5, 0.05f, 0.1f, 1.0f), 96);
 		gui.circleSegment(vec2(600.0f, 100.0f), 100.0f, 80.0f, 0.0f, pi/2.0f, vec4(0.1f, 0.2f, 0.8f, 1.0f), 32);
 		gui.text(to_string(round(fps * 10.0f) / 10.0f) + " fps", vec2(getFramebufferSize().x - 450.0f, 50.0f), vec4(1.0f));
-		if(gui.button("Click me!", vec2(10, 100), vec4(0.2f, 0.2f, 0.2f, 1.0f))) {
-			std::cout<<"click!\n";
+		if(gui.button("respawn!", vec2(10, 100), vec4(0.2f, 0.2f, 0.2f, 1.0f))) {
+			player->pos = vec2(0);
+			player->speed = vec2(0);
 		}
 	gui.endFrame();
 }

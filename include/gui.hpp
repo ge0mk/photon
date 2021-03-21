@@ -129,14 +129,18 @@ public:
 	bool buttonReleased(int button);
 	bool buttonJustReleased(int button);
 
+	void beginFrame();
 	void endFrame();
+
+	bool usesMouse();
+	bool usesKeyboard();
 
 protected:
 	vec2 mousePos, dmouse;
 	vec2 frameBufferSize, contentScale;
 	float time, dt;
 	float depth;
-	bool focus;
+	bool focus, mouse, keyboard;
 
 	std::array<uint8_t, GLFW_KEY_LAST + 1> keys;
 	std::array<uint8_t, GLFW_MOUSE_BUTTON_LAST + 1> buttons;

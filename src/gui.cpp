@@ -79,6 +79,11 @@ bool GuiIO::buttonJustReleased(int button) {
 	return buttons[button] == 2;
 }
 
+void GuiIO::beginFrame() {
+	mouse = false;
+	keyboard = false;
+}
+
 void GuiIO::endFrame() {
 	for(unsigned i = 0; i < keys.size(); i++) {
 		keys[i] %= 2;	// when keys[i] == 2 -> keys[i] becomes 0, but when keys[i] == 1 nothing changes
@@ -86,6 +91,14 @@ void GuiIO::endFrame() {
 	for(unsigned i = 0; i < buttons.size(); i++) {
 		buttons[i] %= 2;	// same as above
 	}
+}
+
+bool GuiIO::usesMouse() {
+	return mouse;
+}
+
+bool GuiIO::usesKeyboard() {
+	return keyboard;
 }
 
 GuiSystem::GuiSystem(freetype::Font &&font) : textRenderer(std::move(font)) {
@@ -102,6 +115,7 @@ GuiSystem::GuiSystem(freetype::Font &&font) : textRenderer(std::move(font)) {
 }
 
 void GuiSystem::beginFrame(float time, float dt) {
+	GuiIO::beginFrame();
 	mesh.clear();
 	textRenderer.clear();
 	depth = 0.0f;
@@ -195,8 +209,11 @@ bool GuiSystem::button(const std::string &text, vec2 pos, vec4 bgcolor, vec4 tex
 	rect(pos, pos + size, bgcolor, z);
 	textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y - size.y, z)), textcolor);
 	vec2 mouse = mousePos - pos;
-	if(mouse.x > 0 && mouse.x < size.x && mouse.y > 0 && mouse.y < size.y && buttonJustReleased(GLFW_MOUSE_BUTTON_LEFT)) {
-		return true;
+	if(mouse.x > 0 && mouse.x < size.x && mouse.y > 0 && mouse.y < size.y) {
+		GuiIO::mouse = true;
+		if(buttonJustReleased(GLFW_MOUSE_BUTTON_LEFT)) {
+			return true;
+		}
 	}
 	return false;
 }

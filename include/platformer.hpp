@@ -45,7 +45,7 @@ public:
 	// gameloop
 	void update() override;
 	void render() override;
-	//void renderUI() override;
+	void updateui();
 
 	// mechanics
 	vec2 screenToWorldSpace(vec2 cursorpos);
