@@ -44,6 +44,8 @@ public:
 		return entity;
 	}
 
+	std::shared_ptr<TextObject> createTextObject(const std::string &text, const mat4 &transform, vec4 color = vec4(1));
+
 	void save(const std::string &path) const;
 	void load(const std::string &path);
 

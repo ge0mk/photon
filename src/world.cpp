@@ -8,8 +8,6 @@
 World::World(const std::string &path, const Camera *cam) : cam(cam), textRenderer(freetype::Font("res/jetbrains-mono.ttf")) {
 	loadShader(path);
 	init();
-
-	textRenderer.createObject("Hello World!", mat4().scale(0.05), vec4(1));
 }
 
 World::~World() {}
@@ -80,6 +78,10 @@ const Chunk* World::getChunk(ivec2 pos) const {
 		}
 	}
 	throw std::runtime_error("no chunk at (" + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ")!");
+}
+
+std::shared_ptr<TextObject> World::createTextObject(const std::string &text, const mat4 &transform, vec4 color) {
+	return textRenderer.createObject(text, transform, color);
 }
 
 void World::setAutoGrow(bool state) {
