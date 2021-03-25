@@ -20,8 +20,9 @@ vec2 Tile::texture(svec2 pos) const {
 	switch(type) {
 		case null: return vec2(0, 0);
 		case grass: return vec2(0 + (pos.x % 2), 2 + ((pos.y + 1) % 2));
-		case dirt: return vec2(0 + (pos.x % 2), 4 + ((pos.y + 1) % 2));
-		case stone: return vec2(0 + (pos.x % 2), 14 + (pos.y % 2));
+		case dirt: return vec2(0 + (pos.x % 2), 4 + variant);
+		case stone: return vec2(0 + (pos.x % 2), 14 + variant);
+		case rock: return vec2(0 + (pos.x % 2), 22 + ((pos.y + 1) % 2));
 		default: return vec2();
 	}
 }

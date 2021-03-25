@@ -40,6 +40,8 @@ public:
 	Chunk* getChunk(lvec2 pos);
 	const Chunk* getChunk(lvec2 pos) const;
 
+	Chunk* generateFlatChunk(lvec2 pos);
+
 	template<typename T, typename ...Args>
 	std::shared_ptr<T> createEntity(Args ...args) {
 		std::shared_ptr<T> entity = std::shared_ptr<T>(new T(args...));
@@ -60,6 +62,7 @@ public:
 	void renderCollisions(std::vector<ivec2> tiles, std::shared_ptr<TiledTexture> texture = {});
 
 	void shift(ivec2 dir);
+	lvec2 getShiftOffset() const;
 
 	Tile& operator[](const ivec2 &pos);
 	const Tile& operator[](const ivec2 &pos) const;
@@ -108,5 +111,5 @@ private:
 
 	Tile fallback;
 
-	ivec2 abspos = 0;
+	ivec2 shiftOffset = 0;
 };

@@ -23,12 +23,16 @@ void Particle::update(float time, float dt, World *world) {
 	rotation += rotspeed * dt * 5;
 	lifetime += dt;
 	if(world->getTileOrEmpty(world->getTileIndex(pos)).type != Tile::null) {
-		speed = 0;
-		vec2 tmp = pos + vec2(rotspeed*dt, 0.1);
-		vec2 tmp2 = pos + vec2(-rotspeed*dt, -0.1);
+		if(abs(speed.x) > abs(speed.y) && fract(pos.y) > 0.95)
+			speed.x = 0;
+		else {
+			speed.y = 0;
+		}
+		vec2 tmp = pos + vec2(rotspeed * dt * 8, 0.1);
+		vec2 tmp2 = pos + vec2(-rotspeed * dt, -0.1);
 		if(fract(pos.y) > 0.95 && world->getTileOrEmpty(world->getTileIndex(tmp)).type == Tile::null) {
-			pos.x += rotspeed * dt;
-			speed.x = rotspeed;
+			pos.x += rotspeed * dt * 8;
+			speed.x = rotspeed * 8;
 		}
 		else if(world->getTileOrEmpty(world->getTileIndex(tmp2)).type == Tile::null) {
 			pos.y -= 0.2 * dt;

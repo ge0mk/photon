@@ -85,6 +85,24 @@ const Chunk* World::getChunk(lvec2 pos) const {
 	return nullptr;
 }
 
+Chunk* World::generateFlatChunk(lvec2 pos) {
+	Chunk *chunk = createChunk(pos);
+	chunk->fill(Tile::rock);
+
+	for(int x = 0; x < Chunk::size; x++) {
+		chunk->at(ivec2(x, Chunk::size - 1)) = Tile::grass;
+		chunk->at(ivec2(x, Chunk::size - 2)) = Tile::grass;
+		for(int y = 0; y < 10; y++) {
+			chunk->at(ivec2(x, Chunk::size - 3 - y)) = Tile(Tile::dirt, y);
+		}
+		for(int y = 0; y < 10; y++) {
+			chunk->at(ivec2(x, Chunk::size - 13 - y)) = Tile(Tile::stone, y);
+		}
+	}
+
+	return chunk;
+}
+
 std::shared_ptr<TextObject> World::createTextObject(const std::string &text, const mat4 &transform, vec4 color) {
 	return textRenderer.createObject(text, transform, color);
 }
@@ -248,7 +266,11 @@ void World::shift(ivec2 dir) {
 		entity->shift(dir);
 	}
 	particleSystem.shift(dir);
-	abspos += dir;
+	shiftOffset += dir;
+}
+
+lvec2 World::getShiftOffset() const {
+	return shiftOffset;
 }
 
 Tile& World::operator[](const ivec2 &pos) {
@@ -297,8 +319,9 @@ ivec2 World::getTileIndex(vec2 worldpos) const {
 
 void World::createBloodParticles(vec2 pos) {
 	for(int i = 0; i < 10; i++) {
-		vec2 speed = vec2(float(rand()) / float(RAND_MAX) * 16 - 8, float(rand()) / float(RAND_MAX) * 16 - 8);
-		float rspeed = float(rand()) / float(RAND_MAX) * 8 - 4;
-		particleSystem.spawn(Particle(Particle::blood, pos + 0.5, speed, vec2(0, -32), vec2(0.5), 0, rspeed));
+		vec2 speed = vec2(rand(-32, 32), rand(-32, 32));
+		float rspeed = rand(2, 4);
+		rspeed *= ((speed.x > 0) ? 1 : -1);
+		particleSystem.spawn(Particle(Particle::blood, pos + 0.5, speed, vec2(0, -128), vec2(2.0f), 0, rspeed));
 	}
 }

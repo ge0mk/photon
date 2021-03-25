@@ -15,6 +15,7 @@ public:
 		grass,
 		dirt,
 		stone,
+		rock,
 	};
 
 	Tile(uint32_t type = null, uint32_t variant = 0, uint64_t custom = 0);

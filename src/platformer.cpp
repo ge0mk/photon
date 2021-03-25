@@ -13,14 +13,9 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	world.setTexturePtr(tileset);
 
 	world.setAutoGrow(true);
-	world.createChunk(ivec2(0, -1))->fill(Tile::stone);
-	world.createChunk(ivec2(-1, -1))->fill(Tile::stone);
-	for(int x = -33; x < 32; x++) {
-		world[ivec2(x, -1)] = Tile::grass;
-		world[ivec2(x, -2)] = Tile::grass;
-		world[ivec2(x, -3)] = Tile::dirt;
-		world[ivec2(x, -4)] = Tile::dirt;
-	}
+	world.generateFlatChunk(lvec2(0, -1));
+	world.generateFlatChunk(lvec2(-1, -1));
+
 	for(int i = 5; i < 128; i++) {
 		world[ivec2(i + 4, i)] = Tile::stone;
 		world[ivec2(i + 4, i - 1)] = Tile::stone;
