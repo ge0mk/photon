@@ -6,7 +6,7 @@ void TileCursor::update(float time, float dt, World *world) {
 	transform = mat4().translate(pos + 0.5 * Tile::resolution).scale(Tile::resolution + 1.0f);
 }
 
-Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl", &cam) {
+Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl", cam) {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
 	auto tileset = textures.load("res/tileset.png", ivec2(32));
@@ -108,9 +108,6 @@ void Game::updateInputs() {
 	else if (getMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
 		world[cursor->pos / Tile::resolution] = Tile::null;
 	}
-
-	world.update(glfwGetTime(), dt);
-	cam.update(glfwGetTime(), dt);
 }
 
 void Game::render() {

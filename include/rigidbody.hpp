@@ -32,10 +32,12 @@ public:
 	void update(float time, float dt, World *world) override;
 	void applyForce(vec2 f);
 
-	bool checkGround(World *world, float &groundY);
-	bool checkCeiling(World *world, float &ceilingY);
-	bool checkLeft(World *world, float &leftX);
-	bool checkRight(World *world, float &rightX);
+	void shift(ivec2 dir) override;
+
+	bool checkGround(const World &world, float &groundY);
+	bool checkCeiling(const World &world, float &ceilingY);
+	bool checkLeft(const World &world, float &leftX);
+	bool checkRight(const World &world, float &rightX);
 
 	const std::vector<ivec2>& getCollidingTiles() const;
 	vec2 getPos() const;

@@ -84,6 +84,12 @@ void ParticleSystem::render(mat4 transform) {
 	vao.unbind();
 }
 
+void ParticleSystem::shift(ivec2 dir) {
+	for(Particle &p : particles) {
+		p.pos += vec2(dir) * Chunk::size * Tile::resolution;
+	}
+}
+
 void ParticleSystem::setTexture(const std::shared_ptr<TiledTexture> &texture) {
 	this->texture = texture;
 }

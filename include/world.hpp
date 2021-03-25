@@ -59,6 +59,8 @@ public:
 	void render();
 	void renderCollisions(std::vector<ivec2> tiles, std::shared_ptr<TiledTexture> texture = {});
 
+	void shift(ivec2 dir);
+
 	Tile& operator[](const ivec2 &pos);
 	const Tile& operator[](const ivec2 &pos) const;
 	Tile& at(const ivec2 &pos);
@@ -66,8 +68,8 @@ public:
 
 	Tile getTileOrEmpty(const ivec2 &pos) const;
 
-	vec2 snapToGrid(vec2 worldpos);
-	ivec2 getTileIndex(vec2 worldpos);
+	vec2 snapToGrid(vec2 worldpos) const;
+	ivec2 getTileIndex(vec2 worldpos) const;
 
 	void createBloodParticles(vec2 pos);
 
@@ -105,4 +107,6 @@ private:
 	TextRenderer textRenderer;
 
 	Tile fallback;
+
+	ivec2 abspos = 0;
 };

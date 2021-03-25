@@ -56,10 +56,10 @@
 		EmitVertex();
 	}
 
-	const vec2 tl = vec2(-1,  1);
-	const vec2 tr = vec2( 1,  1);
-	const vec2 br = vec2( 1, -1);
-	const vec2 bl = vec2(-1, -1);
+	const vec2 tl = vec2(-0.5f,  0.5f);
+	const vec2 tr = vec2( 0.5f,  0.5f);
+	const vec2 br = vec2( 0.5f, -0.5f);
+	const vec2 bl = vec2(-0.5f, -0.5f);
 
 	void main() {
 		vec2 pos = gs_in[0].pos;

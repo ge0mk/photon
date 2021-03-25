@@ -30,7 +30,7 @@ void RigidBody::update(float time, float dt, World *world) {
 	float leftWallX = 0.0f, rightWallX = 0.0f;
 	collidingTiles.clear();
 
-	if (speed.x < 0.0f && checkLeft(world, leftWallX)) {
+	if (speed.x < 0.0f && checkLeft(*world, leftWallX)) {
 		if(oldPos.x - halfSize.x + aabbOffset.x >= leftWallX) {
 			pos.x = leftWallX + halfSize.x + aabbOffset.x + 0.01f;
 			mPushesLeftWall = true;
@@ -41,7 +41,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mPushesLeftWall = false;
 	}
 
-	if (speed.x > 0.0f && checkRight(world, rightWallX)) {
+	if (speed.x > 0.0f && checkRight(*world, rightWallX)) {
 		if(oldPos.x + halfSize.x + aabbOffset.x <= rightWallX) {
 			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
 			mPushesRightWall = true;
@@ -52,7 +52,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mPushesRightWall = false;
 	}
 
-	if(speed.y <= 0.0f && checkGround(world, groundY)) {
+	if(speed.y <= 0.0f && checkGround(*world, groundY)) {
 		pos.y = groundY + halfSize.y - aabbOffset.y;
 		speed.y = 0;
 		mOnGround = true;
@@ -61,7 +61,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mOnGround = false;
 	}
 
-	if(speed.y >= 0.0f && checkCeiling(world, ceilingY)) {
+	if(speed.y >= 0.0f && checkCeiling(*world, ceilingY)) {
 		pos.y = ceilingY - halfSize.y - aabbOffset.y;
 		speed.y = 0;
 		mAtCeiling = true;
@@ -70,7 +70,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mAtCeiling = false;
 	}
 
-	if (speed.x == 0.0f && checkLeft(world, leftWallX)) {
+	if (speed.x == 0.0f && checkLeft(*world, leftWallX)) {
 		if(oldPos.x - halfSize.x + aabbOffset.x >= leftWallX) {
 			pos.x = leftWallX + halfSize.x + aabbOffset.x + 0.01f;
 			mPushesLeftWall = true;
@@ -80,7 +80,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mPushesLeftWall = false;
 	}
 
-	if (speed.x == 0.0f && checkRight(world, rightWallX)) {
+	if (speed.x == 0.0f && checkRight(*world, rightWallX)) {
 		if(oldPos.x + halfSize.x + aabbOffset.x <= rightWallX) {
 			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
 			mPushesRightWall = true;
@@ -102,7 +102,13 @@ void RigidBody::applyForce(vec2 f) {
 	forces += f;
 }
 
-bool RigidBody::checkGround(World *world, float &groundY) {
+void RigidBody::shift(ivec2 dir) {
+	pos += vec2(dir) * Chunk::size * Tile::resolution;
+	oldPos += vec2(dir) * Chunk::size * Tile::resolution;
+	Entity::shift(dir);
+}
+
+bool RigidBody::checkGround(const World &world, float &groundY) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
@@ -118,10 +124,10 @@ bool RigidBody::checkGround(World *world, float &groundY) {
 		vec2 bottomLeft = lerp(newbl, oldbl, abs(endY - tileY) / dist);
 		vec2 bottomRight = vec2(bottomLeft.x + halfSize.x * 2.0f + Tile::resolution, bottomLeft.y);
 
-		for(vec2 checkedPixel = newbl; checkedPixel.x <= bottomRight.x; checkedPixel.x += 1.0f) {
+		for(vec2 checkedPixel = newbl; checkedPixel.x <= bottomRight.x; checkedPixel.x += 0.5f * Tile::resolution) {
 			checkedPixel.x = min(checkedPixel.x, bottomRight.x);
-			ivec2 tileIndex = world->getTileIndex(checkedPixel);
-			Tile tile = world->at(tileIndex);
+			ivec2 tileIndex = world.getTileIndex(checkedPixel);
+			Tile tile = world.at(tileIndex);
 
 			AABB testaabb = AABB(lerp(pos, oldPos, abs(endY - tileY) / dist) + aabbOffset, halfSize);
 			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
@@ -136,7 +142,7 @@ bool RigidBody::checkGround(World *world, float &groundY) {
 	return false;
 }
 
-bool RigidBody::checkCeiling(World *world, float &ceilingY) {
+bool RigidBody::checkCeiling(const World &world, float &ceilingY) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
@@ -152,10 +158,10 @@ bool RigidBody::checkCeiling(World *world, float &ceilingY) {
 		vec2 topRight = lerp(newtr, oldtr, abs(endY - tileY) / dist);
 		vec2 topLeft = vec2(topRight.x - halfSize.x * 2.0f, topRight.y);
 
-		for(vec2 checkedPixel = topLeft; checkedPixel.x <= topRight.x; checkedPixel.x += 1.0f) {
+		for(vec2 checkedPixel = topLeft; checkedPixel.x <= topRight.x; checkedPixel.x += 0.5f * Tile::resolution) {
 			checkedPixel.x = min(checkedPixel.x, topRight.x);
-			ivec2 tileIndex = world->getTileIndex(checkedPixel);
-			Tile tile = world->at(tileIndex);
+			ivec2 tileIndex = world.getTileIndex(checkedPixel);
+			Tile tile = world.at(tileIndex);
 
 			AABB testaabb = AABB(lerp(pos, oldPos, abs(endY - tileY) / dist) + aabbOffset, halfSize);
 			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
@@ -170,7 +176,7 @@ bool RigidBody::checkCeiling(World *world, float &ceilingY) {
 	return false;
 }
 
-bool RigidBody::checkLeft(World *world, float &leftX) {
+bool RigidBody::checkLeft(const World &world, float &leftX) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
@@ -186,10 +192,10 @@ bool RigidBody::checkLeft(World *world, float &leftX) {
 		vec2 bottomLeft = lerp(newbl, oldbl, abs(endX - tileX) / dist);
 		vec2 topLeft = vec2(bottomLeft.x, bottomLeft.y + halfSize.y * 2.0f - 2.0f);
 
-		for(vec2 checkedPixel = bottomLeft; checkedPixel.y <= topLeft.y; checkedPixel.y += 1.0f) {
+		for(vec2 checkedPixel = bottomLeft; checkedPixel.y <= topLeft.y; checkedPixel.y += 0.5f * Tile::resolution) {
 			checkedPixel.y = min(checkedPixel.y, topLeft.y);
-			ivec2 tileIndex = world->getTileIndex(checkedPixel);
-			Tile tile = world->at(tileIndex);
+			ivec2 tileIndex = world.getTileIndex(checkedPixel);
+			Tile tile = world.at(tileIndex);
 
 			AABB testaabb = AABB(lerp(pos, oldPos, abs(endX - tileX) / dist) + aabbOffset, halfSize);
 			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
@@ -204,7 +210,7 @@ bool RigidBody::checkLeft(World *world, float &leftX) {
 	return false;
 }
 
-bool RigidBody::checkRight(World *world, float &rightX) {
+bool RigidBody::checkRight(const World &world, float &rightX) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
@@ -220,10 +226,10 @@ bool RigidBody::checkRight(World *world, float &rightX) {
 		vec2 bottomRight = lerp(newbr, oldbr, abs(endX - tileX) / dist);
 		vec2 topRight = vec2(bottomRight.x, bottomRight.y + halfSize.y * 2.0f - 2.0f);
 
-		for(vec2 checkedPixel = bottomRight; checkedPixel.y <= topRight.y; checkedPixel.y += 1.0f) {
+		for(vec2 checkedPixel = bottomRight; checkedPixel.y <= topRight.y; checkedPixel.y += 0.5f * Tile::resolution) {
 			checkedPixel.y = min(checkedPixel.y, topRight.y);
-			ivec2 tileIndex = world->getTileIndex(checkedPixel);
-			Tile tile = world->at(tileIndex);
+			ivec2 tileIndex = world.getTileIndex(checkedPixel);
+			Tile tile = world.at(tileIndex);
 
 			AABB testaabb = AABB(lerp(pos, oldPos, abs(endX - tileX) / dist) + aabbOffset, halfSize);
 			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);

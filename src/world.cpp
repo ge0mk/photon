@@ -59,12 +59,12 @@ void World::setParticleTexturePtr(const std::shared_ptr<TiledTexture> &texture) 
 	particleSystem.setTexture(texture);
 }
 
-Chunk* World::createChunk(ivec2 pos) {
+Chunk* World::createChunk(lvec2 pos) {
 	chunks.push_back(std::unique_ptr<Chunk>(new Chunk(this, pos, texture->scale())));
 	return chunks.back().get();
 }
 
-Chunk* World::getChunk(ivec2 pos) {
+Chunk* World::getChunk(lvec2 pos) {
 	for(const auto &chunk : chunks) {
 		if(chunk->getPos() == pos) {
 			return chunk.get();
@@ -99,10 +99,32 @@ bool World::getAutoGrow() {
 
 void World::update(float time, float dt) {
 	cameraMutex.lock();
+	ivec2 shiftDir;
+
+	if(camHost->pos.x < 0.0f) {
+		camHost->shift(ivec2(1, 0));
+		shiftDir += ivec2(1, 0);
+	}
+	else if(camHost->pos.x > Chunk::size * Tile::resolution) {
+		camHost->shift(ivec2(-1, 0));
+		shiftDir += ivec2(-1, 0);
+	}
+
+	if(camHost->pos.y < 0.0f) {
+		camHost->shift(ivec2(0, 1));
+		shiftDir += ivec2(0, 1);
+	}
+	else if(camHost->pos.y > Chunk::size * Tile::resolution) {
+		camHost->shift(ivec2(0, -1));
+		shiftDir += ivec2(0, -1);
+	}
 
 	camHost->update(time, dt, this);
 
 	cameraMutex.unlock();
+
+	shift(shiftDir);
+
 	for(auto &chunk : chunks) {
 		chunk->update(time, dt);
 	}
@@ -111,19 +133,23 @@ void World::update(float time, float dt) {
 		entity->update(time, dt, this);
 	}
 
-	if(particleSystem.size() < 10000) {
+	if(particleSystem.size() < 5000) {
 		for(unsigned i = 0; i < 10; i++) {
-			vec2 pos = vec2(float(rand()) / float(RAND_MAX) * 100 - 50, 40) * 8;
-			vec2 scale = vec2(0.02, 0.2) * ((float(rand()) / float(RAND_MAX) + 0.9) / 2 + 0.4) * 8;
-			vec2 speed = vec2(0.05, -float(rand()) / float(RAND_MAX) * 2 - 4) * 8;
+			vec2 pos = vec2(rand(-512, 1024), rand(256, 512));
+			vec2 scale = vec2(1, 8) * rand(0.8, 1.2);
+			vec2 speed = vec2(0.0, rand(-64, -48));
 			vec2 gravity = vec2(0, 0);
 			particleSystem.spawn(Particle(Particle::rain, pos, speed, gravity, scale, 0, 0));
 		}
 	}
 	for(Particle &p : particleSystem) {
-		if(p.type == Particle::rain && p.speed.y == 0.0) {
-			p.pos = vec2(float(rand()) / float(RAND_MAX) * 100 - 50, 40) * 8;
-			p.speed = vec2(0.05, -float(rand()) / float(RAND_MAX) * 2 - 4) * 8;
+		switch(p.type) {
+			case Particle::rain: {
+				if(p.speed.y == 0.0f || p.pos.y < -512.0f) {
+					p.pos = vec2(rand(-512, 1024), 512);
+					p.speed = vec2(0.0, rand(-64, -48));
+				}
+			} break;
 		}
 	}
 	particleSystem.erase([](const Particle &p) -> bool {
@@ -139,7 +165,6 @@ void World::update(float time, float dt) {
 
 void World::render() {
 	shader.use();
-	texture->activate();
 
 	cameraInfoUBO.bindBase(0);
 	modelInfoUBO.bindBase(1);
@@ -180,15 +205,15 @@ void World::render() {
 	for(auto &entity : entities) {
 		mat4 transform = entity->getTransform();
 		vec2 pos = transform * vec4(0.0f, 0.0f, 0.0f, 1.0f);
-		if(dist(cam->pos.xy, pos) < Chunk::size * Tile::resolution * 2) {
+		if(dist(campos.xy, pos) < Chunk::size * Tile::resolution * 2) {
 			modelInfoUBO.update({transform, entity->getUVTransform()});
 			entity->getTexturePtr()->activate();
 			unitplane.drawElements();
 		}
 	}
 
-	particleSystem.render(cam->proj * cam->view);
-	textRenderer.render(cam->proj * cam->view);
+	particleSystem.render(proj * view);
+	textRenderer.render(proj * view);
 }
 
 void World::renderCollisions(std::vector<ivec2> tiles, std::shared_ptr<TiledTexture> texture) {
@@ -213,6 +238,17 @@ void World::renderCollisions(std::vector<ivec2> tiles, std::shared_ptr<TiledText
 		modelInfoUBO.update({transform, mat4()});
 		unitplane.drawElements();
 	}
+}
+
+void World::shift(ivec2 dir) {
+	for(auto &chunk : chunks) {
+		chunk->shift(dir);
+	}
+	for(auto &entity : entities) {
+		entity->shift(dir);
+	}
+	particleSystem.shift(dir);
+	abspos += dir;
 }
 
 Tile& World::operator[](const ivec2 &pos) {

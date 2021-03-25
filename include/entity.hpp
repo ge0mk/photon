@@ -11,7 +11,9 @@
 #include <opengl/uniform.hpp>
 #include <opengl/vertex.hpp>
 
+#include "chunk.hpp"
 #include "resources.hpp"
+#include "tile.hpp"
 
 using namespace math;
 
@@ -25,6 +27,8 @@ public:
 	virtual void update(float time, float dt, World *world);
 	virtual void render();
 	virtual bool customRenderFunction() const;
+
+	virtual void shift(ivec2 dir);
 
 	mat4 getTransform();
 	mat4 getUVTransform();

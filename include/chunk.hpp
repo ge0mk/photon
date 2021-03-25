@@ -34,7 +34,7 @@ public:
 		bottom_left,
 	};
 
-	Chunk(World *world, vec2 pos, vec2 tileScale);
+	Chunk(World *world, lvec2 pos, vec2 tileScale);
 
 	void fill(uint64_t tile);
 
@@ -42,9 +42,9 @@ public:
 	void update(float time, float dt);
 	void render();
 
-	bool sync();
-
-	ivec2 getPos();
+	void shift(ivec2 dir);
+	lvec2 getPos();
+	lvec2 getOrigin();
 
 	Tile& operator[](ivec2 pos);
 	const Tile& operator[](ivec2 pos) const;
@@ -57,9 +57,9 @@ public:
 private:
 	friend class World;
 	World* world;
-	vec2 pos, tileScale;
+	vec2 tileScale;
+	lvec2 origin, pos;
 	std::array<Tile, size * size> tiles;
-	bool m_sync = false;
 
 private:
 	std::unique_ptr<Mesh> mesh;

@@ -15,7 +15,9 @@
 #include <opengl/uniform.hpp>
 #include <opengl/vao.hpp>
 
+#include "chunk.hpp"
 #include "resources.hpp"
+#include "tile.hpp"
 
 using namespace math;
 
@@ -46,6 +48,8 @@ public:
 
 	void update(float time, float dt, World *world);
 	void render(mat4 transform);
+
+	void shift(ivec2 dir);
 
 	void setTexture(const std::shared_ptr<TiledTexture> &texture);
 

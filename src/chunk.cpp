@@ -1,6 +1,6 @@
 #include <chunk.hpp>
 
-Chunk::Chunk(World *world, vec2 pos, vec2 tileScale) : world(world), pos(pos), tileScale(tileScale) {}
+Chunk::Chunk(World *world, lvec2 pos, vec2 tileScale) : world(world), pos(pos), origin(pos), tileScale(tileScale) {}
 
 void Chunk::fill(uint64_t type) {
 	for(Tile &tile : tiles) {
@@ -39,7 +39,7 @@ void Chunk::build() {
 				vec2 tl = vec2(bl.x, tr.y);
 				vec2 br = vec2(tr.x, bl.y);
 
-				vec2 uvtl = current.texture() * tileScale;
+				vec2 uvtl = current.texture(svec2(x, y)) * tileScale;
 				vec2 uvbr = uvtl + tileScale;
 				uvtl += vec2(0.000001), uvbr -= vec2(0.000001);
 				vec2 uvbl = vec2(uvtl.x, uvbr.y);
@@ -54,9 +54,6 @@ void Chunk::build() {
 			}
 		}
 	}
-
-	mesh.setVertexData(vertices);
-	mesh.setIndexData(indices);
 }
 
 void Chunk::update(float time, float dt) {
@@ -66,7 +63,7 @@ void Chunk::update(float time, float dt) {
 		}
 	}
 	if(rebuild) {
-		m_sync = true;
+		sync = true;
 		build();
 		rebuild = false;
 	}
@@ -85,14 +82,16 @@ void Chunk::render() {
 	mesh->drawElements();
 }
 
-bool Chunk::sync() {
-	bool tmp = m_sync;
-	m_sync = false;
-	return tmp;
+void Chunk::shift(ivec2 dir) {
+	pos += dir;
 }
 
-ivec2 Chunk::getPos() {
+lvec2 Chunk::getPos() {
 	return pos;
+}
+
+lvec2 Chunk::getOrigin() {
+	return origin;
 }
 
 Tile& Chunk::operator[](ivec2 pos) {

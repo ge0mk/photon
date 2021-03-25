@@ -80,13 +80,13 @@ protected:
 	bool inputStopped(uint8_t action) const;
 	float inputState(uint8_t action) const;
 
-	std::array<float, Action::count> inputs, prevInputs;
+	std::array<float, Action::count> inputs = {}, prevInputs = {};
 	State state = State::idle;
 	float jumpSpeed = 128, walkSpeed = 64, sprintSpeed = 128, sneakSpeed = 5;
 	Camera *cam;
 	float animspeed = 2.0f;
 
-	float jumptime, falltime;
+	float jumptime = 0.0f, falltime = 0.0f;
 	const float jumpanimtime = 0.5f;
 
 	uint8_t doublejump = 0;

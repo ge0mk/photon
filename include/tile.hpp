@@ -17,15 +17,15 @@ public:
 		stone,
 	};
 
-	Tile(uint32_t type = null);
+	Tile(uint32_t type = null, uint32_t variant = 0, uint64_t custom = 0);
 	Tile(const Tile &other) = default;
 
 	Tile& operator=(const Tile &other) = default;
 
 	void init(uint32_t type);
 	void update(float time, float dt, ivec2 pos, Chunk *chunk);
-	bvec4 hitbox() const ;
-	vec2 texture() const;	// tile position on the texture
+	bvec4 hitbox() const;
+	vec2 texture(svec2 pos) const;	// tile position on the texture
 	bool render() const;
 	bool collision() const;
 	void destroy();		// remove tile during game -> may trigger effects

@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <cstdlib>
 
 namespace math{
 	const float pi = 3.14159;
@@ -16,6 +17,10 @@ namespace math{
 
 	inline bool equal(float a, float b, float epsilon = 0.00001){
 		return fabs(a - b) < epsilon;
+	}
+
+	inline float rand(float min, float max) {
+		return (float(::rand()) / float(RAND_MAX)) * (max - min) + min;
 	}
 
 	template<typename type>

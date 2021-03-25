@@ -14,6 +14,10 @@ bool Entity::customRenderFunction() const {
 	return false;
 }
 
+void Entity::shift(ivec2 dir) {
+	pos.xy += vec2(dir) * Chunk::size * Tile::resolution;
+}
+
 mat4 Entity::getTransform() {
 	return transform;
 }
