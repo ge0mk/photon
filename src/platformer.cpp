@@ -13,8 +13,9 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	world.setTexturePtr(tileset);
 
 	world.setAutoGrow(true);
-	world.generateFlatChunk(lvec2(0, -1));
-	world.generateFlatChunk(lvec2(-1, -1));
+	for(int i = -8; i < 8; i++) {
+		world.generateFlatChunk(lvec2(i, -1));
+	}
 
 	for(int i = 5; i < 128; i++) {
 		world[ivec2(i + 4, i)] = Tile::stone;

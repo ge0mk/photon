@@ -151,12 +151,12 @@ void World::update(float time, float dt) {
 		entity->update(time, dt, this);
 	}
 
-	if(particleSystem.size() < 5000) {
+	if(particleSystem.size() < 8192) {
 		for(unsigned i = 0; i < 10; i++) {
-			vec2 pos = vec2(rand(-512, 1024), rand(256, 512));
+			vec2 pos = vec2(rand(-1024, 1536), rand(256, 512));
 			vec2 scale = vec2(1, 8) * rand(0.8, 1.2);
-			vec2 speed = vec2(0.0, rand(-64, -48));
-			vec2 gravity = vec2(0, 0);
+			vec2 speed = vec2(0.0, rand(-112, -96));
+			vec2 gravity = vec2(0, -1);
 			particleSystem.spawn(Particle(Particle::rain, pos, speed, gravity, scale, 0, 0));
 		}
 	}
@@ -164,8 +164,8 @@ void World::update(float time, float dt) {
 		switch(p.type) {
 			case Particle::rain: {
 				if(p.speed.y == 0.0f || p.pos.y < -512.0f) {
-					p.pos = vec2(rand(-512, 1024), 512);
-					p.speed = vec2(0.0, rand(-64, -48));
+					p.pos = vec2(rand(-1024, 1536), 512);
+					p.speed = vec2(0.0, rand(-112, -96));
 				}
 			} break;
 		}
