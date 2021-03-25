@@ -18,29 +18,32 @@
 #include "resources.hpp"
 #include "text.hpp"
 
+#include <mutex>
+
 using namespace math;
 
 class RigidBody;
 
 class World {
 public:
-	World(const std::string &shader, const Camera *cam);
+	World(const std::string &shader, Camera &cam);
 	~World();
 
 	void loadShader(const std::string &path);
 	void init();
 
+	void setCameraHostPtr(const std::shared_ptr<Entity> &host);
 	void setTexturePtr(const std::shared_ptr<TiledTexture> &texture);
 	void setParticleTexturePtr(const std::shared_ptr<TiledTexture> &texture);
 
-	Chunk* createChunk(ivec2 pos);
-	Chunk* getChunk(ivec2 pos);
-	const Chunk* getChunk(ivec2 pos) const;
+	Chunk* createChunk(lvec2 pos);
+	Chunk* getChunk(lvec2 pos);
+	const Chunk* getChunk(lvec2 pos) const;
 
 	template<typename T, typename ...Args>
-	T* createEntity(Args ...args) {
-		T *entity = new T(args...);
-		entities.push_back(std::unique_ptr<Entity>(entity));
+	std::shared_ptr<T> createEntity(Args ...args) {
+		std::shared_ptr<T> entity = std::shared_ptr<T>(new T(args...));
+		entities.push_back(entity);
 		return entity;
 	}
 
@@ -59,7 +62,7 @@ public:
 	Tile& operator[](const ivec2 &pos);
 	const Tile& operator[](const ivec2 &pos) const;
 	Tile& at(const ivec2 &pos);
-	Tile at(const ivec2 &pos) const;
+	const Tile& at(const ivec2 &pos) const;
 
 	Tile getTileOrEmpty(const ivec2 &pos) const;
 
@@ -91,10 +94,15 @@ private:
 	opengl::Program shader;
 
 	std::vector<std::unique_ptr<Chunk>> chunks;
-	std::vector<std::unique_ptr<Entity>> entities;
+	std::vector<std::shared_ptr<Entity>> entities;
 	std::shared_ptr<TiledTexture> texture;
-	const Camera *cam;
+
+	Camera &cam;
+	std::mutex cameraMutex;
+	std::shared_ptr<Entity> camHost;
 
 	ParticleSystem particleSystem;
 	TextRenderer textRenderer;
+
+	Tile fallback;
 };

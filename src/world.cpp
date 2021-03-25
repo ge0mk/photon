@@ -5,7 +5,7 @@
 
 #include <rigidbody.hpp>
 
-World::World(const std::string &path, const Camera *cam) : cam(cam), textRenderer(freetype::Font("res/jetbrains-mono.ttf")) {
+World::World(const std::string &path, Camera &cam) : cam(cam), textRenderer(freetype::Font("res/jetbrains-mono.ttf")) {
 	loadShader(path);
 	init();
 }
@@ -33,7 +33,7 @@ void World::init() {
 	modelInfoUBO.setData({mat4(), mat4()});
 
 	renderInfoUBO.bindBase(2);
-	renderInfoUBO.setData({vec4(0), cam->res, 0.0f, 0.0f});
+	renderInfoUBO.setData({vec4(0), cam.res, 0.0f, 0.0f});
 
 	// init meshes
 	unitplane = opengl::Mesh<vec3, vec2>({
@@ -48,6 +48,11 @@ void World::init() {
 
 void World::setTexturePtr(const std::shared_ptr<TiledTexture> &texture) {
 	this->texture = texture;
+}
+
+void World::setCameraHostPtr(const std::shared_ptr<Entity> &host) {
+	std::lock_guard<std::mutex> lock(cameraMutex);
+	camHost = host;
 }
 
 void World::setParticleTexturePtr(const std::shared_ptr<TiledTexture> &texture) {
@@ -68,16 +73,16 @@ Chunk* World::getChunk(ivec2 pos) {
 	if(autogrow) {
 		return createChunk(pos);
 	}
-	throw std::runtime_error("no chunk at (" + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ")!");
+	return nullptr;
 }
 
-const Chunk* World::getChunk(ivec2 pos) const {
+const Chunk* World::getChunk(lvec2 pos) const {
 	for(const auto &chunk : chunks) {
 		if(chunk->getPos() == pos) {
 			return chunk.get();
 		}
 	}
-	throw std::runtime_error("no chunk at (" + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ")!");
+	return nullptr;
 }
 
 std::shared_ptr<TextObject> World::createTextObject(const std::string &text, const mat4 &transform, vec4 color) {
@@ -93,6 +98,11 @@ bool World::getAutoGrow() {
 }
 
 void World::update(float time, float dt) {
+	cameraMutex.lock();
+
+	camHost->update(time, dt, this);
+
+	cameraMutex.unlock();
 	for(auto &chunk : chunks) {
 		chunk->update(time, dt);
 	}
@@ -135,13 +145,34 @@ void World::render() {
 	modelInfoUBO.bindBase(1);
 	renderInfoUBO.bindBase(2);
 
-	cameraInfoUBO.update({cam->proj, cam->view});
-	renderInfoUBO.update({vec4(0), cam->res, 0.0f, 0.0f});
+	cameraMutex.lock();
 
+	mat4 proj = cam.proj();
+	mat4 view = cam.view();
+	vec2 res = cam.res;
+	vec3 campos = cam.pos;
+
+	cameraInfoUBO.update({proj, view});
+	renderInfoUBO.update({vec4(0), res, 0.0f, 0.0f});
+
+	mat4 transform = camHost->getTransform();
+	vec2 pos = transform * vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	if(dist(campos.xy, pos) < Chunk::size * Tile::resolution * 2) {
+		modelInfoUBO.update({transform, camHost->getUVTransform()});
+		camHost->getTexturePtr()->activate();
+		unitplane.drawElements();
+	}
+
+	cameraMutex.unlock();
+
+	texture->activate();
 	for(auto &chunk : chunks) {
-		mat4 transform = mat4().translate(vec3(chunk->getPos() * Chunk::size * Tile::resolution));
-		if(dist(cam->pos.xy, vec2(chunk->getPos()) * Chunk::size * Tile::resolution) < Chunk::size * Tile::resolution * 2) {
-			modelInfoUBO.update({transform, mat4()});
+		ivec2 chunkid = chunk->getPos();
+		vec2 chunkpos = chunkid * Chunk::size * Tile::resolution;
+		vec2 chunkcenter = (vec2(chunkid) + 0.5f) * Chunk::size * Tile::resolution;
+
+		if(dist(campos.xy, chunkcenter) < Chunk::size * Tile::resolution * 1.5) {
+			modelInfoUBO.update({mat4().translate(vec3(chunkpos)), mat4()});
 			chunk->render();
 		}
 	}
@@ -170,8 +201,12 @@ void World::renderCollisions(std::vector<ivec2> tiles, std::shared_ptr<TiledText
 	modelInfoUBO.bindBase(1);
 	renderInfoUBO.bindBase(2);
 
-	cameraInfoUBO.update({cam->proj, cam->view});
-	renderInfoUBO.setData({vec4(0.6f, 0.0f, 0.0f, 1.0f), cam->res, 0.0f, 0.0f});
+	mat4 proj = cam.proj();
+	mat4 view = cam.view();
+	vec2 res = cam.res;
+
+	cameraInfoUBO.update({proj, view});
+	renderInfoUBO.setData({vec4(0.6f, 0.0f, 0.0f, 1.0f), res, 0.0f, 0.0f});
 
 	for(ivec2 tile : tiles) {
 		mat4 transform = mat4().translate(vec3(vec2(tile) + 0.5f, 0.0f)).scale(0.666f);
@@ -184,6 +219,9 @@ Tile& World::operator[](const ivec2 &pos) {
 	ivec2 chunkpos = pos / ivec2(Chunk::size) - ivec2(pos.x < 0, pos.y < 0);
 	ivec2 tilepos = (pos - chunkpos * Chunk::size) % Chunk::size;
 	Chunk *chunk = getChunk(chunkpos);
+	if(!chunk) {
+		throw std::runtime_error("no chunk at (" + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ")!");
+	}
 	return chunk->at(tilepos);
 }
 
@@ -191,19 +229,18 @@ const Tile& World::operator[](const ivec2 &pos) const {
 	ivec2 chunkpos = pos / ivec2(Chunk::size) - ivec2(pos.x < 0, pos.y < 0);
 	ivec2 tilepos = (pos - chunkpos * Chunk::size) % Chunk::size;
 	const Chunk *chunk = getChunk(chunkpos);
-	return chunk->at(tilepos);
+	if(chunk) {
+		return chunk->at(tilepos);
+	}
+	return fallback;
 }
 
 Tile& World::at(const ivec2 &pos) {
 	return this->operator[](pos);
 }
 
-Tile World::at(const ivec2 &pos) const {
-	Tile tile;
-	try {
-		tile = this->operator[](pos);
-	} catch(std::exception &e) {}
-	return tile;
+const Tile& World::at(const ivec2 &pos) const {
+	return this->operator[](pos);
 }
 
 Tile World::getTileOrEmpty(const ivec2 &pos) const {
@@ -214,11 +251,11 @@ Tile World::getTileOrEmpty(const ivec2 &pos) const {
 	return tile;
 }
 
-vec2 World::snapToGrid(vec2 worldpos) {
+vec2 World::snapToGrid(vec2 worldpos) const {
 	return ivec2(worldpos) - ivec2(worldpos.x < 0 ? 1 : 0, worldpos.y < 0 ? 1 : 0);
 }
 
-ivec2 World::getTileIndex(vec2 worldpos) {
+ivec2 World::getTileIndex(vec2 worldpos) const {
 	return snapToGrid(worldpos / Tile::resolution);
 }
 

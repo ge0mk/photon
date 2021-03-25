@@ -10,6 +10,10 @@
 
 #include "tile.hpp"
 
+#include <atomic>
+#include <memory>
+#include <mutex>
+
 using namespace math;
 
 class World;
@@ -58,6 +62,11 @@ private:
 	bool m_sync = false;
 
 private:
-	Mesh mesh;
-	bool rebuild = false;
+	std::unique_ptr<Mesh> mesh;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned> indices;
+
+	std::mutex meshMutex;
+	std::atomic<bool> rebuild = false;
+	std::atomic<bool> sync = false;
 };

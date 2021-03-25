@@ -239,7 +239,6 @@ void Player::updateAnimation(float time, float dt, World *world) {
 				}
 				else {
 					int frames = animations[a_jump].size();
-					std::cout<<frames<<"\n";
 					uvpos = animations[a_jump][int(jumptime / jumpanimtime * frames) % frames];
 				}
 			}

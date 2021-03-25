@@ -34,7 +34,8 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	world[ivec2(-5,3)] = Tile::stone;
 
 	auto playerSprite = textures.load("res/player.png", ivec2(16, 13));
-	player = world.createEntity<Player>(&cam, playerSprite);
+	player = std::shared_ptr<Player>(new Player(&cam, playerSprite));
+	world.setCameraHostPtr(player);
 
 	auto cursorSprite = textures.load("res/crosshair.png", 1);
 	cursor = world.createEntity<TileCursor>(cursorSprite);
@@ -46,11 +47,48 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+#if defined(MULTITHREADING)
+	int Game::exec() {
+		std::thread updateThread([this](){
+			while(!windowShouldClose()) {
+				update();
+			}
+		});
+		while(!windowShouldClose()) {
+			pollEvents();
+			updateInputs();
+			render();
+			swapBuffers();
+		}
+		updateThread.join();
+		return 0;
+	}
+#else
+	int Game::exec() {
+		while(!windowShouldClose()) {
+			pollEvents();
+			updateInputs();
+			update();
+			render();
+			swapBuffers();
+		}
+		return 0;
+	}
+#endif
+
 void Game::update() {
 	double current_time = glfwGetTime();
 	dt = time > 0.0 ? (current_time - time) : (1.0f / 60.0f);
 	time = current_time;
 
+	std::cout<<1.0f / dt<<" physics updates per second\n";
+	std::cout<<player->pos<<"\n";
+
+	world.update(glfwGetTime(), dt);
+	cam.update(glfwGetTime(), dt);
+}
+
+void Game::updateInputs() {
 	player->setInput(Player::move, getKey(GLFW_KEY_D) - getKey(GLFW_KEY_A));
 	if(getKey(GLFW_KEY_SPACE))
 		player->setInput(Player::jump, 1.0f);
@@ -84,7 +122,7 @@ void Game::render() {
 
 vec2 Game::screenToWorldSpace(vec2 screenpos) {
 	mat4 view = mat4().translate(vec3(0, 0, cam.pos.z)).inverse();
-	mat4 proj = cam.proj;
+	mat4 proj = cam.proj();
 
 	vec2 normalizedpos = screenpos / getFramebufferSize();
 	vec2 glpos = (normalizedpos * 2 - 1) * vec2(1, -1);
@@ -96,7 +134,7 @@ vec2 Game::screenToWorldSpace(vec2 screenpos) {
 
 vec2 Game::worldToScreenSpace(vec2 worldpos) {
 	mat4 view = mat4().translate(vec3(0, 0, cam.pos.z)).inverse();
-	mat4 proj = cam.proj;
+	mat4 proj = cam.proj();
 
 	vec2 tmp = worldpos - cam.pos.xy;
 	vec4 glpos = proj * view * vec4(tmp, 0, 1);

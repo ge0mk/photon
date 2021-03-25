@@ -10,8 +10,10 @@ void Chunk::fill(uint64_t type) {
 }
 
 void Chunk::build() {
-	std::vector<Vertex> vertices;
-	std::vector<unsigned> indices;
+	std::lock_guard<std::mutex> lock(meshMutex);
+
+	vertices.clear();
+	indices.clear();
 
 	auto addQuad = [&](std::array<Vertex, 4> quad) {
 		unsigned indexBase = vertices.size();
@@ -71,7 +73,16 @@ void Chunk::update(float time, float dt) {
 }
 
 void Chunk::render() {
-	mesh.drawElements();
+	if(!mesh) {
+		mesh = std::unique_ptr<Mesh>(new Mesh());
+	}
+	if(sync) {
+		std::lock_guard<std::mutex> lock(meshMutex);
+		mesh->setVertexData(vertices);
+		mesh->setIndexData(indices);
+		sync = false;
+	}
+	mesh->drawElements();
 }
 
 bool Chunk::sync() {

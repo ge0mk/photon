@@ -93,6 +93,7 @@ void RigidBody::update(float time, float dt, World *world) {
 	//speed = clamp(speed, -maxspeed, maxspeed);
 
 	rpos = round((pos + aabbOffset) * 2.0f) / 2;
+	Entity::pos = rpos;
 	AABB::pos = rpos;
 	transform = mat4().translate(rpos).scale(vec3(scale, 1.0f));
 }
