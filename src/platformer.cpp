@@ -81,7 +81,7 @@ void Game::update() {
 	std::cout<<player->pos<<"\n";
 
 	world.update(glfwGetTime(), dt);
-	cam.update(glfwGetTime(), dt);
+	cam.update();
 }
 
 void Game::updateInputs() {

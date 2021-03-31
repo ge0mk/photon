@@ -3,9 +3,6 @@
 #include <math/matrix.hpp>
 #include <math/vector.hpp>
 
-#include <atomic>
-#include <mutex>
-
 using namespace math;
 
 struct Camera {
@@ -15,17 +12,15 @@ struct Camera {
 
 	Camera& operator=(const Camera &other) = default;
 
-	void update(float time, float dt);
+	void update();
 
-	mat4 proj();
-	mat4 view();
+	mat4 proj() const;
+	mat4 view() const;
 
 	tvec3<float> pos, rot;
 	tvec2<float> res;
 	float fov, znear, zfar;
 
 private:
-	std::mutex mutex;
-
 	mat4 m_proj, m_view;
 };
