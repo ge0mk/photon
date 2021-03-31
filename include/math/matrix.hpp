@@ -23,30 +23,32 @@ namespace math{
 		using col_t = math::tvec2<type>;
 		using row_t = math::tvec2<type>;
 
-		tmat2(const tmat2<type> &other);
-		tmat2() : m_data{col_t(1,0),
-					   col_t(0,1)} {}
-		tmat2(type val) : m_data{col_t(val),
-							   col_t(val)} {}
-		tmat2(tvec2<col_t> m_data) : m_data{col_t(1,0),
-								   col_t(0,1)} {}
+		tmat2(const tmat2<type> &other) = default;
+		template<typename type2>
+		tmat2(const tmat2<type2> &other) : m_data(other.dataVec()) {}
+
+		tmat2() : m_data(col_t(1,0), col_t(0,1)) {}
+		tmat2(type val) : m_data(col_t(val), col_t(val)) {}
+		tmat2(tvec2<col_t> m_data) : m_data(m_data[0], m_data[1]) {}
 		tmat2(
 			type v00, type v01,
-			type v10, type v11) : m_data{
+			type v10, type v11) : m_data(
 			col_t(v00, v10),
 			col_t(v01, v11)
-		} {}
+		) {}
 
 		type& at(unsigned col, unsigned row) { return m_data[col][row]; }
-		tmat3<type> transpose() {
+		const type& at(unsigned col, unsigned row) const { return m_data[col][row]; }
+
+		tmat3<type> transpose() const {
 			return tmat3<type>(	m_data[0][0], m_data[0][1],
 								m_data[1][0], m_data[1][1]);
 		}
 
-		type determinant() {
+		type determinant() const {
 			return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
 		}
-		type submatrix(unsigned col, unsigned row) {
+		type submatrix(unsigned col, unsigned row) const {
 			for(unsigned c = 0; c < 2; c++) {
 				for(unsigned r = 0; r < 2; r++) {
 					if(c != col && r != row) {
@@ -55,16 +57,16 @@ namespace math{
 				}
 			}
 		}
-		type minor(unsigned col, unsigned row) {
+		type minor(unsigned col, unsigned row) const {
 			return submatrix(col, row);
 		}
-		type cofactor(unsigned col, unsigned row) {
+		type cofactor(unsigned col, unsigned row) const {
 			return minor(col, row) * (((col + row) % 2) ? -1 : 1);
 		}
-		bool invertible() {
+		bool invertible() const {
 			return determinant() != 0;
 		}
-		tmat2<type> inverse() {
+		tmat2<type> inverse() const {
 			tmat2<type> m;
 			type det = determinant();
 			if(invertible()) {
@@ -78,7 +80,7 @@ namespace math{
 			return m.transpose();
 		}
 
-		tmat2<type> operator*(const tmat2<type>& mat) {
+		tmat2<type> operator*(const tmat2<type>& mat) const {
 			tmat2<type> m;
 			for(unsigned col = 0; col < 2; col++) {
 				for(unsigned row = 0; row < 2; row++) {
@@ -88,7 +90,7 @@ namespace math{
 			}
 			return m;
 		}
-		tvec2<type> operator*(const tvec2<type>& vec) {
+		tvec2<type> operator*(const tvec2<type>& vec) const {
 			tvec2<type> v;
 			for(unsigned row = 0; row < 2; row++) {
 				v[row] = at(0, row) * vec[0] +
@@ -96,10 +98,13 @@ namespace math{
 			}
 			return v;
 		}
-		tmat2<type> operator/(const tmat2<type>& mat) { return inverse() * mat; }
-		tmat2<type> operator/(const tvec2<type>& vec) { return inverse() * vec; }
+		tmat2<type> operator/(const tmat2<type>& mat) const { return inverse() * mat; }
+		tmat2<type> operator/(const tvec2<type>& vec) const { return inverse() * vec; }
 		type& operator()(unsigned col, unsigned row) { return m_data[col][row]; }
+		const type& operator()(unsigned col, unsigned row) const { return m_data[col][row]; }
 		col_t& operator[](unsigned col) { return m_data[col]; }
+		const col_t& operator[](unsigned col) const { return m_data[col]; }
+		tmat2& operator=(const tmat2<type> &other) = default;
 
 		type* data() {
 			return &m_data[0][0];
@@ -108,21 +113,29 @@ namespace math{
 			return &m_data[0][0];
 		}
 
+		const tvec2<col_t>& dataVec() const {
+			return m_data;
+		}
+
 	private:
-		col_t m_data[2];
+		tvec2<col_t> m_data;
 	};
+
 	template <typename type>
 	class tmat3 {
 	public:
 		using col_t = math::tvec3<type>;
 		using row_t = math::tvec3<type>;
 
-		tmat3(const tmat3<type> &other);
-		tmat3() : m_data{	col_t(1,0,0),
-						col_t(0,1,0),
-						col_t(0,0,1)} {}
-		tmat3(type val) : m_data{col_t(val), col_t(val), col_t(val)} {}
-		tmat3(tvec3<col_t> m_data) : m_data{m_data[0], m_data[1], m_data[2]} {}
+		tmat3(const tmat3<type> &other) = default;
+		template<typename type2>
+		tmat3(const tmat3<type2> &other) : m_data(other.dataVec()) {}
+
+		tmat3() : m_data(	col_t(1,0,0),
+							col_t(0,1,0),
+							col_t(0,0,1)) {}
+		tmat3(type val) : m_data(col_t(val), col_t(val), col_t(val)) {}
+		tmat3(tvec3<col_t> m_data) : m_data(m_data) {}
 		tmat3(
 			type v00, type v01, type v02,
 			type v10, type v11, type v12,
@@ -133,20 +146,22 @@ namespace math{
 		} {}
 
 		type& at(unsigned col, unsigned row) { return m_data[col][row]; }
-		tmat3<type> transpose() {
+		const type& at(unsigned col, unsigned row) const { return m_data[col][row]; }
+
+		tmat3<type> transpose() const {
 			return tmat3<type>(	m_data[0][0], m_data[0][1], m_data[0][2],
 								m_data[1][0], m_data[1][1], m_data[1][2],
 								m_data[2][0], m_data[2][1], m_data[2][2]);
 		}
 
-		type determinant() {
+		type determinant() const {
 			type det = 0;
 			for(unsigned col = 0; col < 3; col++) {
 				det += at(col, 0) * cofactor(col, 0);
 			}
 			return det;
 		}
-		tmat2<type> submatrix(unsigned col, unsigned row) {
+		tmat2<type> submatrix(unsigned col, unsigned row) const {
 			tmat2<type> m;
 			for(unsigned c = 0; c < 3; c++) {
 				for(unsigned r = 0; r < 3; r++) {
@@ -157,16 +172,16 @@ namespace math{
 			}
 			return m;
 		}
-		type minor(unsigned col, unsigned row) {
+		type minor(unsigned col, unsigned row) const {
 			return submatrix(col, row).determinant();
 		}
-		type cofactor(unsigned col, unsigned row) {
+		type cofactor(unsigned col, unsigned row) const {
 			return minor(col, row) * (((col + row) % 2) ? -1 : 1);
 		}
-		bool invertible() {
+		bool invertible() const {
 			return determinant() != 0;
 		}
-		tmat3<type> inverse() {
+		tmat3<type> inverse() const {
 			tmat3<type> m;
 			type det = determinant();
 			if(invertible()) {
@@ -180,7 +195,7 @@ namespace math{
 			return m.transpose();
 		}
 
-		tmat3<type> operator*(const tmat3<type>& mat) {
+		tmat3<type> operator*(const tmat3<type>& mat) const {
 			tmat3<type> m;
 			for(unsigned col = 0; col < 3; col++) {
 				for(unsigned row = 0; row < 3; row++) {
@@ -191,7 +206,7 @@ namespace math{
 			}
 			return m;
 		}
-		tvec3<type> operator*(const tvec3<type>& vec) {
+		tvec3<type> operator*(const tvec3<type>& vec) const {
 			tvec3<type> v;
 			for(unsigned row = 0; row < 3; row++) {
 				v[row] = at(0, row) * vec[0] +
@@ -200,10 +215,13 @@ namespace math{
 			}
 			return v;
 		}
-		tmat3<type> operator/(const tmat3<type>& mat) { return inverse() * mat; }
-		tmat3<type> operator/(const tvec3<type>& vec) { return inverse() * vec; }
+		tmat3<type> operator/(const tmat3<type>& mat) const { return inverse() * mat; }
+		tmat3<type> operator/(const tvec3<type>& vec) const { return inverse() * vec; }
 		type& operator()(unsigned col, unsigned row) { return m_data[col][row]; }
+		const type& operator()(unsigned col, unsigned row) const { return m_data[col][row]; }
 		col_t& operator[](unsigned col) { return m_data[col]; }
+		const col_t& operator[](unsigned col) const { return m_data[col]; }
+		tmat3& operator=(const tmat3<type> &other) = default;
 
 		type* data() {
 			return &m_data[0][0];
@@ -212,22 +230,30 @@ namespace math{
 			return &m_data[0][0];
 		}
 
+		const tvec3<col_t>& dataVec() const {
+			return m_data;
+		}
+
 	private:
-		col_t m_data[3];
+		tvec3<col_t> m_data;
 	};
+
 	template <typename type>
 	class tmat4 {
 	public:
 		using col_t = math::tvec4<type>;
 		using row_t = math::tvec4<type>;
 
-		tmat4(const tmat4<type> &other);
-		tmat4() : m_data{	col_t(1,0,0,0),
-						col_t(0,1,0,0),
-						col_t(0,0,1,0),
-						col_t(0,0,0,1)} {}
-		tmat4(type val) : m_data{col_t(val), col_t(val), col_t(val), col_t(val)} {}
-		tmat4(tvec4<col_t> m_data) : m_data{m_data[0], m_data[1], m_data[2], m_data[3]} {}
+		tmat4(const tmat4<type> &other) = default;
+		template<typename type2>
+		tmat4(const tmat4<type2> &other) : m_data(other.dataVec()) {}
+
+		tmat4() : m_data(	col_t(1,0,0,0),
+							col_t(0,1,0,0),
+							col_t(0,0,1,0),
+							col_t(0,0,0,1)) {}
+		tmat4(type val) : m_data(col_t(val), col_t(val), col_t(val), col_t(val)) {}
+		tmat4(tvec4<col_t> m_data) : m_data(m_data) {}
 		tmat4(
 			type v00, type v01, type v02, type v03,
 			type v10, type v11, type v12, type v13,
@@ -239,11 +265,11 @@ namespace math{
 			col_t(v03, v13, v23, v33)
 		} {}
 		// create matrix from quaternion
+		//     1-2y²-2z² | 2xy-2wz   | 2xz+2wy   | 0
+		//     2xy+2wz   | 1-2x²-2z² | 2yz+2wx   | 0
+		//     2xz-2wy   | 2yz-2*w*x | 1-2x²-2y² | 0
+		//     0         | 0         | 0         | 1
 		tmat4(type w, type x, type y, type z) : m_data{
-			// 1-2y²-2z² | 2xy-2wz   | 2xz+2wy   | 0
-			// 2xy+2wz   | 1-2x²-2z² | 2yz+2wx   | 0
-			// 2xz-2wy   | 2yz-2*w*x | 1-2x²-2y² | 0
-			// 0         | 0         | 0         | 1
 			col_t(1 - 2*y*y - 2*z*z, 2*x*y - 2*w*z, 2*x*z + 2*w*y, 0),
 			col_t(2*x*y + 2*w*z, 1 - 2*x*x - 2*z*z, 2*y*z + 2*w*x, 0),
 			col_t(2*x*z - 2*w*y, 2*y*z - 2*w*x, 1 - 2*x*x - 2*y*y, 0),
@@ -252,7 +278,8 @@ namespace math{
 		tmat4(const tquaternion<type> &q) : tmat4<type>(q.w, q.x, q.y, q.z) {}
 
 		type& at(unsigned col, unsigned row) { return m_data[col][row]; }
-		type at(unsigned col, unsigned row) const { return m_data[col][row]; }
+		const type& at(unsigned col, unsigned row) const { return m_data[col][row]; }
+
 		tmat4<type> transpose() {
 			return tmat4<type>(	m_data[0][0], m_data[0][1], m_data[0][2], m_data[0][3],
 								m_data[1][0], m_data[1][1], m_data[1][2], m_data[1][3],
@@ -325,10 +352,14 @@ namespace math{
 		}
 		tmat4<type> operator/(const tmat4<type>& mat) const { return inverse() * mat; }
 		tvec4<type> operator/(const tvec4<type>& vec) const { return inverse() * vec; }
+
 		type& operator()(unsigned col, unsigned row) { return m_data[col][row]; }
+		const type& operator() (unsigned col, unsigned row) const { return m_data[col][row]; }
+
 		col_t& operator[](unsigned col) { return m_data[col]; }
-		type operator() (unsigned col, unsigned row) const { return m_data[col][row]; }
-		col_t operator[] (unsigned col) const { return m_data[col]; }
+		const col_t& operator[] (unsigned col) const { return m_data[col]; }
+
+		tmat4& operator=(const tmat4<type> &other) = default;
 
 		static tmat4<type> translation(const tvec3<type> &vec) {
 			return tmat4<type>(
@@ -402,16 +433,13 @@ namespace math{
 			return &m_data[0][0];
 		}
 
-	private:
-		col_t m_data[4];
-	};
+		const tvec4<col_t>& dataVec() const {
+			return m_data;
+		}
 
-	template <typename type>
-	tmat2<type>::tmat2(const tmat2<type> &other) : m_data{other.m_data[0], other.m_data[1]} {}
-	template <typename type>
-	tmat3<type>::tmat3(const tmat3<type> &other) : m_data{other.m_data[0], other.m_data[1], other.m_data[2]} {}
-	template <typename type>
-	tmat4<type>::tmat4(const tmat4<type> &other) : m_data{other.m_data[0], other.m_data[1], other.m_data[2], other.m_data[3]} {}
+	private:
+		tvec4<col_t> m_data;
+	};
 
 	typedef tmat2<float> mat2;
 	typedef tmat3<float> mat3;

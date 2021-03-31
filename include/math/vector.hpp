@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <atomic>
 
 #include "math.hpp"
 
@@ -40,16 +41,36 @@ namespace math {
 		tvec2<type>& operator/=(const tvec2<type> &other) {x /= other.x, y /= other.y; return *this;}
 		tvec2<type>& operator%=(const tvec2<type> &other) {x %= other.x, y %= other.y; return *this;}
 
-		tvec2<type>& operator=(const tvec2<type> &other){x = other.x, y = other.y; return *this;}
+		tvec2<type>& operator=(const tvec2<type> &other) {x = other.x, y = other.y; return *this;}
 		template <typename t2>
-		tvec2<type>& operator=(const tvec2<t2> &other){x = other.x, y = other.y; return *this;}
+		tvec2<type>& operator=(const tvec2<t2> &other) {x = other.x, y = other.y; return *this;}
+
+		std::strong_ordering operator<=>(const tvec2<type> &other) const {
+			if constexpr(std::is_floating_point<type>()) {
+				return length(*this) <=> length(other);
+			}
+			else {
+				if(x == other.x) {
+					return y <=> other.y;
+				}
+				return x <=> other.x;
+			}
+		}
 
 		operator ImVec2() {
 			return {x, y};
 		}
 
 		bool operator==(const tvec2<type> &other) const {return x == other.x && y == other.y;}
+
 		type& operator[](unsigned i) {
+			switch(i) {
+				case 0: return x;
+				case 1: return y;
+			}
+			return x;
+		}
+		const type& operator[](unsigned i) const {
 			switch(i) {
 				case 0: return x;
 				case 1: return y;
@@ -108,6 +129,7 @@ namespace math {
 		tvec3<type>& operator=(const tvec3<t2> &other){x = other.x, y = other.y, z = other.z; return *this;}
 
 		bool operator==(const tvec3<type> &other) const {return x == other.x && y == other.y && z == other.z;}
+
 		type& operator[](unsigned i) {
 			switch(i) {
 				case 0: return x;
@@ -115,6 +137,29 @@ namespace math {
 				case 2: return z;
 			}
 			return x;
+		}
+		const type& operator[](unsigned i) const {
+			switch(i) {
+				case 0: return x;
+				case 1: return y;
+				case 2: return z;
+			}
+			return x;
+		}
+
+		std::strong_ordering operator<=>(const tvec3<type> &other) const {
+			if constexpr(std::is_floating_point<type>()) {
+				return length(*this) <=> length(other);
+			}
+			else {
+				if(x == other.x) {
+					if(y == other.y) {
+						return z <=> other.z;
+					}
+					return y <=> other.y;
+				}
+				return x <=> other.x;
+			}
 		}
 
 		union {
@@ -174,6 +219,7 @@ namespace math {
 		}
 
 		bool operator==(const tvec4<type> &other) const {return x == other.x && y == other.y && z == other.z && w == other.w;}
+
 		type& operator[](unsigned i) {
 			switch(i) {
 				case 0: return x;
@@ -183,7 +229,7 @@ namespace math {
 			}
 			return x;
 		}
-		type operator[](unsigned i) const {
+		const type& operator[](unsigned i) const {
 			switch(i) {
 				case 0: return x;
 				case 1: return y;
@@ -191,6 +237,24 @@ namespace math {
 				case 3: return w;
 			}
 			return x;
+		}
+
+		std::strong_ordering operator<=>(const tvec3<type> &other) const {
+			if constexpr(std::is_floating_point<type>()) {
+				return length(*this) <=> length(other);
+			}
+			else {
+				if(x == other.x) {
+					if(y == other.y) {
+						if(z == other.z) {
+							return w <=> other.w;
+						}
+						return z <=> other.z;
+					}
+					return y <=> other.y;
+				}
+				return x <=> other.x;
+			}
 		}
 
 		union {
