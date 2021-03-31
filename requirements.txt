@@ -1,0 +1,12 @@
+cmake
+make
+gcc
+g++
+build-essential
+libx11-dev
+libasound-dev
+libxrandr-dev
+libxinerama-dev
+libxcursor-dev
+libxi-dev
+libgl-dev
