@@ -99,7 +99,7 @@ std::shared_ptr<Chunk> WorldGenerator::getChunk(lvec2 pos) {
 	std::shared_ptr<Chunk> chunk(new Chunk(container, pos, tileScale));
 
 	if(pos.y == -1) {
-		chunk->fill(Tile::stone);
+		chunk->fill(Tile::rock);
 		for(int x = 0; x < Chunk::size; x++) {
 			chunk->at(ivec2(x, Chunk::size - 1)) = Tile::grass;
 			chunk->at(ivec2(x, Chunk::size - 2)) = Tile::grass;
@@ -110,6 +110,9 @@ std::shared_ptr<Chunk> WorldGenerator::getChunk(lvec2 pos) {
 				chunk->at(ivec2(x, Chunk::size - 13 - y)) = Tile(Tile::stone, y);
 			}
 		}
+	}
+	else if(pos.y < -1) {
+		chunk->fill(Tile::rock);
 	}
 
 	return chunk;
