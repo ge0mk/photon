@@ -45,7 +45,7 @@ namespace math {
 		template <typename t2>
 		tvec2<type>& operator=(const tvec2<t2> &other) {x = other.x, y = other.y; return *this;}
 
-		std::strong_ordering operator<=>(const tvec2<type> &other) const {
+		auto operator<=>(const tvec2<type> &other) const {
 			if constexpr(std::is_floating_point<type>()) {
 				return length(*this) <=> length(other);
 			}
@@ -147,7 +147,7 @@ namespace math {
 			return x;
 		}
 
-		std::strong_ordering operator<=>(const tvec3<type> &other) const {
+		auto operator<=>(const tvec3<type> &other) const {
 			if constexpr(std::is_floating_point<type>()) {
 				return length(*this) <=> length(other);
 			}
@@ -239,7 +239,7 @@ namespace math {
 			return x;
 		}
 
-		std::strong_ordering operator<=>(const tvec3<type> &other) const {
+		auto operator<=>(const tvec3<type> &other) const {
 			if constexpr(std::is_floating_point<type>()) {
 				return length(*this) <=> length(other);
 			}
