@@ -353,6 +353,13 @@ namespace math{
 		tmat4<type> operator/(const tmat4<type>& mat) const { return inverse() * mat; }
 		tvec4<type> operator/(const tvec4<type>& vec) const { return inverse() * vec; }
 
+		tmat4<type>& operator*=(const tmat4<type>& other) {
+			return operator=(operator*(other));
+		}
+		tmat4<type>& operator/=(const tmat4<type>& other) {
+			return operator=(operator/(other));
+		}
+
 		type& operator()(unsigned col, unsigned row) { return m_data[col][row]; }
 		const type& operator() (unsigned col, unsigned row) const { return m_data[col][row]; }
 
