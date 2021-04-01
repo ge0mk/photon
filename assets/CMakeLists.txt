@@ -4,7 +4,7 @@ add_custom_command(TARGET assets COMMAND ${CMAKE_COMMAND} -E make_directory ${CM
 
 add_custom_command(
 	TARGET assets
-	COMMAND python "spritesheet.py"
+	COMMAND python3 "spritesheet.py"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/player
 )
 
