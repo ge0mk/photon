@@ -3,17 +3,121 @@
 #include <algorithm>
 #include <fstream>
 
-#include <rigidbody.hpp>
-
-World::World(const std::string &path, Camera &cam) : cam(cam), textRenderer(freetype::Font("res/jetbrains-mono.ttf")) {
-	loadShader(path);
-	init();
+void WorldContainer::setChunk(lvec2 pos, const std::shared_ptr<Chunk> &chunk) {
+	m_chunks[pos + m_offset] = chunk;
 }
 
-World::~World() {}
+std::shared_ptr<Chunk> WorldContainer::getChunk(lvec2 pos) {
+	return m_chunks[pos + m_offset];
+}
 
-void World::loadShader(const std::string &path) {
-	std::ifstream src(path, std::ios::ate);
+std::shared_ptr<Chunk> WorldContainer::getChunk(lvec2 pos) const {
+	if(m_chunks.count(pos + m_offset)) {
+		return m_chunks.at(pos + m_offset);
+	}
+	return nullptr;
+}
+
+void WorldContainer::eraseChunk(lvec2 pos) {
+	m_chunks.erase(pos + m_offset);
+}
+
+void WorldContainer::setChunkAbsolute(lvec2 pos, const std::shared_ptr<Chunk> &chunk) {
+	m_chunks[pos] = chunk;
+}
+
+std::shared_ptr<Chunk> WorldContainer::getChunkAbsolute(lvec2 pos) {
+	return m_chunks[pos];
+}
+
+std::shared_ptr<Chunk> WorldContainer::getChunkAbsolute(lvec2 pos) const {
+	if(m_chunks.count(pos)) {
+		return m_chunks.at(pos);
+	}
+	return nullptr;
+}
+
+void WorldContainer::eraseChunkAbsolute(lvec2 pos) {
+	m_chunks.erase(pos);
+}
+
+const std::map<lvec2, std::shared_ptr<Chunk>>& WorldContainer::chunks() const {
+	return m_chunks;
+}
+
+const std::vector<std::shared_ptr<Entity>>& WorldContainer::entities() const {
+	return m_entities;
+}
+
+Tile& WorldContainer::at(lvec2 tileoffset) {
+	ivec2 chunkpos = tileoffset / ivec2(Chunk::size) - ivec2(tileoffset.x < 0, tileoffset.y < 0);
+	ivec2 tilepos = (tileoffset - chunkpos * Chunk::size) % Chunk::size;
+	auto chunk = loadChunk(chunkpos + offset());
+	return chunk->at(tilepos);
+}
+
+Tile WorldContainer::at(lvec2 tileoffset) const {
+	ivec2 chunkpos = tileoffset / ivec2(Chunk::size) - ivec2(tileoffset.x < 0, tileoffset.y < 0);
+	ivec2 tilepos = (tileoffset - chunkpos * Chunk::size) % Chunk::size;
+	auto chunk = getChunk(chunkpos);
+	if(chunk) {
+		return chunk->at(tilepos);
+	}
+	return Tile::null;
+}
+
+Tile& WorldContainer::operator[](lvec2 tileoffset) {
+	return at(tileoffset);
+}
+
+Tile WorldContainer::operator[](lvec2 tileoffset) const {
+	return at(tileoffset);
+}
+
+lvec2 WorldContainer::snapToGrid(vec2 pos) const {
+	return lvec2(pos) - lvec2(pos.x < 0 ? 1 : 0, pos.y < 0 ? 1 : 0);
+}
+
+lvec2 WorldContainer::getTileIndex(vec2 pixel) const {
+	return snapToGrid(pixel / Tile::resolution);
+}
+
+void WorldContainer::shift(lvec2 offset) {
+	m_offset -= offset;
+	for(auto &entity : m_entities) {
+		entity->shift(-offset);
+	}
+}
+
+lvec2 WorldContainer::offset() const {
+	return m_offset;
+}
+
+WorldGenerator::WorldGenerator(const WorldContainer &container, vec2 tileScale) : container(container), tileScale(tileScale) {}
+
+std::shared_ptr<Chunk> WorldGenerator::getChunk(lvec2 pos) {
+	std::shared_ptr<Chunk> chunk(new Chunk(container, pos, tileScale));
+
+	if(pos.y == -1) {
+		chunk->fill(Tile::stone);
+		for(int x = 0; x < Chunk::size; x++) {
+			chunk->at(ivec2(x, Chunk::size - 1)) = Tile::grass;
+			chunk->at(ivec2(x, Chunk::size - 2)) = Tile::grass;
+			for(int y = 0; y < 10; y++) {
+				chunk->at(ivec2(x, Chunk::size - 3 - y)) = Tile(Tile::dirt, y);
+			}
+			for(int y = 0; y < 10; y++) {
+				chunk->at(ivec2(x, Chunk::size - 13 - y)) = Tile(Tile::stone, y);
+			}
+		}
+	}
+
+	return chunk;
+}
+
+WorldRenderer::WorldRenderer(const WorldContainer &container, const Camera &cam, const std::shared_ptr<Entity> &mainEntity, const std::shared_ptr<TiledTexture> &texture)
+ : container(container), cam(cam), mainEntity(mainEntity), texture(texture) {
+	std::ifstream src("res/platformer.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());
@@ -21,17 +125,12 @@ void World::loadShader(const std::string &path) {
 	shader = opengl::Program::load(buffer, opengl::Shader::VertexStage | opengl::Shader::FragmentStage);
 	shader.use();
 	shader.setUniform("sampler", 0);
-}
 
-void World::init() {
-	shader.use();
 	// init ubos
 	cameraInfoUBO.bindBase(0);
 	cameraInfoUBO.setData({mat4(), mat4()});
-
 	modelInfoUBO.bindBase(1);
 	modelInfoUBO.setData({mat4(), mat4()});
-
 	renderInfoUBO.bindBase(2);
 	renderInfoUBO.setData({vec4(0), cam.res, 0.0f, 0.0f});
 
@@ -39,149 +138,12 @@ void World::init() {
 	unitplane = opengl::Mesh<vec3, vec2>({
 		{ math::vec3( 0.5f, 0.5f, 0.0f), math::vec2(1,0) },
 		{ math::vec3(-0.5f, 0.5f, 0.0f), math::vec2(0,0) },
-		{ math::vec3(-0.5f,-0.5f, 0.0f), math::vec2(0,1) },
 		{ math::vec3( 0.5f,-0.5f, 0.0f), math::vec2(1,1) },
-	}, {
-		0, 1, 2, 2, 3, 0,
+		{ math::vec3(-0.5f,-0.5f, 0.0f), math::vec2(0,1) },
 	});
 }
 
-void World::setTexturePtr(const std::shared_ptr<TiledTexture> &texture) {
-	this->texture = texture;
-}
-
-void World::setCameraHostPtr(const std::shared_ptr<Entity> &host) {
-	std::lock_guard<std::mutex> lock(cameraMutex);
-	camHost = host;
-}
-
-void World::setParticleTexturePtr(const std::shared_ptr<TiledTexture> &texture) {
-	particleSystem.setTexture(texture);
-}
-
-Chunk* World::createChunk(lvec2 pos) {
-	chunks.push_back(std::unique_ptr<Chunk>(new Chunk(this, pos, texture->scale())));
-	return chunks.back().get();
-}
-
-Chunk* World::getChunk(lvec2 pos) {
-	for(const auto &chunk : chunks) {
-		if(chunk->getPos() == pos) {
-			return chunk.get();
-		}
-	}
-	if(autogrow) {
-		return createChunk(pos);
-	}
-	return nullptr;
-}
-
-const Chunk* World::getChunk(lvec2 pos) const {
-	for(const auto &chunk : chunks) {
-		if(chunk->getPos() == pos) {
-			return chunk.get();
-		}
-	}
-	return nullptr;
-}
-
-Chunk* World::generateFlatChunk(lvec2 pos) {
-	Chunk *chunk = createChunk(pos);
-	chunk->fill(Tile::rock);
-
-	for(int x = 0; x < Chunk::size; x++) {
-		chunk->at(ivec2(x, Chunk::size - 1)) = Tile::grass;
-		chunk->at(ivec2(x, Chunk::size - 2)) = Tile::grass;
-		for(int y = 0; y < 10; y++) {
-			chunk->at(ivec2(x, Chunk::size - 3 - y)) = Tile(Tile::dirt, y);
-		}
-		for(int y = 0; y < 10; y++) {
-			chunk->at(ivec2(x, Chunk::size - 13 - y)) = Tile(Tile::stone, y);
-		}
-	}
-
-	return chunk;
-}
-
-std::shared_ptr<TextObject> World::createTextObject(const std::string &text, const mat4 &transform, vec4 color) {
-	return textRenderer.createObject(text, transform, color);
-}
-
-void World::setAutoGrow(bool state) {
-	autogrow = state;
-}
-
-bool World::getAutoGrow() {
-	return autogrow;
-}
-
-void World::update(float time, float dt) {
-	cameraMutex.lock();
-	ivec2 shiftDir;
-
-	if(camHost->pos.x < 0.0f) {
-		camHost->shift(ivec2(1, 0));
-		shiftDir += ivec2(1, 0);
-	}
-	else if(camHost->pos.x > Chunk::size * Tile::resolution) {
-		camHost->shift(ivec2(-1, 0));
-		shiftDir += ivec2(-1, 0);
-	}
-
-	if(camHost->pos.y < 0.0f) {
-		camHost->shift(ivec2(0, 1));
-		shiftDir += ivec2(0, 1);
-	}
-	else if(camHost->pos.y > Chunk::size * Tile::resolution) {
-		camHost->shift(ivec2(0, -1));
-		shiftDir += ivec2(0, -1);
-	}
-
-	camHost->update(time, dt, this);
-
-	cameraMutex.unlock();
-
-	shift(shiftDir);
-
-	for(auto &chunk : chunks) {
-		chunk->update(time, dt);
-	}
-
-	for(auto &entity : entities) {
-		entity->update(time, dt, this);
-	}
-
-	if(particleSystem.size() < 8192) {
-		for(unsigned i = 0; i < 10; i++) {
-			vec2 pos = vec2(rand(-1024, 1536), rand(256, 512));
-			vec2 scale = vec2(1, 8) * rand(0.8, 1.2);
-			vec2 speed = vec2(0.0, rand(-112, -96));
-			vec2 gravity = vec2(0, -1);
-			particleSystem.spawn(Particle(Particle::rain, pos, speed, gravity, scale, 0, 0));
-		}
-	}
-	for(Particle &p : particleSystem) {
-		switch(p.type) {
-			case Particle::rain: {
-				if(p.speed.y == 0.0f || p.pos.y < -512.0f) {
-					p.pos = vec2(rand(-1024, 1536), 512);
-					p.speed = vec2(0.0, rand(-112, -96));
-				}
-			} break;
-		}
-	}
-	particleSystem.erase([](const Particle &p) -> bool {
-		if(p.type == Particle::blood && p.lifetime > 10) {
-			return true;
-		}
-		return false;
-	});
-
-	particleSystem.update(time, dt, this);
-	textRenderer.update();
-}
-
-void World::render() {
+void WorldRenderer::render() {
 	shader.use();
 
 	cameraInfoUBO.bindBase(0);
@@ -198,21 +160,18 @@ void World::render() {
 	cameraInfoUBO.update({proj, view});
 	renderInfoUBO.update({vec4(0), res, 0.0f, 0.0f});
 
-	mat4 transform = camHost->getTransform();
-	vec2 pos = transform * vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	if(dist(campos.xy, pos) < Chunk::size * Tile::resolution * 2) {
-		modelInfoUBO.update({transform, camHost->getUVTransform()});
-		camHost->getTexturePtr()->activate();
-		unitplane.drawElements();
-	}
+	mat4 transform = mainEntity->getTransform();
+	modelInfoUBO.update({transform, mainEntity->getUVTransform()});
+	mainEntity->getTexturePtr()->activate();
+	unitplane.drawElements(GL_TRIANGLE_STRIP);
 
 	cameraMutex.unlock();
 
 	texture->activate();
-	for(auto &chunk : chunks) {
-		ivec2 chunkid = chunk->getPos();
-		vec2 chunkpos = chunkid * Chunk::size * Tile::resolution;
-		vec2 chunkcenter = (vec2(chunkid) + 0.5f) * Chunk::size * Tile::resolution;
+	for(auto &[chunkid, chunk] : container.chunks()) {
+		lvec2 chunkoffset = chunkid - container.offset();
+		vec2 chunkpos = chunkoffset * Chunk::size * Tile::resolution;
+		vec2 chunkcenter = (vec2(chunkoffset) + 0.5f) * Chunk::size * Tile::resolution;
 
 		if(dist(campos.xy, chunkcenter) < Chunk::size * Tile::resolution * 1.5) {
 			modelInfoUBO.update({mat4().translate(vec3(chunkpos)), mat4()});
@@ -220,108 +179,23 @@ void World::render() {
 		}
 	}
 
-	for(auto &entity : entities) {
+	for(auto &entity : container.entities()) {
 		mat4 transform = entity->getTransform();
 		vec2 pos = transform * vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		if(dist(campos.xy, pos) < Chunk::size * Tile::resolution * 2) {
 			modelInfoUBO.update({transform, entity->getUVTransform()});
 			entity->getTexturePtr()->activate();
-			unitplane.drawElements();
+			unitplane.drawElements(GL_TRIANGLE_STRIP);
 		}
 	}
-
-	particleSystem.render(proj * view);
-	textRenderer.render(proj * view);
 }
 
-void World::renderCollisions(std::vector<ivec2> tiles, std::shared_ptr<TiledTexture> texture) {
-	shader.use();
-	if(texture) {
-		texture->activate();
-	}
-
-	cameraInfoUBO.bindBase(0);
-	modelInfoUBO.bindBase(1);
-	renderInfoUBO.bindBase(2);
-
-	mat4 proj = cam.proj();
-	mat4 view = cam.view();
-	vec2 res = cam.res;
-
-	cameraInfoUBO.update({proj, view});
-	renderInfoUBO.setData({vec4(0.6f, 0.0f, 0.0f, 1.0f), res, 0.0f, 0.0f});
-
-	for(ivec2 tile : tiles) {
-		mat4 transform = mat4().translate(vec3(vec2(tile) + 0.5f, 0.0f)).scale(0.666f);
-		modelInfoUBO.update({transform, mat4()});
-		unitplane.drawElements();
-	}
+mat4 WorldRenderer::getCamTransform() {
+	std::lock_guard<std::mutex> lock(cameraMutex);
+	mat4 transform = cam.proj() * cam.view();
+	return transform;
 }
 
-void World::shift(ivec2 dir) {
-	for(auto &chunk : chunks) {
-		chunk->shift(dir);
-	}
-	for(auto &entity : entities) {
-		entity->shift(dir);
-	}
-	particleSystem.shift(dir);
-	shiftOffset += dir;
-}
-
-lvec2 World::getShiftOffset() const {
-	return shiftOffset;
-}
-
-Tile& World::operator[](const ivec2 &pos) {
-	ivec2 chunkpos = pos / ivec2(Chunk::size) - ivec2(pos.x < 0, pos.y < 0);
-	ivec2 tilepos = (pos - chunkpos * Chunk::size) % Chunk::size;
-	Chunk *chunk = getChunk(chunkpos);
-	if(!chunk) {
-		throw std::runtime_error("no chunk at (" + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ")!");
-	}
-	return chunk->at(tilepos);
-}
-
-const Tile& World::operator[](const ivec2 &pos) const {
-	ivec2 chunkpos = pos / ivec2(Chunk::size) - ivec2(pos.x < 0, pos.y < 0);
-	ivec2 tilepos = (pos - chunkpos * Chunk::size) % Chunk::size;
-	const Chunk *chunk = getChunk(chunkpos);
-	if(chunk) {
-		return chunk->at(tilepos);
-	}
-	return fallback;
-}
-
-Tile& World::at(const ivec2 &pos) {
-	return this->operator[](pos);
-}
-
-const Tile& World::at(const ivec2 &pos) const {
-	return this->operator[](pos);
-}
-
-Tile World::getTileOrEmpty(const ivec2 &pos) const {
-	Tile tile;
-	try {
-		tile = this->operator[](pos);
-	} catch(std::exception &e) {}
-	return tile;
-}
-
-vec2 World::snapToGrid(vec2 worldpos) const {
-	return ivec2(worldpos) - ivec2(worldpos.x < 0 ? 1 : 0, worldpos.y < 0 ? 1 : 0);
-}
-
-ivec2 World::getTileIndex(vec2 worldpos) const {
-	return snapToGrid(worldpos / Tile::resolution);
-}
-
-void World::createBloodParticles(vec2 pos) {
-	for(int i = 0; i < 10; i++) {
-		vec2 speed = vec2(rand(-32, 32), rand(-32, 32));
-		float rspeed = rand(2, 4);
-		rspeed *= ((speed.x > 0) ? 1 : -1);
-		particleSystem.spawn(Particle(Particle::blood, pos + 0.5, speed, vec2(0, -128), vec2(2.0f), 0, rspeed));
-	}
+std::mutex& WorldRenderer::getCameraMutex() {
+	return cameraMutex;
 }

@@ -17,12 +17,12 @@ Particle::Particle(uint32_t type, vec2 pos, vec2 speed, vec2 gravity, vec2 scale
 	}
 }
 
-void Particle::update(float time, float dt, World *world) {
+void Particle::update(float time, float dt, const WorldContainer &world) {
 	pos += speed * dt;
 	speed += gravity * dt;
 	rotation += rotspeed * dt * 5;
 	lifetime += dt;
-	if(world->getTileOrEmpty(world->getTileIndex(pos)).type != Tile::null) {
+	if(world.at(world.getTileIndex(pos)).type != Tile::null) {
 		if(abs(speed.x) > abs(speed.y) && fract(pos.y) > 0.95)
 			speed.x = 0;
 		else {
@@ -30,11 +30,11 @@ void Particle::update(float time, float dt, World *world) {
 		}
 		vec2 tmp = pos + vec2(rotspeed * dt * 8, 0.1);
 		vec2 tmp2 = pos + vec2(-rotspeed * dt, -0.1);
-		if(fract(pos.y) > 0.95 && world->getTileOrEmpty(world->getTileIndex(tmp)).type == Tile::null) {
+		if(fract(pos.y) > 0.95 && world.at(world.getTileIndex(tmp)).type == Tile::null) {
 			pos.x += rotspeed * dt * 8;
 			speed.x = rotspeed * 8;
 		}
-		else if(world->getTileOrEmpty(world->getTileIndex(tmp2)).type == Tile::null) {
+		else if(world.at(world.getTileIndex(tmp2)).type == Tile::null) {
 			pos.y -= 0.2 * dt;
 		}
 		else {
@@ -60,11 +60,7 @@ ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : texture(
 	vao.unbind();
 }
 
-void ParticleSystem::spawn(const Particle &particle) {
-	particles.push_back(particle);
-}
-
-void ParticleSystem::update(float time, float dt, World *world) {
+void ParticleSystem::update(float time, float dt, const WorldContainer &world) {
 	for(Particle &p : particles) {
 		p.update(time, dt, world);
 	}

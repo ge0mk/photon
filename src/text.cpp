@@ -100,3 +100,9 @@ void TextRenderer::render(mat4 transform) {
 	texture.activate();
 	mesh.drawElements();
 }
+
+void TextRenderer::applyTransform(mat4 transform) {
+	for(auto &object : objects) {
+		object->transform = transform * object->transform;
+	}
+}

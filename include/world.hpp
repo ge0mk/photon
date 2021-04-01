@@ -22,60 +22,76 @@
 
 using namespace math;
 
-class RigidBody;
-
-class World {
+class WorldContainer {
 public:
-	World(const std::string &shader, Camera &cam);
-	~World();
+	WorldContainer() = default;
+	WorldContainer(const WorldContainer &other) = default;
+	~WorldContainer() = default;
 
-	void loadShader(const std::string &path);
-	void init();
+	WorldContainer& operator=(const WorldContainer &other) = default;
 
-	void setCameraHostPtr(const std::shared_ptr<Entity> &host);
-	void setTexturePtr(const std::shared_ptr<TiledTexture> &texture);
-	void setParticleTexturePtr(const std::shared_ptr<TiledTexture> &texture);
+	void setChunk(lvec2 pos, const std::shared_ptr<Chunk> &chunk);
+	std::shared_ptr<Chunk> getChunk(lvec2 pos);
+	std::shared_ptr<Chunk> getChunk(lvec2 pos) const;
+	void eraseChunk(lvec2 pos);
 
-	Chunk* createChunk(lvec2 pos);
-	Chunk* getChunk(lvec2 pos);
-	const Chunk* getChunk(lvec2 pos) const;
+	virtual std::shared_ptr<Chunk> loadChunk(lvec2 pos) = 0;
 
-	Chunk* generateFlatChunk(lvec2 pos);
+	void setChunkAbsolute(lvec2 pos, const std::shared_ptr<Chunk> &chunk);
+	std::shared_ptr<Chunk> getChunkAbsolute(lvec2 pos);
+	std::shared_ptr<Chunk> getChunkAbsolute(lvec2 pos) const;
+	void eraseChunkAbsolute(lvec2 pos);
 
 	template<typename T, typename ...Args>
 	std::shared_ptr<T> createEntity(Args ...args) {
 		std::shared_ptr<T> entity = std::shared_ptr<T>(new T(args...));
-		entities.push_back(entity);
+		m_entities.push_back(entity);
 		return entity;
 	}
 
-	std::shared_ptr<TextObject> createTextObject(const std::string &text, const mat4 &transform, vec4 color = vec4(1));
+	const std::map<lvec2, std::shared_ptr<Chunk>>& chunks() const;
+	const std::vector<std::shared_ptr<Entity>>& entities() const;
 
-	void save(const std::string &path) const;
-	void load(const std::string &path);
+	Tile& at(lvec2 tileoffset);
+	Tile at(lvec2 tileoffset) const;
 
-	void setAutoGrow(bool state);
-	bool getAutoGrow();
+	Tile& operator[](lvec2 tileoffset);
+	Tile operator[](lvec2 tileoffset) const;
 
-	void update(float time, float dt);
-	void render();
-	void renderCollisions(std::vector<ivec2> tiles, std::shared_ptr<TiledTexture> texture = {});
+	lvec2 getTileIndex(vec2 pixel) const;
+	lvec2 snapToGrid(vec2 pos) const;
 
-	void shift(ivec2 dir);
-	lvec2 getShiftOffset() const;
+	virtual void shift(lvec2 offset);
+	lvec2 offset() const;
 
-	Tile& operator[](const ivec2 &pos);
-	const Tile& operator[](const ivec2 &pos) const;
-	Tile& at(const ivec2 &pos);
-	const Tile& at(const ivec2 &pos) const;
+protected:
+	std::map<lvec2, std::shared_ptr<Chunk>> m_chunks;
+	std::vector<std::shared_ptr<Entity>> m_entities;
 
-	Tile getTileOrEmpty(const ivec2 &pos) const;
+	lvec2 m_offset;
+};
 
-	vec2 snapToGrid(vec2 worldpos) const;
-	ivec2 getTileIndex(vec2 worldpos) const;
+class WorldGenerator {
+public:
+	WorldGenerator(const WorldContainer &container, vec2 tileScale);
+	virtual std::shared_ptr<Chunk> getChunk(lvec2 pos);
 
-	void createBloodParticles(vec2 pos);
+private:
+	const WorldContainer &container;
 
+public:
+	vec2 tileScale;
+};
+
+class WorldRenderer {
+public:
+	WorldRenderer(const WorldContainer &container, const Camera &cam, const std::shared_ptr<Entity> &mainEntity, const std::shared_ptr<TiledTexture> &texture);
+	virtual void render();
+
+	mat4 getCamTransform();
+	std::mutex& getCameraMutex();
+
+protected:
 	struct ModelInfo {
 		mat4 transform, uvtransform;
 	};
@@ -91,25 +107,179 @@ public:
 	};
 
 private:
-	bool autogrow = false;
+	const WorldContainer &container;
+	const Camera &cam;
+
+	std::shared_ptr<Entity> mainEntity;
+
+	opengl::Program shader;
 	opengl::Mesh<vec3, vec2> unitplane;
 	opengl::UniformBuffer<ModelInfo> modelInfoUBO;
 	opengl::UniformBuffer<CameraInfo> cameraInfoUBO;
 	opengl::UniformBuffer<RenderInfo> renderInfoUBO;
-	opengl::Program shader;
 
-	std::vector<std::unique_ptr<Chunk>> chunks;
-	std::vector<std::shared_ptr<Entity>> entities;
 	std::shared_ptr<TiledTexture> texture;
 
-	Camera &cam;
 	std::mutex cameraMutex;
-	std::shared_ptr<Entity> camHost;
+};
 
-	ParticleSystem particleSystem;
-	TextRenderer textRenderer;
+template<typename Generator_t = WorldGenerator, typename Renderer_t = WorldRenderer>
+class DynamicWorld : public WorldContainer {
+public:
+	DynamicWorld(const std::shared_ptr<Entity> &mainEntity = {}) : mainEntity(mainEntity) {}
 
-	Tile fallback;
+	void setMainEntity(const std::shared_ptr<Entity> &mainEntity) {
+		this->mainEntity = mainEntity;
+	}
 
-	ivec2 shiftOffset = 0;
+	template<typename ...Args>
+	void initGenerator(Args &&...args) {
+		generator = std::unique_ptr<Generator_t>(new Generator_t(*this, args...));
+	}
+
+	template<typename ...Args>
+	void initRenderer(Args &&...args) {
+		renderer = std::unique_ptr<Renderer_t>(new Renderer_t(*this, args...));
+	}
+
+	void initParticleSystem(const std::shared_ptr<TiledTexture> texture = {}) {
+		particleSystem = std::unique_ptr<ParticleSystem>(new ParticleSystem(texture));
+	}
+
+	void initTextRenderer(freetype::Font &&font) {
+		textRenderer = std::unique_ptr<TextRenderer>(new TextRenderer(std::move(font)));
+		textRenderer->createObject("Hello World!", mat4().scale(0.2), vec4(1));
+	}
+
+	void update(float time, float dt) {
+		updateMainEntity(time, dt);
+		updateChunks(time, dt);
+
+		for(auto &entity : entities()) {
+			entity->update(time, dt, *this);
+		}
+
+		updateParticles(time, dt);
+		textRenderer->update();
+	}
+
+	void render() {
+		mat4 transform = renderer->getCamTransform();
+		if(renderer) {
+			renderer->render();
+		}
+
+		particleSystem->render(transform);
+		textRenderer->render(transform);
+	}
+
+protected:
+	std::shared_ptr<Chunk> loadChunk(lvec2 pos) override {
+		auto chunk = std::as_const(*this).getChunkAbsolute(pos);
+		if(!chunk) {
+			if(generator) {
+				chunk = generator->getChunk(pos);
+			}
+			else {
+				chunk = std::shared_ptr<Chunk>(new Chunk(*this, pos, generator->tileScale));
+			}
+			setChunkAbsolute(pos, chunk);
+		}
+		return chunk;
+	}
+
+	void updateMainEntity(float time, float dt) {
+		renderer->getCameraMutex().lock();
+		ivec2 shiftDir;
+
+		if(mainEntity->pos.x < 0.0f) {
+			shiftDir += ivec2(1, 0);
+		}
+		else if(mainEntity->pos.x > Chunk::size * Tile::resolution) {
+			shiftDir += ivec2(-1, 0);
+		}
+
+		if(mainEntity->pos.y < 0.0f) {
+			shiftDir += ivec2(0, 1);
+		}
+		else if(mainEntity->pos.y > Chunk::size * Tile::resolution) {
+			shiftDir += ivec2(0, -1);
+		}
+
+		shift(shiftDir);
+		mainEntity->shift(shiftDir);
+
+		mainEntity->update(time, dt, *this);
+
+		renderer->getCameraMutex().unlock();
+	}
+
+	void updateChunks(float time, float dt) {
+		std::vector<lvec2> outOfRangeChunks;
+
+		for(auto &[pos, chunk] : chunks()) {
+			if(length(vec2(pos - m_offset)) > 4.0f) {
+				outOfRangeChunks.push_back(pos);
+			}
+			else {
+				chunk->update(time, dt);
+			}
+		}
+
+		for(lvec2 pos : outOfRangeChunks) {
+			eraseChunkAbsolute(pos);
+		}
+
+		for(int y = -3; y <= 3; y++) {
+			for(int x = -3; x <= 3; x++) {
+				if(!std::as_const(*this).getChunk(lvec2(x, y))) {
+					loadChunk(lvec2(x, y) + offset());
+				}
+			}
+		}
+	}
+
+	void updateParticles(float time, float dt) {
+		if(particleSystem->size() < 8192) {
+			for(unsigned i = 0; i < 16; i++) {
+				vec2 pos = vec2(rand(-1024, 1536), rand(256, 512));
+				vec2 scale = vec2(1, 8) * rand(0.8, 1.2);
+				vec2 speed = vec2(0.0, rand(-112, -96));
+				vec2 gravity = vec2(0, -1);
+				particleSystem->spawn(Particle::rain, pos, speed, gravity, scale, 0, 0);
+			}
+		}
+		for(Particle &p : *particleSystem) {
+			switch(p.type) {
+				case Particle::rain: {
+					if(p.speed.y == 0.0f || p.pos.y < -512.0f) {
+						p.pos = vec2(rand(-1024, 1536), 512);
+						p.speed = vec2(0.0, rand(-112, -96));
+					}
+				} break;
+			}
+		}
+		particleSystem->erase([](const Particle &p) -> bool {
+			if(p.type == Particle::blood && p.lifetime > 10) {
+				return true;
+			}
+			return false;
+		});
+
+		particleSystem->update(time, dt, *this);
+	}
+
+	void shift(lvec2 offset) override {
+		WorldContainer::shift(offset);
+		particleSystem->shift(offset);
+		textRenderer->applyTransform(mat4().translate(vec3(vec2(offset) * Chunk::size * Tile::resolution)));
+	}
+
+private:
+	std::unique_ptr<ParticleSystem> particleSystem;
+	std::unique_ptr<TextRenderer> textRenderer;
+	std::unique_ptr<Generator_t> generator;
+	std::unique_ptr<Renderer_t> renderer;
+
+	std::shared_ptr<Entity> mainEntity;
 };

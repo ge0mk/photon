@@ -2,20 +2,24 @@
 
 TileCursor::TileCursor(std::shared_ptr<TiledTexture> sprites) : Entity(sprites) {}
 
-void TileCursor::update(float time, float dt, World *world) {
+void TileCursor::update(float time, float dt, WorldContainer &world) {
 	transform = mat4().translate(pos + 0.5 * Tile::resolution).scale(Tile::resolution + 1.0f);
 }
 
-Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl", cam) {
+Game::Game() : opengl::Window({1080, 720}, "Game") {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
-	auto tileset = textures.load("res/tileset.png", ivec2(32));
-	world.setTexturePtr(tileset);
+	auto playerSprite = textures.load("res/player.png", ivec2(16, 13));
+	player = std::shared_ptr<Player>(new Player(&cam, playerSprite));
+	world.setMainEntity(player);
 
-	world.setAutoGrow(true);
-	for(int i = -8; i < 8; i++) {
-		world.generateFlatChunk(lvec2(i, -1));
-	}
+	auto palette = textures.load("res/palette.png", 1);
+
+	auto tileset = textures.load("res/tileset.png", ivec2(32));
+	world.initRenderer(std::ref(cam), player, tileset);
+	world.initGenerator(tileset->scale());
+	world.initParticleSystem(palette);
+	world.initTextRenderer(std::move(freetype::Font("res/jetbrains-mono.ttf")));
 
 	for(int i = 5; i < 128; i++) {
 		world[ivec2(i + 4, i)] = Tile::stone;
@@ -29,18 +33,12 @@ Game::Game() : opengl::Window({1080, 720}, "Game"), world("res/platformer.glsl",
 	world[ivec2(-5,2)] = Tile::stone;
 	world[ivec2(-5,3)] = Tile::stone;
 
-	auto playerSprite = textures.load("res/player.png", ivec2(16, 13));
-	player = std::shared_ptr<Player>(new Player(&cam, playerSprite));
-	world.setCameraHostPtr(player);
-
 	auto cursorSprite = textures.load("res/crosshair.png", 1);
 	cursor = world.createEntity<TileCursor>(cursorSprite);
 
-	auto palette = textures.load("res/palette.png", 1);
-	world.setParticleTexturePtr(palette);
-
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
 }
 
 #if defined(MULTITHREADING)
@@ -77,9 +75,6 @@ void Game::update() {
 	dt = time > 0.0 ? (current_time - time) : (1.0f / 60.0f);
 	time = current_time;
 
-	std::cout<<1.0f / dt<<" physics updates per second\n";
-	std::cout<<player->pos<<"\n";
-
 	world.update(glfwGetTime(), dt);
 	cam.update();
 }
@@ -93,16 +88,17 @@ void Game::updateInputs() {
 	if(getKey(GLFW_KEY_LEFT_SHIFT))
 		player->setInput(Player::walk, 1.0f);
 
-	cursor->pos = world.getTileIndex(screenToWorldSpace(getCursorPos())) * Tile::resolution;
+	lvec2 cursorTileIndex = world.getTileIndex(screenToWorldSpace(getCursorPos()));
+	cursor->pos = cursorTileIndex * Tile::resolution;
 	if(getMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) {
-		world.createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
+		//world.createBloodParticles(screenToWorldSpace(getCursorPos()) - 0.5);
 	}
 
 	if (getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
-		world[cursor->pos / Tile::resolution] = Tile::stone;
+		world[cursorTileIndex] = Tile::stone;
 	}
 	else if (getMouseButton(GLFW_MOUSE_BUTTON_RIGHT)) {
-		world[cursor->pos / Tile::resolution] = Tile::null;
+		world[cursorTileIndex] = Tile::null;
 	}
 }
 
@@ -110,7 +106,6 @@ void Game::render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	world.render();
-	world.renderCollisions(player->collidingTiles, textures.get(2));
 }
 
 vec2 Game::screenToWorldSpace(vec2 screenpos) {
@@ -143,6 +138,8 @@ void Game::onFramebufferResized(ivec2 size) {
 }
 
 int main(int argc, const char *argv[]) {
+	std::vector<std::string> args(argv, argv + argc);
+
 	glfw::init();
 	freetype::init();
 

@@ -1,6 +1,6 @@
 #include <chunk.hpp>
 
-Chunk::Chunk(World *world, lvec2 pos, vec2 tileScale) : world(world), pos(pos), origin(pos), tileScale(tileScale) {}
+Chunk::Chunk(const WorldContainer &container, lvec2 pos, vec2 tileScale) : container(container), pos(pos), tileScale(tileScale) {}
 
 void Chunk::fill(uint64_t type) {
 	for(Tile &tile : tiles) {
@@ -82,16 +82,8 @@ void Chunk::render() {
 	mesh->drawElements();
 }
 
-void Chunk::shift(ivec2 dir) {
-	pos += dir;
-}
-
 lvec2 Chunk::getPos() {
 	return pos;
-}
-
-lvec2 Chunk::getOrigin() {
-	return origin;
 }
 
 Tile& Chunk::operator[](ivec2 pos) {

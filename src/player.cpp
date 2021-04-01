@@ -54,7 +54,7 @@ Player::Player(Camera *cam, const std::shared_ptr<TiledTexture> &texture) : Rigi
 	uvpos = ivec2(1, 6);
 }
 
-void Player::update(float time, float dt, World *world) {
+void Player::update(float time, float dt, WorldContainer &world) {
 	if(jumptime >= 0) {
 		jumptime += dt;
 	}
@@ -214,7 +214,7 @@ void Player::update(float time, float dt, World *world) {
 	inputs = {0.0f, 0.0f, 0.0f, 0.0f};
 }
 
-void Player::updateAnimation(float time, float dt, World *world) {
+void Player::updateAnimation(float time, float dt, WorldContainer &world) {
 	switch(state) {
 		case State::idle: {
 			int frames = animations[a_idle].size();

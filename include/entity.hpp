@@ -17,14 +17,14 @@
 
 using namespace math;
 
-class World;
+class WorldContainer;
 
 class Entity {
 public:
 	Entity(std::shared_ptr<TiledTexture> texture = {});
 	virtual ~Entity();
 
-	virtual void update(float time, float dt, World *world);
+	virtual void update(float time, float dt, WorldContainer &world);
 	virtual void render();
 	virtual bool customRenderFunction() const;
 

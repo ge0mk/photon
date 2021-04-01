@@ -12,7 +12,7 @@ bool AABB::intersects(const AABB &other) {
 
 RigidBody::RigidBody(std::shared_ptr<TiledTexture> texture) : Entity(texture) {}
 
-void RigidBody::update(float time, float dt, World *world) {
+void RigidBody::update(float time, float dt, WorldContainer &world) {
 	oldPos = pos;
 	oldSpeed = speed;
 
@@ -30,7 +30,7 @@ void RigidBody::update(float time, float dt, World *world) {
 	float leftWallX = 0.0f, rightWallX = 0.0f;
 	collidingTiles.clear();
 
-	if (speed.x < 0.0f && checkLeft(*world, leftWallX)) {
+	if (speed.x < 0.0f && checkLeft(world, leftWallX)) {
 		if(oldPos.x - halfSize.x + aabbOffset.x >= leftWallX) {
 			pos.x = leftWallX + halfSize.x + aabbOffset.x + 0.01f;
 			mPushesLeftWall = true;
@@ -41,7 +41,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mPushesLeftWall = false;
 	}
 
-	if (speed.x > 0.0f && checkRight(*world, rightWallX)) {
+	if (speed.x > 0.0f && checkRight(world, rightWallX)) {
 		if(oldPos.x + halfSize.x + aabbOffset.x <= rightWallX) {
 			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
 			mPushesRightWall = true;
@@ -52,7 +52,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mPushesRightWall = false;
 	}
 
-	if(speed.y <= 0.0f && checkGround(*world, groundY)) {
+	if(speed.y <= 0.0f && checkGround(world, groundY)) {
 		pos.y = groundY + halfSize.y - aabbOffset.y;
 		speed.y = 0;
 		mOnGround = true;
@@ -61,7 +61,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mOnGround = false;
 	}
 
-	if(speed.y >= 0.0f && checkCeiling(*world, ceilingY)) {
+	if(speed.y >= 0.0f && checkCeiling(world, ceilingY)) {
 		pos.y = ceilingY - halfSize.y - aabbOffset.y;
 		speed.y = 0;
 		mAtCeiling = true;
@@ -70,7 +70,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mAtCeiling = false;
 	}
 
-	if (speed.x == 0.0f && checkLeft(*world, leftWallX)) {
+	if (speed.x == 0.0f && checkLeft(world, leftWallX)) {
 		if(oldPos.x - halfSize.x + aabbOffset.x >= leftWallX) {
 			pos.x = leftWallX + halfSize.x + aabbOffset.x + 0.01f;
 			mPushesLeftWall = true;
@@ -80,7 +80,7 @@ void RigidBody::update(float time, float dt, World *world) {
 		mPushesLeftWall = false;
 	}
 
-	if (speed.x == 0.0f && checkRight(*world, rightWallX)) {
+	if (speed.x == 0.0f && checkRight(world, rightWallX)) {
 		if(oldPos.x + halfSize.x + aabbOffset.x <= rightWallX) {
 			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
 			mPushesRightWall = true;
@@ -108,7 +108,7 @@ void RigidBody::shift(ivec2 dir) {
 	Entity::shift(dir);
 }
 
-bool RigidBody::checkGround(const World &world, float &groundY) {
+bool RigidBody::checkGround(const WorldContainer &world, float &groundY) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
@@ -142,7 +142,7 @@ bool RigidBody::checkGround(const World &world, float &groundY) {
 	return false;
 }
 
-bool RigidBody::checkCeiling(const World &world, float &ceilingY) {
+bool RigidBody::checkCeiling(const WorldContainer &world, float &ceilingY) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
@@ -176,7 +176,7 @@ bool RigidBody::checkCeiling(const World &world, float &ceilingY) {
 	return false;
 }
 
-bool RigidBody::checkLeft(const World &world, float &leftX) {
+bool RigidBody::checkLeft(const WorldContainer &world, float &leftX) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 
@@ -210,7 +210,7 @@ bool RigidBody::checkLeft(const World &world, float &leftX) {
 	return false;
 }
 
-bool RigidBody::checkRight(const World &world, float &rightX) {
+bool RigidBody::checkRight(const WorldContainer &world, float &rightX) {
 	vec2 center = pos + aabbOffset;
 	vec2 oldCenter = oldPos + aabbOffset;
 

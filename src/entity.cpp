@@ -4,7 +4,7 @@ Entity::Entity(std::shared_ptr<TiledTexture> texture) : texture(texture) {}
 
 Entity::~Entity() {}
 
-void Entity::update(float time, float dt, World *world) {
+void Entity::update(float time, float dt, WorldContainer &world) {
 	transform = mat4().translate(pos).rotate(rot).scale(scale);
 }
 

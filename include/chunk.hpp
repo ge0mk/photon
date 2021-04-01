@@ -16,25 +16,13 @@
 
 using namespace math;
 
-class World;
+class WorldContainer;
 class Chunk {
 public:
 	using Vertex = opengl::Vertex<vec3, vec2>;
-	using Mesh = opengl::Mesh<vec3, vec2>;
+	using Mesh = opengl::IndexedMesh<vec3, vec2>;
 
-	enum eblock : uint8_t {
-		center = 0,
-		left,
-		top_left,
-		top,
-		top_right,
-		right,
-		bottom_right,
-		bottom,
-		bottom_left,
-	};
-
-	Chunk(World *world, lvec2 pos, vec2 tileScale);
+	Chunk(const WorldContainer &container, lvec2 pos, vec2 tileScale);
 
 	void fill(uint64_t tile);
 
@@ -42,9 +30,7 @@ public:
 	void update(float time, float dt);
 	void render();
 
-	void shift(ivec2 dir);
 	lvec2 getPos();
-	lvec2 getOrigin();
 
 	Tile& operator[](ivec2 pos);
 	const Tile& operator[](ivec2 pos) const;
@@ -55,13 +41,12 @@ public:
 	static constexpr uint8_t size = 64;
 
 private:
-	friend class World;
-	World* world;
+	const WorldContainer &container;
+
+	lvec2 pos;
 	vec2 tileScale;
-	lvec2 origin, pos;
 	std::array<Tile, size * size> tiles;
 
-private:
 	std::unique_ptr<Mesh> mesh;
 	std::vector<Vertex> vertices;
 	std::vector<unsigned> indices;
