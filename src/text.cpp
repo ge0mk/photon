@@ -4,7 +4,7 @@ TextObject::TextObject(const std::string &text, mat4 transform, vec4 color)
 : text(text), transform(transform), color(color) {}
 
 TextRenderer::TextRenderer(freetype::Font &&font) : font(std::move(font)) {
-	std::ifstream src("res/text.glsl", std::ios::ate);
+	std::ifstream src("assets/text.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());

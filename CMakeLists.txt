@@ -19,7 +19,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(OPENGL 1)
 set(IMGUI 1)
 
-if(GLFW OR OPENGL OR VULKAN OR PHOTON_FULL) # build glfw
+# build glfw
+if(GLFW OR OPENGL OR VULKAN OR PHOTON_FULL)
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -27,32 +28,48 @@ if(GLFW OR OPENGL OR VULKAN OR PHOTON_FULL) # build glfw
 	add_subdirectory(glfw)
 endif()
 
+# freetype
 add_subdirectory(freetype)
 
+# compile definitions
+add_compile_definitions(SPDLOG_COMPILED_LIB IMGUI_IMPL_OPENGL_LOADER_GLAD LTC_SOURCE LTC_NO_ROLC)
 if(WIN32)
 	add_compile_definitions(_GLFW_WIN32 WITH_WINMM WINDOWS)
 elseif(UNIX)
 	add_compile_definitions(_GLFW_X11 WITH_ALSA UNIX)
 endif()
 
-add_compile_definitions(SPDLOG_COMPILED_LIB IMGUI_IMPL_OPENGL_LOADER_GLAD LTC_SOURCE LTC_NO_ROLC)
-
+# photon src
 add_library(photon)
 if(WIN32)
 	target_include_directories(photon PUBLIC ENV{VULKAN_SDK}/Include)
-else()
-	target_compile_options(photon PUBLIC -g)
 endif()
 
 add_subdirectory(src)
 target_include_directories(photon PUBLIC include)
 
-if(WIN32)
-	target_link_libraries(photon PUBLIC glfw freetype winmm)
-elseif(UNIX)
-	target_link_libraries(photon PUBLIC dl m pthread glfw freetype asound)
+# linking
+target_link_libraries(photon PUBLIC freetype)
+
+if(GLFW OR OPENGL OR VULKAN OR PHOTON_FULL)
+	target_link_libraries(photon PUBLIC glfw)
 endif()
 
+if(WIN32)
+	if(AUDIO OR PHOTON_FULL)
+		target_link_libraries(photon PUBLIC winmm)
+	endif()
+elseif(UNIX)
+	target_link_libraries(photon PUBLIC dl m pthread)
+	if(AUDIO OR PHOTON_FULL)
+		target_link_libraries(photon PUBLIC asound)
+	endif()
+endif()
+
+# resources
+add_subdirectory(assets assets_tmp)
+
+# main program
 add_executable(platformer
 	src/platformer.cpp
 	src/camera.cpp
@@ -64,10 +81,7 @@ add_executable(platformer
 	src/rigidbody.cpp
 	src/text.cpp
 	src/tile.cpp
-	src/world.cpp)
+	src/world.cpp
+)
+add_dependencies(platformer assets)
 target_link_libraries(platformer PUBLIC photon)
-
-add_executable(test src/main.cpp src/text.cpp)
-target_link_libraries(test PUBLIC photon)
-
-file(COPY res DESTINATION ${CMAKE_BINARY_DIR})

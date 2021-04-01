@@ -117,7 +117,7 @@ std::shared_ptr<Chunk> WorldGenerator::getChunk(lvec2 pos) {
 
 WorldRenderer::WorldRenderer(const WorldContainer &container, const Camera &cam, const std::shared_ptr<Entity> &mainEntity, const std::shared_ptr<TiledTexture> &texture)
  : container(container), cam(cam), mainEntity(mainEntity), texture(texture) {
-	std::ifstream src("res/platformer.glsl", std::ios::ate);
+	std::ifstream src("assets/platformer.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());

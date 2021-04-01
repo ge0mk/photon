@@ -40,7 +40,9 @@ namespace opengl {
 
 
 	void Shader::setSource(const std::string &src) {
-		const char *srcptr = src.c_str();
+		std::string buffer = src;
+		buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
+		const char *srcptr = buffer.c_str();
 		glShaderSource(handle, 1, &srcptr, nullptr);
 	}
 

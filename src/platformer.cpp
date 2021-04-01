@@ -9,17 +9,17 @@ void TileCursor::update(float time, float dt, WorldContainer &world) {
 Game::Game() : opengl::Window({1080, 720}, "Game") {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
-	auto playerSprite = textures.load("res/player.png", ivec2(16, 13));
+	auto playerSprite = textures.load("assets/player.png", ivec2(16, 13));
 	player = std::shared_ptr<Player>(new Player(&cam, playerSprite));
 	world.setMainEntity(player);
 
-	auto palette = textures.load("res/palette.png", 1);
+	auto palette = textures.load("assets/palette.png", 1);
 
-	auto tileset = textures.load("res/tileset.png", ivec2(32));
+	auto tileset = textures.load("assets/tileset.png", ivec2(32));
 	world.initRenderer(std::ref(cam), player, tileset);
 	world.initGenerator(tileset->scale());
 	world.initParticleSystem(palette);
-	world.initTextRenderer(std::move(freetype::Font("res/jetbrains-mono.ttf")));
+	world.initTextRenderer(std::move(freetype::Font("assets/jetbrains-mono.ttf")));
 
 	for(int i = 5; i < 128; i++) {
 		world[ivec2(i + 4, i)] = Tile::stone;
@@ -33,7 +33,7 @@ Game::Game() : opengl::Window({1080, 720}, "Game") {
 	world[ivec2(-5,2)] = Tile::stone;
 	world[ivec2(-5,3)] = Tile::stone;
 
-	auto cursorSprite = textures.load("res/crosshair.png", 1);
+	auto cursorSprite = textures.load("assets/crosshair.png", 1);
 	cursor = world.createEntity<TileCursor>(cursorSprite);
 
 	glEnable(GL_BLEND);

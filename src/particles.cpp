@@ -44,7 +44,7 @@ void Particle::update(float time, float dt, const WorldContainer &world) {
 }
 
 ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : texture(texture), buffer(opengl::Buffer<Particle>::Array) {
-	std::ifstream src("res/particles.glsl", std::ios::ate);
+	std::ifstream src("assets/particles.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());
