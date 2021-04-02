@@ -26,12 +26,12 @@ Game::Game() : opengl::Window({1080, 720}, "Game") {
 		world[ivec2(i + 4, i - 1)] = Tile::stone;
 	}
 	for(int i = 0; i < 16; i++) {
-		world[ivec2(-i - 5, 7)] = Tile::stone;
+		world[ivec2(-i - 5, 8)] = Tile::stone;
 	}
-	world[ivec2(-5,-1)] = Tile::stone;
 	world[ivec2(-5, 0)] = Tile::stone;
 	world[ivec2(-5, 1)] = Tile::stone;
 	world[ivec2(-5, 2)] = Tile::stone;
+	world[ivec2(-5, 3)] = Tile::stone;
 
 	auto cursorSprite = textures.load("assets/crosshair.png", 1);
 	cursor = world.createEntity<TileCursor>(cursorSprite);

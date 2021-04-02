@@ -100,7 +100,7 @@ std::shared_ptr<Chunk> WorldGenerator::getChunk(lvec2 pos) {
 
 	if(pos.y == -1) {
 		for(int x = 0; x < Chunk::size; x++) {
-			int groundY = Chunk::size - (sin(float(x) / Chunk::size * pi * 2) * 3 + 3);
+			int groundY = Chunk::size - (sin(float(x) / Chunk::size * pi * 2 - pi * 0.5) * 3 + 3);
 			for(int y = groundY, i = 0; y >= 0; y--, i++) {
 				if(i < 2) {
 					chunk->at(ivec2(x, y)) = Tile(Tile::grass, i);
