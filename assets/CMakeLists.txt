@@ -24,10 +24,12 @@ foreach(child ${children})
 	)
 endforeach()
 
-add_custom_command(
-	TARGET assets
-	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/player/player.png ${CMAKE_BINARY_DIR}/assets/player.png
-)
+if(UNIX)
+	add_custom_command(
+		TARGET assets
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/player/player.png ${CMAKE_BINARY_DIR}/assets/player.png
+	)
+endif()
 
 
 #add_custom_command(TARGET assets COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/assets)
