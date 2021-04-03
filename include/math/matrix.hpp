@@ -263,13 +263,12 @@ namespace math{
 		//     2xy+2wz   | 1-2x²-2z² | 2yz+2wx   | 0
 		//     2xz-2wy   | 2yz-2*w*x | 1-2x²-2y² | 0
 		//     0         | 0         | 0         | 1
-		tmat4(type w, type x, type y, type z) : m_data{
-			col_t(1 - 2*y*y - 2*z*z, 2*x*y - 2*w*z, 2*x*z + 2*w*y, 0),
-			col_t(2*x*y + 2*w*z, 1 - 2*x*x - 2*z*z, 2*y*z + 2*w*x, 0),
-			col_t(2*x*z - 2*w*y, 2*y*z - 2*w*x, 1 - 2*x*x - 2*y*y, 0),
+		tmat4(const tquaternion<type> &q) : m_data{
+			col_t(1 - 2*q.y*q.y - 2*q.z*q.z, 2*q.x*q.y - 2*q.w*q.z, 2*q.x*q.z + 2*q.w*q.y, 0),
+			col_t(2*q.x*q.y + 2*q.w*q.z, 1 - 2*q.x*q.x - 2*q.z*q.z, 2*q.y*q.z + 2*q.w*q.x, 0),
+			col_t(2*q.x*q.z - 2*q.w*q.y, 2*q.y*q.z - 2*q.w*q.x, 1 - 2*q.x*q.x - 2*q.y*q.y, 0),
 			col_t(0, 0, 0, 1)
 		} {}
-		tmat4(const tquaternion<type> &q) : tmat4<type>(q.w, q.x, q.y, q.z) {}
 
 		type& at(unsigned col, unsigned row) { return m_data[col][row]; }
 		const type& at(unsigned col, unsigned row) const { return m_data[col][row]; }
