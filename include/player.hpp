@@ -71,7 +71,7 @@ public:
 	Player(Camera *cam, const std::shared_ptr<TiledTexture> &sprites);
 
 	void update(float time, float dt, WorldContainer &world) override;
-	void updateAnimation(float time, float dt, WorldContainer &world);
+	void updateAnimation(float time);
 	void setInput(uint8_t action, float value);
 	void playAnimation(uint8_t animation);
 

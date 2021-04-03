@@ -2,7 +2,7 @@
 
 TileCursor::TileCursor(std::shared_ptr<TiledTexture> sprites) : Entity(sprites) {}
 
-void TileCursor::update(float time, float dt, WorldContainer &world) {
+void TileCursor::update([[maybe_unused]] float time, [[maybe_unused]] float dt, [[maybe_unused]] WorldContainer &world) {
 	transform = mat4().translate(pos + 0.5 * Tile::resolution).scale(Tile::resolution + 1.0f);
 }
 

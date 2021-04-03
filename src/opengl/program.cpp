@@ -63,63 +63,63 @@ namespace opengl {
 	}
 
 	void Program::setUniform(GLint location, float value) {
-		glUniform1f(handle, value);
+		glUniform1f(location, value);
 	}
 
 	void Program::setUniform(GLint location, math::vec2 value) {
-		glUniform2fv(handle, 1, reinterpret_cast<float*>(&value));
+		glUniform2fv(location, 1, reinterpret_cast<float*>(&value));
 	}
 
 	void Program::setUniform(GLint location, math::vec3 value) {
-		glUniform3fv(handle, 1, reinterpret_cast<float*>(&value));
+		glUniform3fv(location, 1, reinterpret_cast<float*>(&value));
 	}
 
 	void Program::setUniform(GLint location, math::vec4 value) {
-		glUniform4fv(handle, 1, reinterpret_cast<float*>(&value));
+		glUniform4fv(location, 1, reinterpret_cast<float*>(&value));
 	}
 
 	void Program::setUniform(GLint location, int value) {
-		glUniform1i(handle, value);
+		glUniform1i(location, value);
 	}
 
 	void Program::setUniform(GLint location, math::ivec2 value) {
-		glUniform2iv(handle, 1, reinterpret_cast<int*>(&value));
+		glUniform2iv(location, 1, reinterpret_cast<int*>(&value));
 	}
 
 	void Program::setUniform(GLint location, math::ivec3 value) {
-		glUniform3iv(handle, 1, reinterpret_cast<int*>(&value));
+		glUniform3iv(location, 1, reinterpret_cast<int*>(&value));
 	}
 
 	void Program::setUniform(GLint location, math::ivec4 value) {
-		glUniform4iv(handle, 1, reinterpret_cast<int*>(&value));
+		glUniform4iv(location, 1, reinterpret_cast<int*>(&value));
 	}
 
 	void Program::setUniform(GLint location, unsigned value) {
-		glUniform1ui(handle, value);
+		glUniform1ui(location, value);
 	}
 
 	void Program::setUniform(GLint location, math::uvec2 value) {
-		glUniform2uiv(handle, 1, reinterpret_cast<unsigned*>(&value));
+		glUniform2uiv(location, 1, reinterpret_cast<unsigned*>(&value));
 	}
 
 	void Program::setUniform(GLint location, math::uvec3 value) {
-		glUniform3uiv(handle, 1, reinterpret_cast<unsigned*>(&value));
+		glUniform3uiv(location, 1, reinterpret_cast<unsigned*>(&value));
 	}
 
 	void Program::setUniform(GLint location, math::uvec4 value) {
-		glUniform4uiv(handle, 1, reinterpret_cast<unsigned*>(&value));
+		glUniform4uiv(location, 1, reinterpret_cast<unsigned*>(&value));
 	}
 
 	void Program::setUniform(GLint location, math::mat2 value) {
-		glUniformMatrix2fv(handle, 1, false, reinterpret_cast<float*>(&value));
+		glUniformMatrix2fv(location, 1, false, reinterpret_cast<float*>(&value));
 	}
 
 	void Program::setUniform(GLint location, math::mat3 value) {
-		glUniformMatrix3fv(handle, 1, false, reinterpret_cast<float*>(&value));
+		glUniformMatrix3fv(location, 1, false, reinterpret_cast<float*>(&value));
 	}
 
 	void Program::setUniform(GLint location, math::mat4 value) {
-		glUniformMatrix4fv(handle, 1, false, reinterpret_cast<float*>(&value));
+		glUniformMatrix4fv(location, 1, false, reinterpret_cast<float*>(&value));
 	}
 
 	Program Program::load(const std::string &src, uint8_t stages) {
@@ -128,7 +128,7 @@ namespace opengl {
 		std::vector<Shader> shaderList;
 
 		if(stages & Shader::VertexStage) {
-			shaderList.push_back(std::move(Shader(GL_VERTEX_SHADER)));
+			shaderList.push_back(Shader(GL_VERTEX_SHADER));
 			std::string tmp = src;
 			tmp.insert(insertStagePos, "\n#define VERTEX_SHADER");
 			shaderList.back().setSource(tmp);
@@ -139,7 +139,7 @@ namespace opengl {
 			}
 		}
 		if(stages & Shader::GeometryStage) {
-			shaderList.push_back(std::move(Shader(GL_GEOMETRY_SHADER)));
+			shaderList.push_back(Shader(GL_GEOMETRY_SHADER));
 			std::string tmp = src;
 			tmp.insert(insertStagePos, "\n#define GEOMETRY_SHADER");
 			shaderList.back().setSource(tmp);
@@ -150,7 +150,7 @@ namespace opengl {
 			}
 		}
 		if(stages & Shader::FragmentStage) {
-			shaderList.push_back(std::move(Shader(GL_FRAGMENT_SHADER)));
+			shaderList.push_back(Shader(GL_FRAGMENT_SHADER));
 			std::string tmp = src;
 			tmp.insert(insertStagePos, "\n#define FRAGMENT_SHADER");
 			shaderList.back().setSource(tmp);
@@ -173,6 +173,6 @@ namespace opengl {
 		for(Shader &shader : shaderList) {
 			prog.detachShader(shader);
 		}
-		return std::move(prog);
+		return prog;
 	}
 }

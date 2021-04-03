@@ -196,9 +196,9 @@ void Player::update(float time, float dt, WorldContainer &world) {
 		default: break;
 	}
 
-	updateAnimation(time, dt, world);
-
 	RigidBody::update(time, dt, world);
+	updateAnimation(time);
+
 	transform = mat4().translate(rpos + vec3(0, 2.5, 0)).scale(vec3(scale, 1));
 	uvtransform = texture->getUVTransform(uvpos);
 	cam->pos.xy = rpos;
@@ -214,7 +214,7 @@ void Player::update(float time, float dt, WorldContainer &world) {
 	inputs = {0.0f, 0.0f, 0.0f, 0.0f};
 }
 
-void Player::updateAnimation(float time, float dt, WorldContainer &world) {
+void Player::updateAnimation(float time) {
 	switch(state) {
 		case State::idle: {
 			int frames = animations[a_idle].size();

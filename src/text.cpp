@@ -16,8 +16,7 @@ TextRenderer::TextRenderer(freetype::Font &&font) : font(std::move(font)) {
 	transformUBO.setData(mat4());
 
 	this->font.setPixelSizes(64);
-	this->font.buildFontAtlas();
-	texture.load(this->font.getFontAtlas());
+	texture.load(this->font.buildFontAtlas());
 }
 
 std::shared_ptr<TextObject> TextRenderer::createObject(const std::string &text, mat4 transform, vec4 color) {

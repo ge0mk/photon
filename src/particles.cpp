@@ -3,7 +3,7 @@
 #include <world.hpp>
 
 Particle::Particle(uint32_t type, vec2 pos, vec2 speed, vec2 gravity, vec2 scale, float rotation, float rotspeed)
-: type(type), pos(pos), speed(speed), gravity(gravity), scale(scale), rotation(rotation), rotspeed(rotspeed) {
+: pos(pos), speed(speed), gravity(gravity), scale(scale), rotation(rotation), rotspeed(rotspeed), type(type) {
 	switch(type) {
 		case null: break;
 		case rain: {
@@ -17,7 +17,7 @@ Particle::Particle(uint32_t type, vec2 pos, vec2 speed, vec2 gravity, vec2 scale
 	}
 }
 
-void Particle::update(float time, float dt, const WorldContainer &world) {
+void Particle::update([[maybe_unused]] float time, float dt, const WorldContainer &world) {
 	pos += speed * dt;
 	speed += gravity * dt;
 	rotation += rotspeed * dt * 5;

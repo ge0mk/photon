@@ -40,7 +40,7 @@ namespace opengl {
 
 	private:
 		GLuint handle;
-		std::unordered_map<GLenum, std::variant<RenderBuffer, Texture>> attachments;
 		math::ivec2 m_size;
+		std::unordered_map<GLenum, std::variant<RenderBuffer, Texture>> attachments;
 	};
 }

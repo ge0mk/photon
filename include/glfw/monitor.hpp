@@ -36,8 +36,8 @@ namespace glfw {
 		int getMonitorRefreshRate() const;
 
 	private:
+		GLFWmonitor *handle;
 		math::ivec2 windowSizeCache, windowPosCache;
 		int refreshRate = 0;
-		GLFWmonitor *handle;
 	};
 }

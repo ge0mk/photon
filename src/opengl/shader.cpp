@@ -58,7 +58,7 @@ namespace opengl {
 		Shader shader(type);
 		shader.setSource(src);
 		shader.compile();
-		return std::move(shader);
+		return shader;
 	}
 
 	GLuint Shader::getHandle() const {

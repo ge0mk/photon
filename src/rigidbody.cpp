@@ -12,7 +12,7 @@ bool AABB::intersects(const AABB &other) {
 
 RigidBody::RigidBody(std::shared_ptr<TiledTexture> texture) : Entity(texture) {}
 
-void RigidBody::update(float time, float dt, WorldContainer &world) {
+void RigidBody::update([[maybe_unused]] float time, float dt, WorldContainer &world) {
 	oldPos = pos;
 	oldSpeed = speed;
 

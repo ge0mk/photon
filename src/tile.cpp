@@ -6,7 +6,7 @@ void Tile::init(uint32_t type) {
 	this->type = type;
 }
 
-void Tile::update(float time, float dt, ivec2 pos, Chunk *chunk) {
+void Tile::update([[maybe_unused]] float time, [[maybe_unused]] float dt, [[maybe_unused]] ivec2 pos, [[maybe_unused]] const Chunk &chunk) {
 	switch(type) {}
 }
 

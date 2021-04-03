@@ -59,7 +59,7 @@ void Chunk::build() {
 void Chunk::update(float time, float dt) {
 	for(unsigned y = 0; y < size; y++) {
 		for(unsigned x = 0; x < size; x++) {
-			tiles[y * size + x].update(time, dt, ivec2(x, y), this);
+			tiles[y * size + x].update(time, dt, ivec2(x, y), *this);
 		}
 	}
 	if(rebuild) {

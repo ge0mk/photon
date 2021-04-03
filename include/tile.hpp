@@ -24,7 +24,7 @@ public:
 	Tile& operator=(const Tile &other) = default;
 
 	void init(uint32_t type);
-	void update(float time, float dt, ivec2 pos, Chunk *chunk);
+	void update(float time, float dt, ivec2 pos, const Chunk &chunk);
 	bvec4 hitbox() const;
 	vec2 texture(svec2 pos) const;	// tile position on the texture
 	bool render() const;

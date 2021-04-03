@@ -29,7 +29,7 @@ namespace freetype {
 		Font& operator=(Font &&other);
 
 		void setPixelSizes(size_t height, size_t width = 0);
-		void buildFontAtlas(int numGlyphs = 256);
+		const Image& buildFontAtlas(unsigned numGlyphs = 256);
 		const Image& getFontAtlas() const;
 
 		Glyph& operator[](int glyph);
