@@ -6,9 +6,6 @@
 
 #include <sstream>
 
-#pragma push_macro("minor")
-#undef minor
-
 namespace math{
 	template <typename type>
 	class tmat2;
@@ -626,6 +623,3 @@ std::ostream& operator<<(std::ostream &stream, math::tmat4<type> mat) {
 	stream<<" ("<<mat[0][3]<<" | "<<mat[1][3]<<" | "<<mat[2][3]<<" | "<<mat[3][3]<<")]\n";
 	return stream;
 }
-
-
-#pragma pop_macro("minor")
