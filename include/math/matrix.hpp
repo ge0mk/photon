@@ -49,13 +49,7 @@ namespace math{
 			return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
 		}
 		type submatrix(unsigned col, unsigned row) const {
-			for(unsigned c = 0; c < 2; c++) {
-				for(unsigned r = 0; r < 2; r++) {
-					if(c != col && r != row) {
-						return at(c, r);
-					}
-				}
-			}
+			return at((col + 1) % 2, (row + 1) % 2);
 		}
 		type minor(unsigned col, unsigned row) const {
 			return submatrix(col, row);
@@ -451,6 +445,156 @@ namespace math{
 	typedef tmat2<float> mat2;
 	typedef tmat3<float> mat3;
 	typedef tmat4<float> mat4;
+
+
+
+	template<typename type, std::size_t size>
+	class tmatn {
+	public:
+		using col_t = math::tvecn<type, size>;
+		using row_t = math::tvecn<type, size>;
+
+		tmatn() : m_data(tvecn<type, size>(type(0))) {
+			for(std::size_t i = 0; i < size; i++) {
+				this->at(i, i) = type(1);
+			}
+		}
+		tmatn(const tmatn<type, size> &other) = default;
+		template<typename type2>
+		tmatn(const tmatn<type2, size> &other) : m_data(other.dataVec()) {}
+		tmatn(type val) : m_data(col_t(val), col_t(val), col_t(val), col_t(val)) {}
+		tmatn(tvecn<col_t, size> m_data) : m_data(m_data) {}
+
+		tmatn<type, size>& operator=(const tmatn<type, size> &other) = default;
+
+		type& at(unsigned col, unsigned row) { return m_data[col][row]; }
+		const type& at(unsigned col, unsigned row) const { return m_data[col][row]; }
+
+		tmatn<type, size> transpose() const {
+			tmatn<type, size> tmp;
+			for(std::size_t col = 0; col < size; col++) {
+				for(std::size_t row = 0; row < size; row++) {
+					tmp.at(row, col) = at(col, row);
+				}
+			}
+			return tmp;
+		}
+
+		type determinant() const {
+			type det = 0;
+			for(unsigned col = 0; col < size; col++) {
+				det += at(col, 0) * cofactor(col, 0);
+			}
+			return det;
+		}
+
+		// if size > 2 returns [tmatn<type, size-1>] else if size == 2 returns [type]
+		auto submatrix(unsigned col, unsigned row) const {
+			static_assert(size >= 2, "can't create submatrix of 1x1 matrix or smaller!");
+
+			if constexpr(size == 2) {
+				return type(at((col + 1) % 2, (row + 1) % 2));
+			}
+			else {
+				tmatn<type, size - 1> tmp;
+				for(unsigned c = 0; c < size; c++) {
+					for(unsigned r = 0; r < size; r++) {
+						if(c != col && r != row) {
+							tmp[c - (c > col)][r - (r > row)] = at(c, r);
+						}
+					}
+				}
+				return tmp;
+			}
+		}
+
+		inline type minor(unsigned col, unsigned row) const {
+			if constexpr(size == 2) {
+				return submatrix(col, row);
+			}
+			else {
+				return submatrix(col, row).determinant();
+			}
+		}
+
+		inline type cofactor(unsigned col, unsigned row) const {
+			return minor(col, row) * (((col + row) % 2) ? -1 : 1);
+		}
+
+		inline bool invertible() const {
+			return determinant() != 0;
+		}
+
+		tmatn<type, size> inverse() const {
+			tmatn<type, size> tmp;
+			type det = determinant();
+			if(det != 0) {
+				for(unsigned col = 0; col < size; col++) {
+					for(unsigned row = 0; row < size; row++) {
+						type c = cofactor(col, row);
+						tmp[col][row] = c / det;
+					}
+				}
+			}
+			return tmp.transpose();
+		}
+
+		tmatn<type, size> operator*(const tmatn<type, size> &other) const {
+			tmatn<type, size> tmp;
+			for(unsigned col = 0; col < size; col++) {
+				for(unsigned row = 0; row < size; row++) {
+					type sum = 0;
+					for(unsigned i = 0; i < size; i++) {
+						sum += at(i, row) * other.at(col, i);
+					}
+					tmp[col][row] = sum;
+				}
+			}
+			return tmp;
+		}
+
+		tvecn<type, size> operator*(const tvecn<type, size>& vec) const {
+			tvecn<type, size> tmp;
+			for(unsigned row = 0; row < 4; row++) {
+				type sum = 0;
+				for(unsigned i = 0; i < size; i++) {
+					sum += at(i, row) * vec.at(i);
+				}
+				tmp[row] = sum;
+			}
+			return tmp;
+		}
+
+		tmatn<type, size> operator/(const tmatn<type, size>& mat) const { return inverse() * mat; }
+		tvecn<type, size> operator/(const tvecn<type, size>& vec) const { return inverse() * vec; }
+
+		tmatn<type, size>& operator*=(const tmatn<type, size>& other) {
+			return operator=(operator*(other));
+		}
+		tmatn<type, size>& operator/=(const tmatn<type, size>& other) {
+			return operator=(operator/(other));
+		}
+
+		type& operator()(unsigned col, unsigned row) { return m_data[col][row]; }
+		const type& operator() (unsigned col, unsigned row) const { return m_data[col][row]; }
+
+		col_t& operator[](unsigned col) { return m_data[col]; }
+		const col_t& operator[] (unsigned col) const { return m_data[col]; }
+
+		type* data() {
+			return &m_data[0][0];
+		}
+		const type* data() const {
+			return &m_data[0][0];
+		}
+
+		const tvecn<col_t, size>& dataVec() const {
+			return m_data;
+		}
+
+	private:
+		tvecn<col_t, size> m_data;
+	};
 }
 
 template<typename type>

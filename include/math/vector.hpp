@@ -299,19 +299,6 @@ namespace math {
 	template<typename type>	tvec4<type>::tvec4(const tvec4<type> &other) : x(other.x), y(other.y), z(other.z), w(other.w) {}
 
 	template<typename type>
-	std::ostream& operator<<(std::ostream &os, const tvec2<type> &vec){
-		return os<<"("<<vec.x<<" | "<<vec.y<<")";
-	}
-	template<typename type>
-	std::ostream& operator<<(std::ostream &os, const tvec3<type> &vec){
-		return os<<"("<<vec.x<<" | "<<vec.y<<" | "<<vec.z<<")";
-	}
-	template<typename type>
-	std::ostream& operator<<(std::ostream &os, const tvec4<type> &vec){
-		return os<<"("<<vec.x<<" | "<<vec.y<<" | "<<vec.z<<" | "<<vec.w<<")";
-	}
-
-	template<typename type>
 	type length(const tvec2<type> &v){
 		return sqrt(v.x*v.x + v.y*v.y);
 	}
@@ -601,6 +588,14 @@ namespace math {
 		const type& at(std::size_t index) const { return m_data[index]; }
 		const type& operator[](std::size_t index) const { return m_data[index]; }
 
+		tvecn<type, size> operator-() const {
+			tvecn<type, size> result;
+			for(std::size_t i = 0; i < size; i++) {
+				result[i] = -this->at(i);
+			}
+			return result;
+		}
+
 		tvecn<type, size> operator+(const tvecn<type, size> &other) const {
 			tvecn<type, size> result;
 			for(std::size_t i = 0; i < size; i++) {
@@ -616,7 +611,7 @@ namespace math {
 		}
 
 		tvecn<type, size> operator-(const tvecn<type, size> &other) const {
-			tvecn<type, size> result = *this;
+			tvecn<type, size> result;
 			for(std::size_t i = 0; i < size; i++) {
 				result[i] = this->at(i) - other.at(i);
 			}
@@ -630,9 +625,16 @@ namespace math {
 		}
 
 		tvecn<type, size> operator*(const tvecn<type, size> &other) const {
-			tvecn<type, size> result = *this;
+			tvecn<type, size> result;
 			for(std::size_t i = 0; i < size; i++) {
 				result[i] = this->at(i) * other.at(i);
+			}
+			return result;
+		}
+		tvecn<type, size> operator*(type scalar) const {
+			tvecn<type, size> result;
+			for(std::size_t i = 0; i < size; i++) {
+				result[i] = this->at(i) * scalar;
 			}
 			return result;
 		}
@@ -642,11 +644,24 @@ namespace math {
 			}
 			return *this;
 		}
+		tvecn<type, size>& operator*=(type scalar) {
+			for(std::size_t i = 0; i < size; i++) {
+				this->at(i) *= scalar;
+			}
+			return *this;
+		}
 
 		tvecn<type, size> operator/(const tvecn<type, size> &other) const {
-			tvecn<type, size> result = *this;
+			tvecn<type, size> result;
 			for(std::size_t i = 0; i < size; i++) {
 				result[i] = this->at(i) / other.at(i);
+			}
+			return result;
+		}
+		tvecn<type, size> operator/(type scalar) const {
+			tvecn<type, size> result;
+			for(std::size_t i = 0; i < size; i++) {
+				result[i] = this->at(i) / scalar;
 			}
 			return result;
 		}
@@ -656,9 +671,15 @@ namespace math {
 			}
 			return *this;
 		}
+		tvecn<type, size>& operator/=(type scalar) {
+			for(std::size_t i = 0; i < size; i++) {
+				this->at(i) /= scalar;
+			}
+			return *this;
+		}
 
 		tvecn<type, size> operator%(const tvecn<type, size> &other) const {
-			tvecn<type, size> result = *this;
+			tvecn<type, size> result;
 			for(std::size_t i = 0; i < size; i++) {
 				if constexpr(std::is_floating_point<type>()) {
 					result[i] = std::fmod(this->at(i), other.at(i));
@@ -696,15 +717,6 @@ namespace math {
 	private:
 		std::array<type, size> m_data;
 	};
-
-	template<typename type, std::size_t size>
-	std::ostream& operator<<(std::ostream &os, const tvecn<type, size> &vec){
-		os<<"(";
-		for(std::size_t i = 0; i < size-1; i++) {
-			os<<vec[i]<<" | ";
-		}
-		return os<<vec[size-1]<<")";
-	}
 
 	template<typename type, std::size_t size>
 	type length(const tvecn<type, size> &v){
@@ -840,4 +852,26 @@ namespace math {
 	tvecn<type, size> lerp(const tvecn<type, size> &start, const tvecn<type, size> &end, float t) {
 		return start * (1.0f - t) + end * t;
 	}
+}
+
+template<typename type>
+std::ostream& operator<<(std::ostream &os, const math::tvec2<type> &vec){
+	return os<<"("<<vec.x<<" | "<<vec.y<<")";
+}
+template<typename type>
+std::ostream& operator<<(std::ostream &os, const math::tvec3<type> &vec){
+	return os<<"("<<vec.x<<" | "<<vec.y<<" | "<<vec.z<<")";
+}
+template<typename type>
+std::ostream& operator<<(std::ostream &os, const math::tvec4<type> &vec){
+	return os<<"("<<vec.x<<" | "<<vec.y<<" | "<<vec.z<<" | "<<vec.w<<")";
+}
+
+template<typename type, std::size_t size>
+std::ostream& operator<<(std::ostream &os, const math::tvecn<type, size> &vec){
+	os<<"(";
+	for(std::size_t i = 0; i < size-1; i++) {
+		os<<vec[i]<<" | ";
+	}
+	return os<<vec[size-1]<<")";
 }
