@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <cmath>
-#include <atomic>
+#include <array>
 
 #include "math.hpp"
 
@@ -421,6 +421,32 @@ namespace math {
 	}
 
 	template<typename type>
+	tvec2<type> min(const tvec2<type> &a, const tvec2<type> &b) {
+		return tvec2<type>(std::min(a.x, b.x), std::min(a.y, b.y));
+	}
+	template<typename type>
+	tvec3<type> min(const tvec2<type> &a, const tvec2<type> &b) {
+		return tvec3<type>(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z));
+	}
+	template<typename type>
+	tvec4<type> min(const tvec2<type> &a, const tvec2<type> &b) {
+		return tvec4<type>(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z), std::min(a.w, b.w));
+	}
+
+	template<typename type>
+	tvec2<type> max(const tvec2<type> &a, const tvec2<type> &b) {
+		return tvec2<type>(std::max(a.x, b.x), std::max(a.y, b.y));
+	}
+	template<typename type>
+	tvec3<type> max(const tvec2<type> &a, const tvec2<type> &b) {
+		return tvec3<type>(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
+	}
+	template<typename type>
+	tvec4<type> max(const tvec2<type> &a, const tvec2<type> &b) {
+		return tvec4<type>(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z), std::max(a.w, b.w));
+	}
+
+	template<typename type>
 	tvec2<type> clamp(const tvec2<type> &v, type min, type max) {
 		return tvec2<type>(clamp(v.x, min, max), clamp(v.y, min, max));
 	}
@@ -470,6 +496,19 @@ namespace math {
 	template<typename type>
 	tvec4<type> smoothstep(const tvec4<type> &v) {
 		return tvec4<type>(smoothstep(v.x), smoothstep(v.y), smoothstep(v.z), smoothstep(v.w));
+	}
+
+	template<typename type>
+	tvec2<type> sigmoid(const tvec2<type> &v) {
+		return tvec2<type>(sigmoid(v.x), sigmoid(v.y));
+	}
+	template<typename type>
+	tvec3<type> sigmoid(const tvec3<type> &v) {
+		return tvec3<type>(sigmoid(v.x), sigmoid(v.y), sigmoid(v.z));
+	}
+	template<typename type>
+	tvec4<type> sigmoid(const tvec4<type> &v) {
+		return tvec4<type>(sigmoid(v.x), sigmoid(v.y), sigmoid(v.z), sigmoid(v.w));
 	}
 
 	template<typename type>
@@ -542,4 +581,263 @@ namespace math {
 	typedef tvec2<double> dvec2;
 	typedef tvec3<double> dvec3;
 	typedef tvec4<double> dvec4;
+
+
+
+	template<typename type, std::size_t size>
+	class tvecn {
+	public:
+		tvecn(type value = 0) : m_data{} {
+			m_data.fill(value);
+		}
+		template<typename ...Args>
+		tvecn(Args ...args) : m_data{args...} {}
+		tvecn(const tvecn<type, size> &other) = default;
+
+		tvecn<type, size>& operator=(const tvecn<type, size> &other) = default;
+		type& at(std::size_t index) { return m_data[index]; }
+		type& operator[](std::size_t index) { return m_data[index]; }
+
+		const type& at(std::size_t index) const { return m_data[index]; }
+		const type& operator[](std::size_t index) const { return m_data[index]; }
+
+		tvecn<type, size> operator+(const tvecn<type, size> &other) const {
+			tvecn<type, size> result;
+			for(std::size_t i = 0; i < size; i++) {
+				result[i] = this->at(i) + other.at(i);
+			}
+			return result;
+		}
+		tvecn<type, size>& operator+=(const tvecn<type, size> &other) {
+			for(std::size_t i = 0; i < size; i++) {
+				this->at(i) += other.at(i);
+			}
+			return *this;
+		}
+
+		tvecn<type, size> operator-(const tvecn<type, size> &other) const {
+			tvecn<type, size> result = *this;
+			for(std::size_t i = 0; i < size; i++) {
+				result[i] = this->at(i) - other.at(i);
+			}
+			return result;
+		}
+		tvecn<type, size>& operator-=(const tvecn<type, size> &other) {
+			for(std::size_t i = 0; i < size; i++) {
+				this->at(i) -= other.at(i);
+			}
+			return *this;
+		}
+
+		tvecn<type, size> operator*(const tvecn<type, size> &other) const {
+			tvecn<type, size> result = *this;
+			for(std::size_t i = 0; i < size; i++) {
+				result[i] = this->at(i) * other.at(i);
+			}
+			return result;
+		}
+		tvecn<type, size>& operator*=(const tvecn<type, size> &other) {
+			for(std::size_t i = 0; i < size; i++) {
+				this->at(i) *= other.at(i);
+			}
+			return *this;
+		}
+
+		tvecn<type, size> operator/(const tvecn<type, size> &other) const {
+			tvecn<type, size> result = *this;
+			for(std::size_t i = 0; i < size; i++) {
+				result[i] = this->at(i) / other.at(i);
+			}
+			return result;
+		}
+		tvecn<type, size>& operator/=(const tvecn<type, size> &other) {
+			for(std::size_t i = 0; i < size; i++) {
+				this->at(i) /= other.at(i);
+			}
+			return *this;
+		}
+
+		tvecn<type, size> operator%(const tvecn<type, size> &other) const {
+			tvecn<type, size> result = *this;
+			for(std::size_t i = 0; i < size; i++) {
+				if constexpr(std::is_floating_point<type>()) {
+					result[i] = std::fmod(this->at(i), other.at(i));
+				}
+				else {
+					result[i] = this->at(i) % other.at(i);
+				}
+			}
+			return result;
+		}
+		tvecn<type, size>& operator%=(const tvecn<type, size> &other) {
+			for(std::size_t i = 0; i < size; i++) {
+				if constexpr(std::is_floating_point<type>()) {
+					this->at(i) = std::fmod(this->at(i), other.at(i));
+				}
+				else {
+					this->at(i) %= other.at(i);
+				}
+			}
+			return *this;
+		}
+
+		auto operator<=>(const tvec3<type> &other) const {
+			return length(*this) <=> length(other);
+		}
+
+		typename std::array<type, size>::iterator begin() {
+			return m_data.begin();
+		}
+
+		typename std::array<type, size>::iterator end() {
+			return m_data.end();
+		}
+
+	private:
+		std::array<type, size> m_data;
+	};
+
+	template<typename type, std::size_t size>
+	std::ostream& operator<<(std::ostream &os, const tvecn<type, size> &vec){
+		os<<"(";
+		for(std::size_t i = 0; i < size-1; i++) {
+			os<<vec[i]<<" | ";
+		}
+		return os<<vec[size-1]<<")";
+	}
+
+	template<typename type, std::size_t size>
+	type length(const tvecn<type, size> &v){
+		type sum = 0;
+		for(type t : v) {
+			sum += v*v;
+		}
+		return sqrt(sum);
+	}
+
+	template<typename type, std::size_t size>
+	type dist(const tvecn<type, size> &a, const tvecn<type, size> &b){
+		return length(a-b);
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> normalize(const tvecn<type, size> &v){
+		return v / length(v);
+	}
+
+	template<typename type, std::size_t size>
+	type dot(const tvecn<type, size> &a, const tvecn<type, size> &b){
+		type sum = 0;
+		for(std::size_t i = 0; i < size; i++) {
+			sum += a[i] * b[i];
+		}
+		return sum;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> floor(tvecn<type, size> vec) {
+		for(type &value : vec) {
+			value = std::floor(value);
+		}
+		return vec;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> ceil(tvecn<type, size> vec) {
+		for(type &value : vec) {
+			value = std::ceil(value);
+		}
+		return vec;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> round(tvecn<type, size> vec) {
+		for(type &value : vec) {
+			value = std::round(value);
+		}
+		return vec;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> fract(tvecn<type, size> vec) {
+		for(type &value : vec) {
+			value = fract(value);
+		}
+		return vec;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> min(const tvecn<type, size> &a, const tvecn<type, size> &b) {
+		tvecn<type, size> tmp;
+		for(std::size_t i = 0; i < size; i++) {
+			tmp[i] = std::min(a[i], b[i]);
+		}
+		return tmp;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> max(const tvecn<type, size> &a, const tvecn<type, size> &b) {
+		tvecn<type, size> tmp;
+		for(std::size_t i = 0; i < size; i++) {
+			tmp[i] = std::max(a[i], b[i]);
+		}
+		return tmp;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> clamp(const tvecn<type, size> &vec, type min, type max) {
+		tvecn<type, size> tmp;
+		for(std::size_t i = 0; i < size; i++) {
+			tmp[i] = std::clamp(vec[i], min, max);
+		}
+		return tmp;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> clamp(const tvecn<type, size> &vec, const tvecn<type, size> &min, const tvecn<type, size> &max) {
+		tvecn<type, size> tmp;
+		for(std::size_t i = 0; i < size; i++) {
+			tmp[i] = std::clamp(vec[i], min[i], max[i]);
+		}
+		return tmp;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> mix(const tvecn<type, size> &a, const tvecn<type, size> &b, float amnt) {
+		tvecn<type, size> tmp;
+		for(std::size_t i = 0; i < size; i++) {
+			tmp[i] = mix(a[i], b[i], amnt);
+		}
+		return tmp;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> mix(const tvecn<type, size> &a, const tvecn<type, size> &b, const tvecn<float, size> &amnt) {
+		tvecn<type, size> tmp;
+		for(std::size_t i = 0; i < size; i++) {
+			tmp[i] = mix(a[i], b[i], amnt[i]);
+		}
+		return tmp;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> smoothstep(tvecn<type, size> vec) {
+		for(type &value : vec) {
+			value = smoothstep(value);
+		}
+		return vec;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> sigmoid(tvecn<type, size> vec) {
+		for(type &value : vec) {
+			value = sigmoid(value);
+		}
+		return vec;
+	}
+
+	template<typename type, std::size_t size>
+	tvecn<type, size> lerp(const tvecn<type, size> &start, const tvecn<type, size> &end, float t) {
+		return start * (1.0f - t) + end * t;
+	}
 }

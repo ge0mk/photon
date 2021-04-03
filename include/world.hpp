@@ -242,9 +242,9 @@ protected:
 	void updateParticles(float time, float dt) {
 		if(particleSystem->size() < 8192) {
 			for(unsigned i = 0; i < 16; i++) {
-				vec2 pos = vec2(rand(-1024, 1536), rand(256, 512)) - vec2(0, offset().y * Chunk::size * Tile::resolution);
+				vec2 pos = vec2(rand(-1024.0f, 1536.0f), rand(256.0f, 512.0f)) - vec2(0, offset().y * Chunk::size * Tile::resolution);
 				vec2 scale = vec2(1, 8) * rand(0.8, 1.2);
-				vec2 speed = vec2(0.0, rand(-112, -96));
+				vec2 speed = vec2(0.0, rand(-112.0f, -96.0f));
 				vec2 gravity = vec2(0, -1);
 				particleSystem->spawn(Particle::rain, pos, speed, gravity, scale, 0, 0);
 			}
@@ -253,8 +253,8 @@ protected:
 			switch(p.type) {
 				case Particle::rain: {
 					if(p.speed.y == 0.0f || p.pos.y < -512.0f) {
-						p.pos = vec2(rand(-1024, 1536), 512) - vec2(0, offset().y * Chunk::size * Tile::resolution);
-						p.speed = vec2(0.0, rand(-112, -96));
+						p.pos = vec2(rand(-1024.0f, 1536.0f), 512) - vec2(0, offset().y * Chunk::size * Tile::resolution);
+						p.speed = vec2(0.0, rand(-112.0f, -96.0f));
 					}
 				} break;
 			}

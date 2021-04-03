@@ -35,7 +35,7 @@ void RigidBody::update(float time, float dt, WorldContainer &world) {
 			pos.x = leftWallX + halfSize.x + aabbOffset.x + 0.01f;
 			mPushesLeftWall = true;
 		}
-		speed.x = max(speed.x, 0.0f);
+		speed.x = std::max(speed.x, 0.0f);
 	}
 	else {
 		mPushesLeftWall = false;
@@ -46,7 +46,7 @@ void RigidBody::update(float time, float dt, WorldContainer &world) {
 			pos.x = rightWallX - halfSize.x - aabbOffset.x - 0.01f;
 			mPushesRightWall = true;
 		}
-		speed.x = min(speed.x, 0.0f);
+		speed.x = std::min(speed.x, 0.0f);
 	}
 	else {
 		mPushesRightWall = false;
@@ -90,7 +90,7 @@ void RigidBody::update(float time, float dt, WorldContainer &world) {
 		mPushesRightWall = false;
 	}
 
-	//speed = clamp(speed, -maxspeed, maxspeed);
+	//speed = std::clamp(speed, -maxspeed, maxspeed);
 
 	rpos = round((pos + aabbOffset) * 2.0f) / 2;
 	Entity::pos = rpos;
@@ -114,18 +114,17 @@ bool RigidBody::checkGround(const WorldContainer &world, float &groundY) {
 
 	vec2 oldbl = oldCenter - halfSize + vec2(0.0f, -1.0f);
 	vec2 newbl = center - halfSize + vec2(0.0f, -1.0f);
-	vec2 newbr = vec2(newbl.x + halfSize.x * 2.0f, newbl.y);
 
 	float endY = std::floor(newbl.y);
-	float begY = max(std::ceil(oldbl.y) - 1.0f, endY);
-	float dist = max(abs(endY - begY), 1.0f);
+	float begY = std::max(std::ceil(oldbl.y) - 1.0f, endY);
+	float dist = std::max(abs(endY - begY), 1.0f);
 
 	for(float tileY = begY; tileY >= endY; tileY -= 1.0f) {
 		vec2 bottomLeft = lerp(newbl, oldbl, abs(endY - tileY) / dist);
 		vec2 bottomRight = vec2(bottomLeft.x + halfSize.x * 2.0f + Tile::resolution, bottomLeft.y);
 
 		for(vec2 checkedPixel = newbl; checkedPixel.x <= bottomRight.x; checkedPixel.x += 0.5f * Tile::resolution) {
-			checkedPixel.x = min(checkedPixel.x, bottomRight.x);
+			checkedPixel.x = std::min(checkedPixel.x, bottomRight.x);
 			ivec2 tileIndex = world.getTileIndex(checkedPixel);
 			Tile tile = world.at(tileIndex);
 
@@ -148,18 +147,17 @@ bool RigidBody::checkCeiling(const WorldContainer &world, float &ceilingY) {
 
 	vec2 oldtr = oldCenter + halfSize + vec2(0.0f, 1.0f);
 	vec2 newtr = center + halfSize + vec2(0.0f, 1.0f);
-	vec2 newtl = vec2(newtr.x - halfSize.x * 2.0f, newtr.y);
 
 	float endY = std::ceil(newtr.y);
-	float begY = max(std::floor(oldtr.y) - 1.0f, endY);
-	float dist = max(abs(endY - begY), 1.0f);
+	float begY = std::max(std::floor(oldtr.y) - 1.0f, endY);
+	float dist = std::max(abs(endY - begY), 1.0f);
 
 	for(float tileY = begY; tileY >= endY; tileY -= 1.0f) {
 		vec2 topRight = lerp(newtr, oldtr, abs(endY - tileY) / dist);
 		vec2 topLeft = vec2(topRight.x - halfSize.x * 2.0f, topRight.y);
 
 		for(vec2 checkedPixel = topLeft; checkedPixel.x <= topRight.x; checkedPixel.x += 0.5f * Tile::resolution) {
-			checkedPixel.x = min(checkedPixel.x, topRight.x);
+			checkedPixel.x = std::min(checkedPixel.x, topRight.x);
 			ivec2 tileIndex = world.getTileIndex(checkedPixel);
 			Tile tile = world.at(tileIndex);
 
@@ -182,18 +180,17 @@ bool RigidBody::checkLeft(const WorldContainer &world, float &leftX) {
 
 	vec2 oldbl = oldCenter - halfSize + vec2(-1.0f, 1.0f);
 	vec2 newbl = center - halfSize + vec2(-1.0f, 1.0f);
-	vec2 newtl = vec2(newbl.x, newbl.y + halfSize.y * 2.0f - 2.0f);
 
 	float endX = std::floor(newbl.x);
-	float begX = max(std::ceil(oldbl.x) - 1.0f, endX);
-	float dist = max(abs(endX - begX), 1.0f);
+	float begX = std::max(std::ceil(oldbl.x) - 1.0f, endX);
+	float dist = std::max(abs(endX - begX), 1.0f);
 
 	for(float tileX = begX; tileX >= endX; tileX -= 1.0f) {
 		vec2 bottomLeft = lerp(newbl, oldbl, abs(endX - tileX) / dist);
 		vec2 topLeft = vec2(bottomLeft.x, bottomLeft.y + halfSize.y * 2.0f - 2.0f);
 
 		for(vec2 checkedPixel = bottomLeft; checkedPixel.y <= topLeft.y; checkedPixel.y += 0.5f * Tile::resolution) {
-			checkedPixel.y = min(checkedPixel.y, topLeft.y);
+			checkedPixel.y = std::min(checkedPixel.y, topLeft.y);
 			ivec2 tileIndex = world.getTileIndex(checkedPixel);
 			Tile tile = world.at(tileIndex);
 
@@ -216,18 +213,17 @@ bool RigidBody::checkRight(const WorldContainer &world, float &rightX) {
 
 	vec2 oldbr = oldCenter + vec2(halfSize.x, -halfSize.y) + vec2(1.0f, 1.0f);
 	vec2 newbr = center + vec2(halfSize.x, -halfSize.y) + vec2(1.0f, 1.0f);
-	vec2 newtr = vec2(newbr.x, newbr.y + halfSize.y * 2.0f - 2.0f);
 
 	float endX = std::ceil(newbr.x);
-	float begX = max(std::floor(oldbr.x) - 1.0f, endX);
-	float dist = max(abs(endX - begX), 1.0f);
+	float begX = std::max(std::floor(oldbr.x) - 1.0f, endX);
+	float dist = std::max(abs(endX - begX), 1.0f);
 
 	for(float tileX = begX; tileX >= endX; tileX -= 1.0f) {
 		vec2 bottomRight = lerp(newbr, oldbr, abs(endX - tileX) / dist);
 		vec2 topRight = vec2(bottomRight.x, bottomRight.y + halfSize.y * 2.0f - 2.0f);
 
 		for(vec2 checkedPixel = bottomRight; checkedPixel.y <= topRight.y; checkedPixel.y += 0.5f * Tile::resolution) {
-			checkedPixel.y = min(checkedPixel.y, topRight.y);
+			checkedPixel.y = std::min(checkedPixel.y, topRight.y);
 			ivec2 tileIndex = world.getTileIndex(checkedPixel);
 			Tile tile = world.at(tileIndex);
 

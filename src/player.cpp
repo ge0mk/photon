@@ -255,10 +255,10 @@ void Player::updateAnimation(float time, float dt, WorldContainer &world) {
 
 void Player::setInput(uint8_t action, float value) {
 	if(action == move) {
-		inputs[action] = clamp(value, -1.0f, 1.0f);
+		inputs[action] = std::clamp(value, -1.0f, 1.0f);
 	}
 	else {
-		inputs[action] = clamp(value, 0.0f, 1.0f);
+		inputs[action] = std::clamp(value, 0.0f, 1.0f);
 	}
 }
 
