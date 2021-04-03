@@ -89,14 +89,24 @@ namespace math {
 	};
 
 	template <>
-	inline tvec2<float> tvec2<float>::operator%(const tvec2<float> &other) const {return tvec2<float>(std::fmod(x ,other.x), std::fmod(y, other.y));}
+	inline tvec2<float> tvec2<float>::operator%(const tvec2<float> &other) const {
+		return tvec2<float>(std::fmod(x ,other.x), std::fmod(y, other.y));
+	}
 	template <>
-	inline tvec2<float>& tvec2<float>::operator%=(const tvec2<float> &other) {x = std::fmod(x ,other.x); y = std::fmod(y, other.y); return *this;}
+	inline tvec2<float>& tvec2<float>::operator%=(const tvec2<float> &other) {
+		x = std::fmod(x ,other.x); y = std::fmod(y, other.y);
+		return *this;
+	}
 
 	template <>
-	inline tvec2<double> tvec2<double>::operator%(const tvec2<double> &other) const {return tvec2<double>(std::fmod(x ,other.x), std::fmod(y, other.y));}
+	inline tvec2<double> tvec2<double>::operator%(const tvec2<double> &other) const {
+		return tvec2<double>(std::fmod(x ,other.x), std::fmod(y, other.y));
+	}
 	template <>
-	inline tvec2<double>& tvec2<double>::operator%=(const tvec2<double> &other) {x = std::fmod(x ,other.x); y = std::fmod(y, other.y); return *this;}
+	inline tvec2<double>& tvec2<double>::operator%=(const tvec2<double> &other) {
+		x = std::fmod(x ,other.x); y = std::fmod(y, other.y);
+		return *this;
+	}
 
 	template<typename type>
 	class tvec3{
@@ -174,14 +184,24 @@ namespace math {
 	};
 
 	template <>
-	inline tvec3<float> tvec3<float>::operator%(const tvec3<float> &other) const {return tvec3<float>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z));}
+	inline tvec3<float> tvec3<float>::operator%(const tvec3<float> &other) const {
+		return tvec3<float>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z));
+	}
 	template <>
-	inline tvec3<float>& tvec3<float>::operator%=(const tvec3<float> &other) {x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z); return *this;}
+	inline tvec3<float>& tvec3<float>::operator%=(const tvec3<float> &other) {
+		x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z);
+		return *this;
+	}
 
 	template <>
-	inline tvec3<double> tvec3<double>::operator%(const tvec3<double> &other) const {return tvec3<double>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z));}
+	inline tvec3<double> tvec3<double>::operator%(const tvec3<double> &other) const {
+		return tvec3<double>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z));
+	}
 	template <>
-	inline tvec3<double>& tvec3<double>::operator%=(const tvec3<double> &other) {x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z); return *this;}
+	inline tvec3<double>& tvec3<double>::operator%=(const tvec3<double> &other) {
+		x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z);
+		return *this;
+	}
 
 	template<typename type>
 	class tvec4{
@@ -276,14 +296,24 @@ namespace math {
 	};
 
 	template <>
-	inline tvec4<float> tvec4<float>::operator%(const tvec4<float> &other) const {return tvec4<float>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z), std::fmod(w, other.w));}
+	inline tvec4<float> tvec4<float>::operator%(const tvec4<float> &other) const {
+		return tvec4<float>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z), std::fmod(w, other.w));
+	}
 	template <>
-	inline tvec4<float>& tvec4<float>::operator%=(const tvec4<float> &other) {x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z), w = std::fmod(w, other.w); return *this;}
+	inline tvec4<float>& tvec4<float>::operator%=(const tvec4<float> &other) {
+		x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z), w = std::fmod(w, other.w);
+		return *this;
+	}
 
 	template <>
-	inline tvec4<double> tvec4<double>::operator%(const tvec4<double> &other) const {return tvec4<double>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z), std::fmod(w, other.w));}
+	inline tvec4<double> tvec4<double>::operator%(const tvec4<double> &other) const {
+		return tvec4<double>(std::fmod(x ,other.x), std::fmod(y, other.y), std::fmod(z, other.z), std::fmod(w, other.w));
+	}
 	template <>
-	inline tvec4<double>& tvec4<double>::operator%=(const tvec4<double> &other) {x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z), w = std::fmod(w, other.w); return *this;}
+	inline tvec4<double>& tvec4<double>::operator%=(const tvec4<double> &other) {
+		x = std::fmod(x ,other.x), y = std::fmod(y, other.y), z = std::fmod(z, other.z), w = std::fmod(w, other.w);
+		return *this;
+	}
 
 	template<typename type>	tvec2<type>::tvec2(const tvec2<type> &other) : x(other.x), y(other.y) {}
 	template<typename type>	tvec2<type>::tvec2(const tvec3<type> &other) : x(other.x), y(other.y) {}
@@ -560,6 +590,10 @@ namespace math {
 	typedef tvec2<__int128> llvec2;
 	typedef tvec3<__int128> llvec3;
 	typedef tvec4<__int128> llvec4;
+
+	typedef tvec2<unsigned __int128> ullvec2;
+	typedef tvec3<unsigned __int128> ullvec3;
+	typedef tvec4<unsigned __int128> ullvec4;
 #endif
 
 	typedef tvec2<float> vec2;
@@ -858,10 +892,12 @@ template<typename type>
 std::ostream& operator<<(std::ostream &os, const math::tvec2<type> &vec){
 	return os<<"("<<vec.x<<" | "<<vec.y<<")";
 }
+
 template<typename type>
 std::ostream& operator<<(std::ostream &os, const math::tvec3<type> &vec){
 	return os<<"("<<vec.x<<" | "<<vec.y<<" | "<<vec.z<<")";
 }
+
 template<typename type>
 std::ostream& operator<<(std::ostream &os, const math::tvec4<type> &vec){
 	return os<<"("<<vec.x<<" | "<<vec.y<<" | "<<vec.z<<" | "<<vec.w<<")";

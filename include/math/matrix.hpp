@@ -32,7 +32,8 @@ namespace math{
 		tmat2(tvec2<col_t> m_data) : m_data(m_data[0], m_data[1]) {}
 		tmat2(
 			type v00, type v01,
-			type v10, type v11) : m_data(
+			type v10, type v11
+		) : m_data(
 			col_t(v00, v10),
 			col_t(v01, v11)
 		) {}
@@ -125,15 +126,18 @@ namespace math{
 		template<typename type2>
 		tmat3(const tmat3<type2> &other) : m_data(other.dataVec()) {}
 
-		tmat3() : m_data(	col_t(1,0,0),
-							col_t(0,1,0),
-							col_t(0,0,1)) {}
+		tmat3() : m_data(
+			col_t(1,0,0),
+			col_t(0,1,0),
+			col_t(0,0,1)
+		) {}
 		tmat3(type val) : m_data(col_t(val), col_t(val), col_t(val)) {}
 		tmat3(tvec3<col_t> m_data) : m_data(m_data) {}
 		tmat3(
 			type v00, type v01, type v02,
 			type v10, type v11, type v12,
-			type v20, type v21, type v22) : m_data{
+			type v20, type v21, type v22
+		) : m_data{
 			col_t(v00, v10, v20),
 			col_t(v01, v11, v21),
 			col_t(v02, v12, v22)
@@ -242,17 +246,20 @@ namespace math{
 		template<typename type2>
 		tmat4(const tmat4<type2> &other) : m_data(other.dataVec()) {}
 
-		tmat4() : m_data(	col_t(1,0,0,0),
-							col_t(0,1,0,0),
-							col_t(0,0,1,0),
-							col_t(0,0,0,1)) {}
+		tmat4() : m_data(
+			col_t(1,0,0,0),
+			col_t(0,1,0,0),
+			col_t(0,0,1,0),
+			col_t(0,0,0,1)
+		) {}
 		tmat4(type val) : m_data(col_t(val), col_t(val), col_t(val), col_t(val)) {}
 		tmat4(tvec4<col_t> m_data) : m_data(m_data) {}
 		tmat4(
 			type v00, type v01, type v02, type v03,
 			type v10, type v11, type v12, type v13,
 			type v20, type v21, type v22, type v23,
-			type v30, type v31, type v32, type v33) : m_data{
+			type v30, type v31, type v32, type v33
+		) : m_data{
 			col_t(v00, v10, v20, v30),
 			col_t(v01, v11, v21, v31),
 			col_t(v02, v12, v22, v32),

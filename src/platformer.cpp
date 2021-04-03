@@ -19,7 +19,7 @@ Game::Game() : opengl::Window({1080, 720}, "Game") {
 	world.initRenderer(std::ref(cam), player, tileset);
 	world.initGenerator(tileset->scale());
 	world.initParticleSystem(palette);
-	world.initTextRenderer(std::move(freetype::Font("assets/jetbrains-mono.ttf")));
+	world.initTextRenderer(freetype::Font("assets/jetbrains-mono.ttf"));
 
 	for(int i = 5; i < 128; i++) {
 		world[ivec2(i + 4, i)] = Tile::stone;
