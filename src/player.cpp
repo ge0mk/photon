@@ -108,9 +108,8 @@ void Player::update(float time, float dt, WorldContainer &world) {
 				}
 				scale.x = -abs(scale.x);
 			}
-            if (inputStarted(dash)){
+            if (inputStarted(dash) && dashTime == 0.0f){
                 state = State::dash;
-
             }
 			else if(inputState(jump)) {
 				speed.y = jumpSpeed;
@@ -181,7 +180,10 @@ void Player::update(float time, float dt, WorldContainer &world) {
 				}
 				scale.x = -abs(scale.x);
 			}
-			if(inputState(jump) && (jumptime > jumpanimtime || jumptime < 0.0f) && doublejump < doublejumpcount) {
+            if (inputStarted(dash) && dashTime == 0.0f){
+                state = State::dash;
+            }
+			else if(inputState(jump) && (jumptime > jumpanimtime || jumptime < 0.0f) && doublejump < doublejumpcount) {
 				if(falltime > 0.2) {
 					doublejump++;
 				}
@@ -206,24 +208,27 @@ void Player::update(float time, float dt, WorldContainer &world) {
                     state = State::fall;
                 }
             }
-            else{
+            else if (dashTime < dashDuration) {
                 speed.x = dashSpeed * sign(speed.x);
                 dashTime += dt;
-                if (dashTime > dashDuration){
-                    dashTime = 0.0f;
-                    if (mOnGround){
-                        state = State::idle;
-                    }
-                    else{
-                        state = State::fall;
-                    }
+            }
+            else {
+                if (mOnGround) {
+                    state = State::idle;
+                } else {
+                    state = State::fall;
                 }
             }
 		}break;
 		case State::grab: {} break;
 		default: break;
 	}
-
+    if (dashTime > dashCountdown) {
+        dashTime = 0.0f;
+    }
+    else if (dashTime > dashDuration){
+        dashTime += dt;
+    }
 	RigidBody::update(time, dt, world);
 	updateAnimation(time);
 

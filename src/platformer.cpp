@@ -83,7 +83,7 @@ void Game::updateInputs() {
 	player->setInput(Player::move, getKey(GLFW_KEY_D) - getKey(GLFW_KEY_A));
 	if(getKey(GLFW_KEY_SPACE))
 		player->setInput(Player::jump, 1.0f);
-	if(getKey(GLFW_KEY_S))
+	if(getKey(GLFW_KEY_LEFT_ALT) || getKey(GLFW_KEY_RIGHT_ALT))
 		player->setInput(Player::dash, 1.0f);
 	if(getKey(GLFW_KEY_LEFT_SHIFT))
 		player->setInput(Player::walk, 1.0f);

@@ -89,6 +89,7 @@ protected:
 	float jumptime = 0.0f, falltime = 0.0f, dashTime = 0.0f;
 	const float dashDuration = 0.15f;
 	const float jumpanimtime = 0.5f;
+	const float dashCountdown = 1.0f;
 
 	uint8_t doublejump = 0;
 	const uint8_t doublejumpcount = 1;
