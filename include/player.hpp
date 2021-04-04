@@ -82,11 +82,12 @@ protected:
 
 	std::array<float, Action::count> inputs = {}, prevInputs = {};
 	State state = State::idle;
-	float jumpSpeed = 128, walkSpeed = 64, sprintSpeed = 128, sneakSpeed = 5;
+	float jumpSpeed = 128, walkSpeed = 64, sprintSpeed = 128, sneakSpeed = 5, dashSpeed = 1024;
 	Camera *cam;
 	float animspeed = 2.0f;
 
-	float jumptime = 0.0f, falltime = 0.0f;
+	float jumptime = 0.0f, falltime = 0.0f, dashTime = 0.0f;
+	const float dashDuration = 0.15f;
 	const float jumpanimtime = 0.5f;
 
 	uint8_t doublejump = 0;

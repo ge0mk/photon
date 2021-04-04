@@ -108,7 +108,11 @@ void Player::update(float time, float dt, WorldContainer &world) {
 				}
 				scale.x = -abs(scale.x);
 			}
-			if(inputState(jump)) {
+            if (inputStarted(dash)){
+                state = State::dash;
+
+            }
+			else if(inputState(jump)) {
 				speed.y = jumpSpeed;
 				state = State::jump;
 				jumptime = 0.0f;
@@ -191,7 +195,31 @@ void Player::update(float time, float dt, WorldContainer &world) {
 				falltime = 0;
 			}
 		} break;
-		case State::dash: {} break;
+		case State::dash: {
+            if(mPushesRightWall || mPushesLeftWall || speed.x == 0.0f) {
+                speed.x = 0.0f;
+                dashTime = 0.0f;
+                if (mOnGround){
+                    state = State::idle;
+                }
+                else {
+                    state = State::fall;
+                }
+            }
+            else{
+                speed.x = dashSpeed * sign(speed.x);
+                dashTime += dt;
+                if (dashTime > dashDuration){
+                    dashTime = 0.0f;
+                    if (mOnGround){
+                        state = State::idle;
+                    }
+                    else{
+                        state = State::fall;
+                    }
+                }
+            }
+		}break;
 		case State::grab: {} break;
 		default: break;
 	}
@@ -202,13 +230,6 @@ void Player::update(float time, float dt, WorldContainer &world) {
 	transform = mat4().translate(rpos + vec3(0, 2.5, 0)).scale(vec3(scale, 1));
 	uvtransform = texture->getUVTransform(uvpos);
 	cam->pos.xy = rpos;
-
-	if(inputState(dash) != 0.0f) {
-		gravity.y = abs(gravity.y);
-	}
-	else {
-		gravity.y = -abs(gravity.y);
-	}
 
 	prevInputs = inputs;
 	inputs = {0.0f, 0.0f, 0.0f, 0.0f};

@@ -57,5 +57,10 @@ namespace math{
 		return 1.0 / (1.0 + exp(-x));
 	}
 
+	template <typename type>
+	type sign(type value) {
+	    return value >= 0 ? type (1) : type (-1);
+	}
+
 	unsigned int gcd(unsigned int u, unsigned int v);
 }
