@@ -15,8 +15,13 @@ namespace math{
 	}
 
 	template<typename type>
-	inline type mix(type x, type y, type a){
-		return x * (1.0 - a) + y * (a);
+	inline type mix(type a, type b, type t){
+		return a * (1.0 - t) + b * (t);
+	}
+
+	template<typename type>
+	inline type lerp(type a, type b, type t){
+		return a + t * (b - a);
 	}
 
 	inline float d2r(float x){
