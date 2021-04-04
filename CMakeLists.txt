@@ -85,6 +85,14 @@ endif()
 add_subdirectory(assets assets_tmp)
 
 # main program
+if(WIN32)
+	if(MSVC)
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+	else()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
+	endif()
+endif()
+
 add_executable(platformer
 	src/platformer.cpp
 	src/camera.cpp
