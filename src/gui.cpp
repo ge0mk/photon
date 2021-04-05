@@ -102,7 +102,7 @@ bool GuiIO::usesKeyboard() {
 }
 
 GuiSystem::GuiSystem(freetype::Font &&font) : textRenderer(std::move(font)) {
-	std::ifstream src("res/gui.glsl", std::ios::ate);
+	std::ifstream src("assets/gui.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());
@@ -221,7 +221,7 @@ bool GuiSystem::button(const std::string &text, vec2 pos, vec4 bgcolor, vec4 tex
 void GuiSystem::rect(vec2 pos, vec2 size) {
 	const GuiStyle &style = currentStyle();
 
-	float radius = min(size.x, size.y) / 2 * style.rounding;
+	float radius = std::min(size.x, size.y) / 2 * style.rounding;
 	float left = radius;
 	float right = -radius;
 	float top = radius;
@@ -314,7 +314,7 @@ void GuiSystem::border(vec2 pos, vec2 size) {
 	float rounding = pow(1.0f - style.rounding, 16.0f);
 	vec2 contentPos = pos + style.border.xy;
 	vec2 contentSize = size - style.border.xy - style.border.zw;
-	float innerRadius = min(contentSize.x, contentSize.y) / 2 * style.rounding;
+	float innerRadius = std::min(contentSize.x, contentSize.y) / 2 * style.rounding;
 
 	float left = innerRadius + style.border.x;
 	float top = innerRadius + style.border.y;

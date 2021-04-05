@@ -1,6 +1,6 @@
 #include <chunk.hpp>
 
-Chunk::Chunk(World *world, vec2 pos, vec2 tileScale) : world(world), pos(pos), tileScale(tileScale) {}
+Chunk::Chunk(const WorldContainer &container, lvec2 pos, vec2 tileScale) : container(container), pos(pos), tileScale(tileScale) {}
 
 void Chunk::fill(uint64_t type) {
 	for(Tile &tile : tiles) {
@@ -10,8 +10,10 @@ void Chunk::fill(uint64_t type) {
 }
 
 void Chunk::build() {
-	std::vector<Vertex> vertices;
-	std::vector<unsigned> indices;
+	std::lock_guard<std::mutex> lock(meshMutex);
+
+	vertices.clear();
+	indices.clear();
 
 	auto addQuad = [&](std::array<Vertex, 4> quad) {
 		unsigned indexBase = vertices.size();
@@ -31,13 +33,13 @@ void Chunk::build() {
 	for(unsigned y = 0; y < size; y++) {
 		for(unsigned x = 0; x < size; x++) {
 			const Tile &current = tiles[y * size + x];
-			if(current.render()) {
+			if(current.visible()) {
 				vec2 bl = vec2(x, y) * Tile::resolution;
 				vec2 tr = bl + vec2(1) * Tile::resolution;
 				vec2 tl = vec2(bl.x, tr.y);
 				vec2 br = vec2(tr.x, bl.y);
 
-				vec2 uvtl = current.texture() * tileScale;
+				vec2 uvtl = current.texture(svec2(x, y)) * tileScale;
 				vec2 uvbr = uvtl + tileScale;
 				uvtl += vec2(0.000001), uvbr -= vec2(0.000001);
 				vec2 uvbl = vec2(uvtl.x, uvbr.y);
@@ -52,35 +54,35 @@ void Chunk::build() {
 			}
 		}
 	}
-
-	mesh.setVertexData(vertices);
-	mesh.setIndexData(indices);
 }
 
 void Chunk::update(float time, float dt) {
 	for(unsigned y = 0; y < size; y++) {
 		for(unsigned x = 0; x < size; x++) {
-			tiles[y * size + x].update(time, dt, ivec2(x, y), this);
+			tiles[y * size + x].update(time, dt, ivec2(x, y), *this);
 		}
 	}
 	if(rebuild) {
-		m_sync = true;
+		sync = true;
 		build();
 		rebuild = false;
 	}
 }
 
 void Chunk::render() {
-	mesh.drawElements();
+	if(!mesh) {
+		mesh = std::unique_ptr<Mesh>(new Mesh());
+	}
+	if(sync) {
+		std::lock_guard<std::mutex> lock(meshMutex);
+		mesh->setVertexData(vertices);
+		mesh->setIndexData(indices);
+		sync = false;
+	}
+	mesh->drawElements();
 }
 
-bool Chunk::sync() {
-	bool tmp = m_sync;
-	m_sync = false;
-	return tmp;
-}
-
-ivec2 Chunk::getPos() {
+lvec2 Chunk::getPos() {
 	return pos;
 }
 

@@ -5,9 +5,9 @@
 
 namespace opengl {
 	template<typename ...Components>
-	class Mesh {
+	class IndexedMesh {
 	public:
-		Mesh() : vertexBuffer(opengl::Buffer<Vertex<Components...>>::Array), indexBuffer(opengl::Buffer<unsigned>::ElementArray) {
+		IndexedMesh() : vertexBuffer(opengl::Buffer<Vertex<Components...>>::Array), indexBuffer(opengl::Buffer<unsigned>::ElementArray) {
 			vao.bind();
 			vertexBuffer.bind();
 			indexBuffer.bind();
@@ -15,7 +15,7 @@ namespace opengl {
 			vao.unbind();
 		}
 
-		Mesh(const std::vector<Vertex<Components...>> &vertices, const std::vector<unsigned> &indices)
+		IndexedMesh(const std::vector<Vertex<Components...>> &vertices, const std::vector<unsigned> &indices)
 		: vertexBuffer(opengl::Buffer<Vertex<Components...>>::Array), indexBuffer(opengl::Buffer<unsigned>::ElementArray) {
 			vao.bind();
 			vertexBuffer.bind();
@@ -27,7 +27,7 @@ namespace opengl {
 			setIndexData(indices);
 		}
 
-		Mesh(const std::pair<std::vector<Vertex<Components...>>, std::vector<unsigned>> &data)
+		IndexedMesh(const std::pair<std::vector<Vertex<Components...>>, std::vector<unsigned>> &data)
 		: vertexBuffer(opengl::Buffer<Vertex<Components...>>::Array), indexBuffer(opengl::Buffer<unsigned>::ElementArray) {
 			vao.bind();
 			vertexBuffer.bind();
@@ -38,10 +38,10 @@ namespace opengl {
 			setData(data);
 		}
 
-		Mesh(Mesh &&other)
+		IndexedMesh(IndexedMesh &&other)
 		: vertexBuffer(std::move(other.vertexBuffer)), indexBuffer(std::move(other.indexBuffer)), vao(std::move(other.vao)) {}
 
-		Mesh& operator=(Mesh &&other) {
+		IndexedMesh& operator=(IndexedMesh &&other) {
 			vertexBuffer = std::move(other.vertexBuffer);
 			indexBuffer = std::move(other.indexBuffer);
 			vao = std::move(other.vao);
@@ -75,6 +75,53 @@ namespace opengl {
 	private:
 		opengl::Buffer<Vertex<Components...>> vertexBuffer;
 		opengl::Buffer<unsigned> indexBuffer;
+		opengl::VertexArray vao;
+	};
+
+
+	template<typename ...Components>
+	class Mesh {
+	public:
+		Mesh() : vertexBuffer(opengl::Buffer<Vertex<Components...>>::Array) {
+			vao.bind();
+			vertexBuffer.bind();
+			vao.setVertexAttributes<Components...>();
+			vao.unbind();
+		}
+
+		Mesh(const std::vector<Vertex<Components...>> &vertices) : vertexBuffer(opengl::Buffer<Vertex<Components...>>::Array) {
+			vao.bind();
+			vertexBuffer.bind();
+			vao.setVertexAttributes<Components...>();
+			vao.unbind();
+
+			setVertexData(vertices);
+		}
+
+		Mesh(Mesh &&other) : vertexBuffer(std::move(other.vertexBuffer)), vao(std::move(other.vao)) {}
+
+		Mesh& operator=(Mesh &&other) {
+			vertexBuffer = std::move(other.vertexBuffer);
+			vao = std::move(other.vao);
+			return *this;
+		}
+
+		void setVertexData(std::vector<Vertex<Components...>> vertices, GLenum usage = opengl::Buffer<Vertex<Components...>>::StaticDraw) {
+			vertexBuffer.setData(vertices, usage);
+		}
+
+		void setData(std::vector<Vertex<Components...>> &data) {
+			setVertexData(data.first);
+		}
+
+		void drawElements(GLenum mode = GL_TRIANGLES, GLint offset = 0) {
+			vao.bind();
+			glDrawArrays(mode, offset, vertexBuffer.size());
+			vao.unbind();
+		}
+
+	private:
+		opengl::Buffer<Vertex<Components...>> vertexBuffer;
 		opengl::VertexArray vao;
 	};
 }

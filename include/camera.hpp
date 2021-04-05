@@ -7,16 +7,20 @@ using namespace math;
 
 struct Camera {
 	Camera() = default;
-	Camera(const Camera &other) = default;
+	Camera(const Camera &other) = delete;
 	Camera(vec3 pos, vec3 rot, vec2 res, float fov, float znear = 0.1, float zfar = 100);
 
-	Camera& operator=(const Camera &other) = default;
+	Camera& operator=(const Camera &other) = delete;
 
-	void update(float time, float dt);
+	void update();
 
-	vec3 pos, rot;
+	mat4 proj() const;
+	mat4 view() const;
+
+	tvec3<float> pos, rot;
+	tvec2<float> res;
 	float fov, znear, zfar;
-	vec2 res;
 
-	mat4 proj, view;
+private:
+	mat4 m_proj, m_view;
 };

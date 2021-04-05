@@ -264,24 +264,24 @@ namespace glfw {
 		return glfwGetMouseButton(handle, button);
 	}
 
-	void Window::onKeyTyped(int key) {}
-	void Window::onKeyChanged(int key, int scancode, int modifier, int action) {}
-	void Window::onKeyPressed(int key, int scancode, int modifier, bool repeat) {}
-	void Window::onKeyReleased(int key, int scancode, int modifier) {}
-	void Window::onMouseMoved(math::vec2 pos, math::vec2 dir) {}
-	void Window::onMousePressed(int button, int modifier) {}
-	void Window::onMouseReleased(int button, int modifier) {}
-	void Window::onScrollEvent(math::vec2 dir) {}
-	void Window::onWindowMoved(math::ivec2 pos) {}
-	void Window::onWindowContentScaleChanged(math::vec2 scale) {}
-	void Window::onWindowResized(math::ivec2 size) {}
-	void Window::onWindowMinimized(bool minimized) {}
-	void Window::onWindowMaximized(bool maximized) {}
-	void Window::onWindowFocusChanged(bool focussed) {}
+	void Window::onKeyTyped([[maybe_unused]] int key) {}
+	void Window::onKeyChanged([[maybe_unused]] int key, [[maybe_unused]] int scancode, [[maybe_unused]] int modifier, [[maybe_unused]] int action) {}
+	void Window::onKeyPressed([[maybe_unused]] int key, [[maybe_unused]] int scancode, [[maybe_unused]] int modifier, [[maybe_unused]] bool repeat) {}
+	void Window::onKeyReleased([[maybe_unused]] int key, [[maybe_unused]] int scancode, [[maybe_unused]] int modifier) {}
+	void Window::onMouseMoved([[maybe_unused]] math::vec2 pos, [[maybe_unused]] math::vec2 dir) {}
+	void Window::onMousePressed([[maybe_unused]] int button, [[maybe_unused]] int modifier) {}
+	void Window::onMouseReleased([[maybe_unused]] int button, [[maybe_unused]] int modifier) {}
+	void Window::onScrollEvent([[maybe_unused]] math::vec2 dir) {}
+	void Window::onWindowMoved([[maybe_unused]] math::ivec2 pos) {}
+	void Window::onWindowContentScaleChanged([[maybe_unused]] math::vec2 scale) {}
+	void Window::onWindowResized([[maybe_unused]] math::ivec2 size) {}
+	void Window::onWindowMinimized([[maybe_unused]] bool minimized) {}
+	void Window::onWindowMaximized([[maybe_unused]] bool maximized) {}
+	void Window::onWindowFocusChanged([[maybe_unused]] bool focussed) {}
 	void Window::onWindowNeedsRefresh() {}
 	void Window::onWindowClosed() {}
-	void Window::onFramebufferResized(math::ivec2 size) {}
-	void Window::onMonitorUpdated(GLFWmonitor *monitor, int event) {}
+	void Window::onFramebufferResized([[maybe_unused]] math::ivec2 size) {}
+	void Window::onMonitorUpdated([[maybe_unused]] GLFWmonitor *monitor, [[maybe_unused]] int event) {}
 
 	void Window::initCallbacks() {
 		glfwSetKeyCallback(handle, [](GLFWwindow *handle, int key, int scancode, int action, int modifiers) {

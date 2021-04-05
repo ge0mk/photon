@@ -10,7 +10,7 @@
 			"quiet":false,
 			"working_dir": "${project_path:${folder}}/build",
 			"linux": {
-				"cmd": ["cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && make -j4 && cp compile_commands.json .."],
+				"cmd": ["cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -Wno-dev && make -j4 && cp compile_commands.json .."],
 				"shell":true,
 			},
 		}
@@ -19,7 +19,17 @@
 		"LSP": {
 			"clangd": {
 				"enabled": true,
-				"command": ["clangd", "-header-insertion=never", "-index"]
+				"command": [
+					"clangd",
+					"--header-insertion=never",
+					"--index",
+					"--cross-file-rename",
+					"--background-index",
+					"--recovery-ast",
+					"--suggest-missing-includes",
+					"--pch-storage=memory",
+					"-j=2",
+				]
 			}
 		}
 	},

@@ -43,8 +43,8 @@ namespace opengl {
 	}
 
 	Texture::Texture(Texture &&other) : handle(other.handle), type(other.type),
-			format(other.format), m_size(other.m_size), channels(other.channels),
-			atomic(other.atomic), internalFormat(other.internalFormat) {
+			format(other.format), atomic(other.atomic), internalFormat(other.internalFormat),
+			m_size(other.m_size), channels(other.channels) {
 		other.handle = 0;
 	}
 

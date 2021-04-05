@@ -80,7 +80,7 @@ private:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned> indices;
 
-	opengl::Mesh<Components...> mesh;
+	opengl::IndexedMesh<Components...> mesh;
 };
 
 struct GuiStyle {

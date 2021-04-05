@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16.3)
 project(photon)
 
 set(CMAKE_C_STANDARD 11)
@@ -6,10 +6,36 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+#build type specifig args
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_C_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+
+SET(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+set(CMAKE_C_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+if (MSVC)
+	add_compile_options(/W4 /WX)
+else()
+	add_compile_options(-Wall -Wextra)
+	if(CMAKE_BUILD_TYPE EQUAL "RELEASE")
+		add_link_options(-s)
+	else()
+	endif()
+endif()
+
+# used library components
 set(OPENGL 1)
 set(IMGUI 1)
 
-if(GLFW OR OPENGL OR VULKAN OR PHOTON_FULL) # build glfw
+# build glfw
+if(GLFW OR OPENGL OR VULKAN OR PHOTON_FULL)
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -17,30 +43,54 @@ if(GLFW OR OPENGL OR VULKAN OR PHOTON_FULL) # build glfw
 	add_subdirectory(glfw)
 endif()
 
+# freetype
 add_subdirectory(freetype)
 
+# compile definitions
+add_compile_definitions(SPDLOG_COMPILED_LIB IMGUI_IMPL_OPENGL_LOADER_GLAD LTC_SOURCE LTC_NO_ROLC)
 if(WIN32)
 	add_compile_definitions(_GLFW_WIN32 WITH_WINMM WINDOWS)
 elseif(UNIX)
 	add_compile_definitions(_GLFW_X11 WITH_ALSA UNIX)
 endif()
 
-add_compile_definitions(SPDLOG_COMPILED_LIB IMGUI_IMPL_OPENGL_LOADER_GLAD LTC_SOURCE LTC_NO_ROLC)
-
+# photon src
 add_library(photon)
 if(WIN32)
 	target_include_directories(photon PUBLIC ENV{VULKAN_SDK}/Include)
-else()
-	target_compile_options(photon PUBLIC -g)
 endif()
 
 add_subdirectory(src)
 target_include_directories(photon PUBLIC include)
 
+# linking
+target_link_libraries(photon PUBLIC freetype)
+
+if(GLFW OR OPENGL OR VULKAN OR PHOTON_FULL)
+	target_link_libraries(photon PUBLIC glfw)
+endif()
+
 if(WIN32)
-	target_link_libraries(photon PUBLIC glfw freetype winmm)
+	if(AUDIO OR PHOTON_FULL)
+		target_link_libraries(photon PUBLIC winmm)
+	endif()
 elseif(UNIX)
-	target_link_libraries(photon PUBLIC dl m pthread glfw freetype asound)
+	target_link_libraries(photon PUBLIC dl m pthread)
+	if(AUDIO OR PHOTON_FULL)
+		target_link_libraries(photon PUBLIC asound)
+	endif()
+endif()
+
+# resources
+add_subdirectory(assets assets_tmp)
+
+# main program
+if(WIN32)
+	if(MSVC)
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+	else()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
+	endif()
 endif()
 
 add_executable(platformer
@@ -55,10 +105,7 @@ add_executable(platformer
 	src/rigidbody.cpp
 	src/text.cpp
 	src/tile.cpp
-	src/world.cpp)
+	src/world.cpp
+)
+add_dependencies(platformer assets)
 target_link_libraries(platformer PUBLIC photon)
-
-add_executable(test src/main.cpp src/text.cpp)
-target_link_libraries(test PUBLIC photon)
-
-file(COPY res DESTINATION ${CMAKE_BINARY_DIR})

@@ -4,7 +4,7 @@ TextObject::TextObject(const std::string &text, mat4 transform, vec4 color)
 : text(text), transform(transform), color(color) {}
 
 TextRenderer::TextRenderer(freetype::Font &&font) : font(std::move(font)) {
-	std::ifstream src("res/text.glsl", std::ios::ate);
+	std::ifstream src("assets/text.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());
@@ -16,8 +16,7 @@ TextRenderer::TextRenderer(freetype::Font &&font) : font(std::move(font)) {
 	transformUBO.setData(mat4());
 
 	this->font.setPixelSizes(64);
-	this->font.buildFontAtlas();
-	texture.load(this->font.getFontAtlas());
+	texture.load(this->font.buildFontAtlas());
 }
 
 std::shared_ptr<TextObject> TextRenderer::createObject(const std::string &text, mat4 transform, vec4 color) {
@@ -49,7 +48,7 @@ vec2 TextRenderer::calcSize(const std::string &text) {
 		auto [pos, size, uv, advanceX] = font[text[i]];
 		x += advanceX;
 		lastWidth = size.x;
-		lineHeight = max(size.y, lineHeight);
+		lineHeight = std::max(size.y, lineHeight);
 	}
 	return vec2(x + lastWidth, lineHeight);
 }
@@ -122,4 +121,10 @@ void TextRenderer::render(mat4 transform) {
 	texture.bind();
 	texture.activate();
 	mesh.drawElements();
+}
+
+void TextRenderer::applyTransform(mat4 transform) {
+	for(auto &object : objects) {
+		object->transform = transform * object->transform;
+	}
 }

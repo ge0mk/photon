@@ -50,7 +50,7 @@ namespace imgui {
 		io->AddInputCharacter(key);
 	}
 
-	void Application::onKeyChanged(int key, int scancode, int modifier, int action) {
+	void Application::onKeyChanged(int key, [[maybe_unused]] int scancode, [[maybe_unused]] int modifier, int action) {
 		if(action == GLFW_PRESS)
 			io->KeysDown[key] = true;
 		else if(action == GLFW_RELEASE)
@@ -63,16 +63,16 @@ namespace imgui {
 		io->KeySuper = 	io->KeysDown[GLFW_KEY_LEFT_SUPER] 	|| io->KeysDown[GLFW_KEY_RIGHT_SUPER];
 	}
 
-	void Application::onMouseMoved(math::vec2 pos, math::vec2 dir) {
+	void Application::onMouseMoved(math::vec2 pos, [[maybe_unused]] math::vec2 dir) {
 		io->MousePos = ImVec2(pos.x, pos.y);
 	}
 
-	void Application::onMousePressed(int button, int modifier) {
+	void Application::onMousePressed(int button, [[maybe_unused]] int modifier) {
 		if(button < IM_ARRAYSIZE(io->MouseDown))
 			io->MouseDown[button] = true;
 	}
 
-	void Application::onMouseReleased(int button, int modifier) {
+	void Application::onMouseReleased(int button, [[maybe_unused]] int modifier) {
 		if(button < IM_ARRAYSIZE(io->MouseDown))
 			io->MouseDown[button] = false;
 	}

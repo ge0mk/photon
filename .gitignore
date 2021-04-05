@@ -2,4 +2,5 @@ compile_commands.json
 .cache
 photon.sublime-workspace
 .vs
+cmake-build-debug
 out

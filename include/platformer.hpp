@@ -21,12 +21,15 @@
 
 #include <sstream>
 #include <iomanip>
+#include <thread>
+
+//#define MULTITHREADING
 
 class TileCursor : public Entity {
 public:
 	TileCursor(std::shared_ptr<TiledTexture> sprites);
 
-	void update(float time, float dt, World *world) override;
+	void update(float time, float dt, WorldContainer &world) override;
 
 	vec2 pos;
 };
@@ -43,9 +46,11 @@ public:
 	Game();
 
 	// gameloop
+	int exec() override;
 	void update() override;
 	void render() override;
-	void updateui();
+	void updateInputs();
+	void updateUI();
 
 	// mechanics
 	vec2 screenToWorldSpace(vec2 cursorpos);
@@ -68,9 +73,9 @@ private:
 	double time = 0, dt = 0;
 	Camera cam = Camera(vec3(0, 0, -128), vec3(), vec2(1080, 720), 90, 2, 256);
 
-	World world;
-	TileCursor *cursor;
-	Player* player;
+	DynamicWorld<> world;
+	std::shared_ptr<TileCursor> cursor;
+	std::shared_ptr<Player> player;
 	ResourceCache<TiledTexture> textures;
 	GuiSystem gui;
 };

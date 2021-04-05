@@ -10,27 +10,19 @@
 
 #include "tile.hpp"
 
+#include <atomic>
+#include <memory>
+#include <mutex>
+
 using namespace math;
 
-class World;
+class WorldContainer;
 class Chunk {
 public:
 	using Vertex = opengl::Vertex<vec3, vec2>;
-	using Mesh = opengl::Mesh<vec3, vec2>;
+	using Mesh = opengl::IndexedMesh<vec3, vec2>;
 
-	enum eblock : uint8_t {
-		center = 0,
-		left,
-		top_left,
-		top,
-		top_right,
-		right,
-		bottom_right,
-		bottom,
-		bottom_left,
-	};
-
-	Chunk(World *world, vec2 pos, vec2 tileScale);
+	Chunk(const WorldContainer &container, lvec2 pos, vec2 tileScale);
 
 	void fill(uint64_t tile);
 
@@ -38,9 +30,7 @@ public:
 	void update(float time, float dt);
 	void render();
 
-	bool sync();
-
-	ivec2 getPos();
+	lvec2 getPos();
 
 	Tile& operator[](ivec2 pos);
 	const Tile& operator[](ivec2 pos) const;
@@ -51,13 +41,17 @@ public:
 	static constexpr uint8_t size = 64;
 
 private:
-	friend class World;
-	World* world;
-	vec2 pos, tileScale;
-	std::array<Tile, size * size> tiles;
-	bool m_sync = false;
+	const WorldContainer &container;
 
-private:
-	Mesh mesh;
-	bool rebuild = false;
+	lvec2 pos;
+	vec2 tileScale;
+	std::array<Tile, size * size> tiles;
+
+	std::unique_ptr<Mesh> mesh;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned> indices;
+
+	std::mutex meshMutex;
+	std::atomic<bool> rebuild = false;
+	std::atomic<bool> sync = false;
 };

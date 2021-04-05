@@ -11,20 +11,24 @@
 #include <opengl/uniform.hpp>
 #include <opengl/vertex.hpp>
 
+#include "chunk.hpp"
 #include "resources.hpp"
+#include "tile.hpp"
 
 using namespace math;
 
-class World;
+class WorldContainer;
 
 class Entity {
 public:
 	Entity(std::shared_ptr<TiledTexture> texture = {});
 	virtual ~Entity();
 
-	virtual void update(float time, float dt, World *world);
+	virtual void update(float time, float dt, WorldContainer &world);
 	virtual void render();
 	virtual bool customRenderFunction() const;
+
+	virtual void shift(ivec2 dir);
 
 	mat4 getTransform();
 	mat4 getUVTransform();

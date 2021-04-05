@@ -36,7 +36,7 @@ private:
 class TextRenderer {
 public:
 	using Vertex = opengl::Vertex<vec3, vec2, vec4>;
-	using Mesh = opengl::Mesh<vec3, vec2, vec4>;
+	using Mesh = opengl::IndexedMesh<vec3, vec2, vec4>;
 
 	TextRenderer(freetype::Font &&font);
 
@@ -48,6 +48,8 @@ public:
 
 	void update();
 	void render(mat4 transform);
+
+	void applyTransform(mat4 transform);
 
 private:
 	freetype::Font font;

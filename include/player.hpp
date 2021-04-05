@@ -70,8 +70,8 @@ public:
 
 	Player(Camera *cam, const std::shared_ptr<TiledTexture> &sprites);
 
-	void update(float time, float dt, World *world) override;
-	void updateAnimation(float time, float dt, World *world);
+	void update(float time, float dt, WorldContainer &world) override;
+	void updateAnimation(float time);
 	void setInput(uint8_t action, float value);
 	void playAnimation(uint8_t animation);
 
@@ -80,14 +80,16 @@ protected:
 	bool inputStopped(uint8_t action) const;
 	float inputState(uint8_t action) const;
 
-	std::array<float, Action::count> inputs, prevInputs;
+	std::array<float, Action::count> inputs = {}, prevInputs = {};
 	State state = State::idle;
-	float jumpSpeed = 128, walkSpeed = 64, sprintSpeed = 128, sneakSpeed = 5;
+	float jumpSpeed = 128, walkSpeed = 64, sprintSpeed = 128, sneakSpeed = 5, dashSpeed = 1024;
 	Camera *cam;
 	float animspeed = 2.0f;
 
-	float jumptime, falltime;
+	float jumptime = 0.0f, falltime = 0.0f, dashTime = 0.0f;
+	const float dashDuration = 0.15f;
 	const float jumpanimtime = 0.5f;
+	const float dashCountdown = 1.0f;
 
 	uint8_t doublejump = 0;
 	const uint8_t doublejumpcount = 1;

@@ -1,15 +1,33 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <cstdlib>
 
 namespace math{
 	const float pi = 3.14159;
 	const float e = 2.71828;
 
+	template<typename type>
+	inline type fract(type x){
+		return x - std::floor(x);
+	}
+
+	template<typename type>
+	inline type mix(type a, type b, type t){
+		return a * (1.0 - t) + b * (t);
+	}
+
+	template<typename type>
+	inline type lerp(type a, type b, type t){
+		return a + t * (b - a);
+	}
+
 	inline float d2r(float x){
 		return pi/180.0f*x;
 	}
+
 	inline float r2d(float x){
 		return x/pi*180.0f;
 	}
@@ -18,38 +36,35 @@ namespace math{
 		return fabs(a - b) < epsilon;
 	}
 
-	template<typename type>
-	inline type fract(type x){
-		return x - std::floor(x);
+	inline float rand(float min, float max) {
+		return (float(::rand()) / float(RAND_MAX)) * (max - min) + min;
 	}
 
-	template<typename type>
-	inline type mix(type x, type y, type a){
-		return x * (1.0 - a) + y * (a);
+	inline double rand(double min, double max) {
+		return (double(::rand()) / double(RAND_MAX)) * (max - min) + min;
 	}
 
-	template<typename type>
-	type max(type a, type b){
-		return  a > b ? a : b;
-	}
-
-	template<typename type>
-	type min(type a, type b){
-		return  a < b ? a : b;
-	}
-
-	template<typename type>
-	type clamp(type x, type l, type u) {
-		return max(min(x, u), l);
-	}
-
-	inline float smoothstep(float x, float e0 = 0.0f, float e1 = 1.0f){
-		x = clamp((x - e0) / (e1 - e0), 0.0f, 1.0f);
+	inline float smoothstep(float x, float e0 = 0.0f, float e1 = 1.0f) {
+		x = std::clamp((x - e0) / (e1 - e0), 0.0f, 1.0f);
 		return x * x * (3.0f - 2.0f * x);
 	}
 
-	inline float sigmoid(float x){
-		return 1.0f / (1 + exp(-x));
+	inline double smoothstep(double x, double e0 = 0.0, double e1 = 1.0) {
+		x = std::clamp((x - e0) / (e1 - e0), 0.0, 1.0);
+		return x * x * (3.0 - 2.0 * x);
+	}
+
+	inline float sigmoid(float x) {
+		return 1.0f / (1.0f + exp(-x));
+	}
+
+	inline double sigmoid(double x) {
+		return 1.0 / (1.0 + exp(-x));
+	}
+
+	template <typename type>
+	type sign(type value) {
+	    return value >= 0 ? type (1) : type (-1);
 	}
 
 	unsigned int gcd(unsigned int u, unsigned int v);

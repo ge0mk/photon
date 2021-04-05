@@ -29,13 +29,15 @@ public:
 
 	RigidBody(std::shared_ptr<TiledTexture> texture);
 
-	void update(float time, float dt, World *world) override;
+	void update(float time, float dt, WorldContainer &world) override;
 	void applyForce(vec2 f);
 
-	bool checkGround(World *world, float &groundY);
-	bool checkCeiling(World *world, float &ceilingY);
-	bool checkLeft(World *world, float &leftX);
-	bool checkRight(World *world, float &rightX);
+	void shift(ivec2 dir) override;
+
+	bool checkGround(const WorldContainer &world, float &groundY);
+	bool checkCeiling(const WorldContainer &world, float &ceilingY);
+	bool checkLeft(const WorldContainer &world, float &leftX);
+	bool checkRight(const WorldContainer &world, float &rightX);
 
 	const std::vector<ivec2>& getCollidingTiles() const;
 	vec2 getPos() const;

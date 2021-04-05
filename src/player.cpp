@@ -54,7 +54,7 @@ Player::Player(Camera *cam, const std::shared_ptr<TiledTexture> &texture) : Rigi
 	uvpos = ivec2(1, 6);
 }
 
-void Player::update(float time, float dt, World *world) {
+void Player::update(float time, float dt, WorldContainer &world) {
 	if(jumptime >= 0) {
 		jumptime += dt;
 	}
@@ -108,7 +108,10 @@ void Player::update(float time, float dt, World *world) {
 				}
 				scale.x = -abs(scale.x);
 			}
-			if(inputState(jump)) {
+            if (inputStarted(dash) && dashTime == 0.0f){
+                state = State::dash;
+            }
+			else if(inputState(jump)) {
 				speed.y = jumpSpeed;
 				state = State::jump;
 				jumptime = 0.0f;
@@ -177,7 +180,10 @@ void Player::update(float time, float dt, World *world) {
 				}
 				scale.x = -abs(scale.x);
 			}
-			if(inputState(jump) && (jumptime > jumpanimtime || jumptime < 0.0f) && doublejump < doublejumpcount) {
+            if (inputStarted(dash) && dashTime == 0.0f){
+                state = State::dash;
+            }
+			else if(inputState(jump) && (jumptime > jumpanimtime || jumptime < 0.0f) && doublejump < doublejumpcount) {
 				if(falltime > 0.2) {
 					doublejump++;
 				}
@@ -191,30 +197,50 @@ void Player::update(float time, float dt, World *world) {
 				falltime = 0;
 			}
 		} break;
-		case State::dash: {} break;
+		case State::dash: {
+            if(mPushesRightWall || mPushesLeftWall || speed.x == 0.0f) {
+                speed.x = 0.0f;
+                dashTime = 0.0f;
+                if (mOnGround){
+                    state = State::idle;
+                }
+                else {
+                    state = State::fall;
+                }
+            }
+            else if (dashTime < dashDuration) {
+                speed.x = dashSpeed * sign(speed.x);
+                dashTime += dt;
+            }
+            else {
+                if (mOnGround) {
+                    state = State::idle;
+                } else {
+                    state = State::fall;
+                }
+            }
+		}break;
 		case State::grab: {} break;
 		default: break;
 	}
-
-	updateAnimation(time, dt, world);
-
+    if (dashTime > dashCountdown) {
+        dashTime = 0.0f;
+    }
+    else if (dashTime > dashDuration){
+        dashTime += dt;
+    }
 	RigidBody::update(time, dt, world);
+	updateAnimation(time);
+
 	transform = mat4().translate(rpos + vec3(0, 2.5, 0)).scale(vec3(scale, 1));
 	uvtransform = texture->getUVTransform(uvpos);
 	cam->pos.xy = rpos;
-
-	if(inputState(dash) != 0.0f) {
-		gravity.y = abs(gravity.y);
-	}
-	else {
-		gravity.y = -abs(gravity.y);
-	}
 
 	prevInputs = inputs;
 	inputs = {0.0f, 0.0f, 0.0f, 0.0f};
 }
 
-void Player::updateAnimation(float time, float dt, World *world) {
+void Player::updateAnimation(float time) {
 	switch(state) {
 		case State::idle: {
 			int frames = animations[a_idle].size();
@@ -239,7 +265,6 @@ void Player::updateAnimation(float time, float dt, World *world) {
 				}
 				else {
 					int frames = animations[a_jump].size();
-					std::cout<<frames<<"\n";
 					uvpos = animations[a_jump][int(jumptime / jumpanimtime * frames) % frames];
 				}
 			}
@@ -256,10 +281,10 @@ void Player::updateAnimation(float time, float dt, World *world) {
 
 void Player::setInput(uint8_t action, float value) {
 	if(action == move) {
-		inputs[action] = clamp(value, -1.0f, 1.0f);
+		inputs[action] = std::clamp(value, -1.0f, 1.0f);
 	}
 	else {
-		inputs[action] = clamp(value, 0.0f, 1.0f);
+		inputs[action] = std::clamp(value, 0.0f, 1.0f);
 	}
 }
 

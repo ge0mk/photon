@@ -1,8 +1,0 @@
-*
-!.gitignore
-!tiles/*
-!*.glsl
-!*.json
-!*.yaml
-!tileset.png
-!player

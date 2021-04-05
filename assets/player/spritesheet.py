@@ -110,7 +110,7 @@ out = fix_json_indent(out, 3)
 with open("sprites.json", "w") as f:
     f.write(out)
 
-with open("anim.cpp", "w") as f:
+with open("anim.hpp", "w") as f:
     f.write("enum Animation : uint8_t {\n")
     index = 0
     for animname in sorted(sprites.keys()):
@@ -119,8 +119,7 @@ with open("anim.cpp", "w") as f:
         index += 1
     f.write("};\n")
 
-    f.write("\n")
-
+with open("anim.cpp", "w") as f:
     f.write("const std::vector<std::vector<ivec2>> Player::animations = {\n")
     for animname in sorted(sprites.keys()):
         line = ""

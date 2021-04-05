@@ -3,7 +3,7 @@
 #include <world.hpp>
 
 Particle::Particle(uint32_t type, vec2 pos, vec2 speed, vec2 gravity, vec2 scale, float rotation, float rotspeed)
-: type(type), pos(pos), speed(speed), gravity(gravity), scale(scale), rotation(rotation), rotspeed(rotspeed) {
+: pos(pos), speed(speed), gravity(gravity), scale(scale), rotation(rotation), rotspeed(rotspeed), type(type) {
 	switch(type) {
 		case null: break;
 		case rain: {
@@ -17,20 +17,24 @@ Particle::Particle(uint32_t type, vec2 pos, vec2 speed, vec2 gravity, vec2 scale
 	}
 }
 
-void Particle::update(float time, float dt, World *world) {
+void Particle::update([[maybe_unused]] float time, float dt, const WorldContainer &world) {
 	pos += speed * dt;
 	speed += gravity * dt;
 	rotation += rotspeed * dt * 5;
 	lifetime += dt;
-	if(world->getTileOrEmpty(world->getTileIndex(pos)).type != Tile::null) {
-		speed = 0;
-		vec2 tmp = pos + vec2(rotspeed*dt, 0.1);
-		vec2 tmp2 = pos + vec2(-rotspeed*dt, -0.1);
-		if(fract(pos.y) > 0.95 && world->getTileOrEmpty(world->getTileIndex(tmp)).type == Tile::null) {
-			pos.x += rotspeed * dt;
-			speed.x = rotspeed;
+	if(world.at(world.getTileIndex(pos)).type != Tile::null) {
+		if(abs(speed.x) > abs(speed.y) && fract(pos.y) > 0.95)
+			speed.x = 0;
+		else {
+			speed.y = 0;
 		}
-		else if(world->getTileOrEmpty(world->getTileIndex(tmp2)).type == Tile::null) {
+		vec2 tmp = pos + vec2(rotspeed * dt * 8, 0.1);
+		vec2 tmp2 = pos + vec2(-rotspeed * dt, -0.1);
+		if(fract(pos.y) > 0.95 && world.at(world.getTileIndex(tmp)).type == Tile::null) {
+			pos.x += rotspeed * dt * 8;
+			speed.x = rotspeed * 8;
+		}
+		else if(world.at(world.getTileIndex(tmp2)).type == Tile::null) {
 			pos.y -= 0.2 * dt;
 		}
 		else {
@@ -40,7 +44,7 @@ void Particle::update(float time, float dt, World *world) {
 }
 
 ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : texture(texture), buffer(opengl::Buffer<Particle>::Array) {
-	std::ifstream src("res/particles.glsl", std::ios::ate);
+	std::ifstream src("assets/particles.glsl", std::ios::ate);
 	std::string buffer(src.tellg(), '\0');
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());
@@ -56,11 +60,7 @@ ParticleSystem::ParticleSystem(std::shared_ptr<TiledTexture> texture) : texture(
 	vao.unbind();
 }
 
-void ParticleSystem::spawn(const Particle &particle) {
-	particles.push_back(particle);
-}
-
-void ParticleSystem::update(float time, float dt, World *world) {
+void ParticleSystem::update(float time, float dt, const WorldContainer &world) {
 	for(Particle &p : particles) {
 		p.update(time, dt, world);
 	}
@@ -82,6 +82,12 @@ void ParticleSystem::render(mat4 transform) {
 	vao.bind();
 	glDrawArrays(GL_POINTS, 0, buffer.size());
 	vao.unbind();
+}
+
+void ParticleSystem::shift(ivec2 dir) {
+	for(Particle &p : particles) {
+		p.pos += vec2(dir) * Chunk::size * Tile::resolution;
+	}
 }
 
 void ParticleSystem::setTexture(const std::shared_ptr<TiledTexture> &texture) {

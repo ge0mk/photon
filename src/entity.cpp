@@ -4,7 +4,7 @@ Entity::Entity(std::shared_ptr<TiledTexture> texture) : texture(texture) {}
 
 Entity::~Entity() {}
 
-void Entity::update(float time, float dt, World *world) {
+void Entity::update([[maybe_unused]] float time, [[maybe_unused]] float dt, [[maybe_unused]] WorldContainer &world) {
 	transform = mat4().translate(pos).rotate(rot).scale(scale);
 }
 
@@ -12,6 +12,10 @@ void Entity::render() {}
 
 bool Entity::customRenderFunction() const {
 	return false;
+}
+
+void Entity::shift(ivec2 dir) {
+	pos.xy += vec2(dir) * Chunk::size * Tile::resolution;
 }
 
 mat4 Entity::getTransform() {

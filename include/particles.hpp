@@ -15,11 +15,13 @@
 #include <opengl/uniform.hpp>
 #include <opengl/vao.hpp>
 
+#include "chunk.hpp"
 #include "resources.hpp"
+#include "tile.hpp"
 
 using namespace math;
 
-class World;
+class WorldContainer;
 
 struct Particle {
 	enum {
@@ -37,19 +39,24 @@ struct Particle {
 	float lifetime = 0;
 	uint32_t type;
 
-	void update(float time, float dt, World *world);
+	void update(float time, float dt, const WorldContainer &world);
 };
 
 class ParticleSystem {
 public:
 	ParticleSystem(std::shared_ptr<TiledTexture> texture = {});
 
-	void update(float time, float dt, World *world);
+	void update(float time, float dt, const WorldContainer &world);
 	void render(mat4 transform);
+
+	void shift(ivec2 dir);
 
 	void setTexture(const std::shared_ptr<TiledTexture> &texture);
 
-	void spawn(const Particle &particle);
+	template <typename ...Args>
+	Particle& spawn(Args ...args) {
+		return particles.emplace_back(args...);
+	}
 
 	size_t size();
 
