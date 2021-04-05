@@ -27,10 +27,12 @@ public:
 	void update(float time, float dt, ivec2 pos, const Chunk &chunk);
 	bvec4 hitbox() const;
 	vec2 texture(svec2 pos) const;	// tile position on the texture
-	bool render() const;
-	bool collision() const;
 	void destroy();		// remove tile during game -> may trigger effects
 	void clear();		// remove tile from editor -> no effects
+
+	bool transparent() const;
+	bool visible() const;
+	bool solid() const;
 
 	uint32_t type, variant;
 	uint64_t custom;

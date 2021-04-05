@@ -131,7 +131,7 @@ bool RigidBody::checkGround(const WorldContainer &world, float &groundY) {
 			AABB testaabb = AABB(lerp(pos, oldPos, abs(endY - tileY) / dist) + aabbOffset, halfSize);
 			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
 
-			if(tile.collision() && tileaabb.intersects(testaabb)) {
+			if(tile.solid() && tileaabb.intersects(testaabb)) {
 				collidingTiles.push_back(tileIndex);
 				groundY = tileIndex.y * Tile::resolution + Tile::resolution;
 				return true;
@@ -164,7 +164,7 @@ bool RigidBody::checkCeiling(const WorldContainer &world, float &ceilingY) {
 			AABB testaabb = AABB(lerp(pos, oldPos, abs(endY - tileY) / dist) + aabbOffset, halfSize);
 			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
 
-			if(tile.collision() && tileaabb.intersects(testaabb)) {
+			if(tile.solid() && tileaabb.intersects(testaabb)) {
 				collidingTiles.push_back(tileIndex);
 				ceilingY = tileIndex.y * Tile::resolution;
 				return true;
@@ -197,7 +197,7 @@ bool RigidBody::checkLeft(const WorldContainer &world, float &leftX) {
 			AABB testaabb = AABB(lerp(pos, oldPos, abs(endX - tileX) / dist) + aabbOffset, halfSize);
 			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
 
-			if(tile.collision() && tileaabb.intersects(testaabb)) {
+			if(tile.solid() && tileaabb.intersects(testaabb)) {
 				collidingTiles.push_back(tileIndex);
 				leftX = tileIndex.x * Tile::resolution - Tile::resolution;
 				return true;
@@ -230,7 +230,7 @@ bool RigidBody::checkRight(const WorldContainer &world, float &rightX) {
 			AABB testaabb = AABB(lerp(pos, oldPos, abs(endX - tileX) / dist) + aabbOffset, halfSize);
 			AABB tileaabb = AABB(vec2(tileIndex) * Tile::resolution + 0.5 * Tile::resolution, 0.5 * Tile::resolution);
 
-			if(tile.collision() && tileaabb.intersects(testaabb)) {
+			if(tile.solid() && tileaabb.intersects(testaabb)) {
 				collidingTiles.push_back(tileIndex);
 				rightX = tileIndex.x * Tile::resolution;
 				return true;

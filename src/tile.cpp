@@ -27,20 +27,6 @@ vec2 Tile::texture(svec2 pos) const {
 	}
 }
 
-bool Tile::render() const {
-	switch(type) {
-		case null: return false;
-		default: return true;
-	}
-}
-
-bool Tile::collision() const {
-	switch(type) {
-		case null: return false;
-		default: return true;
-	}
-}
-
 void Tile::destroy() {
 	type = null;
 	variant = 0;
@@ -49,5 +35,26 @@ void Tile::destroy() {
 void Tile::clear() {
 	switch(type) {
 		default: destroy(); break;
+	}
+}
+
+bool Tile::transparent() const {
+	switch(type) {
+		case null: return true;
+		default: return false;
+	}
+}
+
+bool Tile::visible() const {
+	switch(type) {
+		case null: return false;
+		default: return true;
+	}
+}
+
+bool Tile::solid() const {
+	switch(type) {
+		case null: return false;
+		default: return true;
 	}
 }

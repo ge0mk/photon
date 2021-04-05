@@ -11,6 +11,8 @@
 #include <opengl/texture.hpp>
 #include <opengl/uniform.hpp>
 
+#include <utils/image.hpp>
+
 #include "camera.hpp"
 #include "chunk.hpp"
 #include "entity.hpp"
@@ -63,6 +65,8 @@ public:
 
 	virtual void shift(lvec2 offset);
 	lvec2 offset() const;
+
+	Image renderTileProperties() const;
 
 protected:
 	std::map<lvec2, std::shared_ptr<Chunk>> m_chunks;
@@ -218,7 +222,7 @@ protected:
 		std::vector<lvec2> outOfRangeChunks;
 
 		for(auto &[pos, chunk] : chunks()) {
-			if(length(vec2(pos - m_offset)) > 4.0f) {
+			if(length(vec2(pos - m_offset)) > 8.0f) {
 				outOfRangeChunks.push_back(pos);
 			}
 			else {
@@ -230,8 +234,8 @@ protected:
 			eraseChunkAbsolute(pos);
 		}
 
-		for(int y = -3; y <= 3; y++) {
-			for(int x = -3; x <= 3; x++) {
+		for(int y = -4; y <= 4; y++) {
+			for(int x = -4; x <= 4; x++) {
 				if(!std::as_const(*this).getChunk(lvec2(x, y))) {
 					loadChunk(lvec2(x, y) + offset());
 				}

@@ -93,6 +93,28 @@ lvec2 WorldContainer::offset() const {
 	return m_offset;
 }
 
+Image WorldContainer::renderTileProperties() const {
+	Image result(ivec2(Chunk::size * 5), 1);
+	for(int cy = -2; cy <= 2; cy++) {
+		for(int cx = -2; cx <= 2; cx++) {
+			auto chunk = getChunk(lvec2(cx, cy));
+			if(chunk) {
+				for(int y = 0; y < Chunk::size; y++) {
+					for(int x = 0; x < Chunk::size; x++) {
+						auto tile = chunk->at(ivec2(x, y));
+						uint8_t props =
+							tile.visible() +
+							(tile.transparent()<<1) +
+							(tile.solid()<<2);
+						result[ivec2(cx + 2, cy + 2) * Chunk::size + ivec2(x, y)] = props;
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
 WorldGenerator::WorldGenerator(const WorldContainer &container, vec2 tileScale) : container(container), tileScale(tileScale) {}
 
 std::shared_ptr<Chunk> WorldGenerator::getChunk(lvec2 pos) {

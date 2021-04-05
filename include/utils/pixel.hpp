@@ -14,10 +14,20 @@ public:
 	Pixel& operator=(const math::vec2 &color);
 	Pixel& operator=(float color);
 
+	Pixel& operator=(const math::bvec4 &color);
+	Pixel& operator=(const math::bvec3 &color);
+	Pixel& operator=(const math::bvec2 &color);
+	Pixel& operator=(uint8_t color);
+
 	operator math::vec4();
 	operator math::vec3();
 	operator math::vec2();
 	operator float();
+
+	operator math::bvec4();
+	operator math::bvec3();
+	operator math::bvec2();
+	operator uint8_t();
 
 	math::vec4 rgba();
 	math::vec3 rgb();
@@ -176,6 +186,44 @@ Pixel<channel_t>& Pixel<channel_t>::operator=(float color) {
 			m_data[1] = 255;
 		} else if(m_channels == 1) {
 			m_data[0] = color * 255;
+		}
+	}
+	return *this;
+}
+
+template<typename channel_t>
+Pixel<channel_t>& Pixel<channel_t>::operator=(uint8_t color) {
+	if constexpr(std::is_floating_point<channel_t>()) {
+		if(m_channels == 4) {
+			m_data[0] = float(color) / 255.0f;
+			m_data[1] = float(color) / 255.0f;
+			m_data[2] = float(color) / 255.0f;
+			m_data[3] = 1.0f;
+		} else if(m_channels == 3) {
+			m_data[0] = float(color) / 255.0f;
+			m_data[1] = float(color) / 255.0f;
+			m_data[2] = float(color) / 255.0f;
+		} else if(m_channels == 2) {
+			m_data[0] = float(color) / 255.0f;
+			m_data[1] = 1.0f;
+		} else if(m_channels == 1) {
+			m_data[0] = float(color) / 255.0f;
+		}
+	} else {
+		if(m_channels == 4) {
+			m_data[0] = color;
+			m_data[1] = color;
+			m_data[2] = color;
+			m_data[3] = 255;
+		} else if(m_channels == 3) {
+			m_data[0] = color;
+			m_data[1] = color;
+			m_data[2] = color;
+		} else if(m_channels == 2) {
+			m_data[0] = color;
+			m_data[1] = 255;
+		} else if(m_channels == 1) {
+			m_data[0] = color;
 		}
 	}
 	return *this;
