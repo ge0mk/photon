@@ -21,9 +21,9 @@ void RigidBody::update([[maybe_unused]] float time, float dt, WorldContainer &wo
 	mPushedLeftWall = mPushesLeftWall;
 	mWasAtCeiling = mAtCeiling;
 
-	pos += speed * dt;
 	acceleration = forces / mass;
 	speed += (gravity + acceleration) * dt;
+	pos += speed * dt;
 	forces = 0.0f;
 
 	float groundY = 0.0f, ceilingY = 0.0f;

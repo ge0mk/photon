@@ -1,4 +1,5 @@
 #include "platformer.hpp"
+#include <math/noise.hpp>
 
 TileCursor::TileCursor(std::shared_ptr<TiledTexture> sprites) : Entity(sprites) {}
 
@@ -150,6 +151,16 @@ int main(int argc, const char *argv[]) {
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+
+	math::simplex noise;
+	Image img(math::ivec2(1024, 1024), 1);
+	for(unsigned y = 0; y < 1024; y++) {
+		for(unsigned x = 0; x < 1024; x++) {
+			img[ivec2(x, y)] = noise.noise2d(dvec2(x, y) / 64.0f) / 2.0f + 0.5f;
+			img[ivec2(x, y)] = noise.noise4d(dvec4(x, y, 0.5f, 0.5f) / 64.0f) / 2.0f + 0.5f;
+		}
+	}
+	img.save("noise.png");
 
 	Game game;
 	return game.run();
