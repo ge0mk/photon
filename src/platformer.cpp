@@ -89,6 +89,13 @@ void Game::updateInputs() {
 	if(getKey(GLFW_KEY_LEFT_SHIFT))
 		player->setInput(Player::walk, 1.0f);
 
+	if(getKey(GLFW_KEY_S)) {
+		player->gravity.y = abs(player->gravity.y);
+	}
+	else {
+		player->gravity.y = -abs(player->gravity.y);
+	}
+
 	lvec2 cursorTileIndex = world.getTileIndex(screenToWorldSpace(getCursorPos()));
 	cursor->pos = cursorTileIndex * Tile::resolution;
 	if(getMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) {
