@@ -91,6 +91,7 @@ namespace math{
 		dvec2 ps = pos + s;
 		return noise2dBase(ps);
 	}
+
 	double simplex::noise3d(math::dvec3 pos) {
 		// Re-orient the cubic lattices via rotation, to produce the expected look on cardinal planar slices.
 		// If texturing objects that don't tend to have cardinal plane faces, you could even remove this.
@@ -101,6 +102,7 @@ namespace math{
 		// Evaluate both lattices to form a BCC lattice.
 		return noise3dBCC(posr);
 	}
+
 	double simplex::noise4d(math::dvec4 pos) {
 		// Get points for A4 lattice
 		double s = -0.138196601125011 * (pos.x + pos.y + pos.z + pos.w);
@@ -138,6 +140,7 @@ namespace math{
 		}
 		return value;
 	}
+
 	double simplex::noise3dBCC(math::dvec3 pos) {
 		// Get base and offsets inside cube of first lattice.
 		int xrb = fastFloor(pos.x), yrb = fastFloor(pos.y), zrb = fastFloor(pos.z);
@@ -168,6 +171,7 @@ namespace math{
 		}
 		return value;
 	}
+
 	double simplex::noise4dBase(math::dvec4 pos) {
 		double value = 0;
 
@@ -366,7 +370,7 @@ namespace math{
 			Grad3( 1.1721513422464978,  3.0862664687972017,  0.0)
 		};
 		for (unsigned i = 0; i < grad3.size(); i++) {
-			grad3[i].x /= N2; grad3[i].y /= N2;
+			grad3[i].x /= N3; grad3[i].y /= N3; grad3[i].z /= N3;
 		}
 		for (unsigned i = 0; i < simplex::size; i++) {
 			result[i] = grad3[i % grad3.size()];
@@ -539,7 +543,7 @@ namespace math{
 			Grad4( 0.753341017856078,     0.37968289875261624,   0.37968289875261624,   0.37968289875261624)
 		};
 		for (unsigned i = 0; i < grad4.size(); i++) {
-			grad4[i].x /= N2; grad4[i].y /= N2;
+			grad4[i].x /= N4; grad4[i].y /= N4; grad4[i].z /= N4; grad4[i].w /= N4;
 		}
 		for (unsigned i = 0; i < simplex::size; i++) {
 			result[i] = grad4[i % grad4.size()];
