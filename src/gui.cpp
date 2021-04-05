@@ -199,8 +199,8 @@ void GuiSystem::circleSegment(vec2 center, float radius, float innerRadius, floa
 	}
 }
 
-vec2 GuiSystem::text(const std::string &text, vec2 pos, vec4 color, float z) {
-	auto obj = textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y, z)), color);
+vec2 GuiSystem::text(const std::string &text, vec2 pos, vec4 color, vec2 scale, float z) {
+	auto obj = textRenderer.createObject(text, mat4().translate(vec3(pos.x, -pos.y, z)).scale(vec3(scale, 1.0f)), color);
 	return textRenderer.calcSize(obj);
 }
 
@@ -218,6 +218,9 @@ bool GuiSystem::button(const std::string &text, vec2 pos, vec4 bgcolor, vec4 tex
 	return false;
 }
 
+
+/*
+// styled Widgets (not working)
 void GuiSystem::rect(vec2 pos, vec2 size) {
 	const GuiStyle &style = currentStyle();
 
@@ -443,3 +446,4 @@ void GuiSystem::border(vec2 pos, vec2 size) {
 		}
 	}
 }
+*/

@@ -4,6 +4,7 @@
 #include <glfw/glfw3.h>
 
 #include <array>
+//#include <format>
 
 template<typename ...Components>
 class GuiMesh {
@@ -171,11 +172,19 @@ public:
 	void rect(vec2 tl, vec2 br, vec4 color, float z = 0.0f);
 	void circle(vec2 center, float radius, float innerRadius, vec4 color, int segments = 0, float z = 0.0f);
 	void circleSegment(vec2 center, float radius, float innerRadius, float astart, float aend, vec4 color, int segments = 0, float z = 0.0f);
-	vec2 text(const std::string &text, vec2 pos, vec4 color = vec4(1.0f), float z = 0.0f);
+	vec2 text(const std::string &text, vec2 pos, vec4 color = vec4(1.0f), vec2 scale = vec2(1.0f), float z = 0.0f);
 	bool button(const std::string &text, vec2 pos, vec4 bgcolor, vec4 textcolor = vec4(1.0f), float z = 0.0f);
 
-	void rect(vec2 pos, vec2 size);
-	void border(vec2 pos, vec2 size);
+	template<typename ...Args>
+	void text(const std::string &fmt, vec2 pos, vec4 color = vec4(1.0f), vec2 scale = vec2(1.0f), float z = 0.0f, Args ...args) {
+		// TODO: replace with std::format when support is there
+		text(fmt::format(fmt, args...), pos, color, scale, z);
+	}
+
+
+	// styled widgets
+	//void rect(vec2 pos, vec2 size);
+	//void border(vec2 pos, vec2 size);
 
 	// more complex functions
 	void empty(vec2 size);
