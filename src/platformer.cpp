@@ -128,9 +128,11 @@ void Game::updateUI() {
 
 		gui.text("FPS: {}", vec2(8.0f, 32.0f), vec4(1.0f), vec2(0.5f), 0.0f, round(fps * 10.0f) / 10.0f);
 		gui.text("Δdt: {}ms", vec2(8.0f, 64.0f), vec4(1.0f), vec2(0.5f), 0.0f, 1000.0f / fps);
+		gui.rect(vec2(8.0f, 70.0f), vec2(200.0f, 68.0f), vec4(1.0f));
 		gui.text("chunk: {} {}", vec2(8.0f, 96.0f), vec4(1.0f), vec2(0.5f), 0.0f, world.offset().x, world.offset().y);
 		gui.text("pos: {} {}", vec2(8.0f, 128.0f), vec4(1.0f), vec2(0.5f), 0.0f, round(player->pos.x), round(player->pos.y));
 		gui.text("speed: {} {}", vec2(8.0f, 160.0f), vec4(1.0f), vec2(0.5f), 0.0f, round(player->speed.x), round(player->speed.y));
+		gui.rect(vec2(8.0f, 166.0f), vec2(200.0f, 164.0f), vec4(1.0f));
 
 		if(gui.button("Respawn!", vec2(getFramebufferSize().x - 310.0f, 0.0f), vec4(0.2f, 0.2f, 0.2f, 1.0f))) {
 			player->pos = vec2(0);
