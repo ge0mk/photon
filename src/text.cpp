@@ -34,9 +34,32 @@ void TextRenderer::removeObject(const std::shared_ptr<TextObject> &object) {
 	changed = true;
 }
 
+void TextRenderer::clear() {
+	std::lock_guard<std::mutex> lock(objectMutex);
+	objects.clear();
+	changed = true;
+}
+
+vec2 TextRenderer::calcSize(const std::string &text) {
+	int x = 0, y = 0;
+	float lastWidth = 0;
+	float lineHeight = 0;
+	for(unsigned i = 0; i < text.length(); i++) {
+		auto [pos, size, uv, advanceX] = font[text[i]];
+		x += advanceX;
+		lastWidth = size.x;
+		lineHeight = std::max(size.y, lineHeight);
+	}
+	return vec2(x + lastWidth, lineHeight);
+}
+
+vec2 TextRenderer::calcSize(const std::shared_ptr<TextObject> &object) {
+	vec2 size = calcSize(object->text);
+	return vec4(object->transform * vec4(size, 0, 0)).xy;
+}
+
 void TextRenderer::update() {
 	std::lock_guard<std::mutex> lock(objectMutex);
-	std::lock_guard<std::mutex> renderlock(renderMutex);
 	vertices.clear();
 	indices.clear();
 
@@ -87,7 +110,7 @@ void TextRenderer::update() {
 
 void TextRenderer::render(mat4 transform) {
 	if(changed) {
-		std::lock_guard<std::mutex> lock(renderMutex);
+		std::lock_guard<std::mutex> lock(objectMutex);
 		mesh.setData({vertices, indices});
 		changed = false;
 	}

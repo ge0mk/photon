@@ -177,6 +177,12 @@ public:
 		textRenderer->render(transform);
 	}
 
+	void shift(lvec2 offset) override {
+		WorldContainer::shift(offset);
+		particleSystem->shift(offset);
+		textRenderer->applyTransform(mat4().translate(vec3(vec2(offset) * Chunk::size * Tile::resolution)));
+	}
+
 protected:
 	std::shared_ptr<Chunk> loadChunk(lvec2 pos) override {
 		auto chunk = std::as_const(*this).getChunkAbsolute(pos);
@@ -271,12 +277,6 @@ protected:
 		});
 
 		particleSystem->update(time, dt, *this);
-	}
-
-	void shift(lvec2 offset) override {
-		WorldContainer::shift(offset);
-		particleSystem->shift(offset);
-		textRenderer->applyTransform(mat4().translate(vec3(vec2(offset) * Chunk::size * Tile::resolution)));
 	}
 
 private:

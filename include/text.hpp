@@ -42,6 +42,9 @@ public:
 
 	std::shared_ptr<TextObject> createObject(const std::string &text, mat4 transform, vec4 color);
 	void removeObject(const std::shared_ptr<TextObject> &object);
+	void clear();
+	vec2 calcSize(const std::string &text);
+	vec2 calcSize(const std::shared_ptr<TextObject> &object);
 
 	void update();
 	void render(mat4 transform);
@@ -59,6 +62,6 @@ private:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned> indices;
 	std::atomic<bool> changed;
-	std::mutex objectMutex, renderMutex;
+	std::mutex objectMutex;
 	Mesh mesh;
 };
