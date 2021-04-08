@@ -465,15 +465,15 @@ namespace math {
 
 	template<typename type>
 	tvec2<type> clamp(const tvec2<type> &v, type min, type max) {
-		return tvec2<type>(clamp(v.x, min, max), clamp(v.y, min, max));
+		return tvec2<type>(std::clamp(v.x, min, max), std::clamp(v.y, min, max));
 	}
 	template<typename type>
 	tvec3<type> clamp(const tvec3<type> &v, type min, type max) {
-		return tvec3<type>(clamp(v.x, min, max), clamp(v.y, min, max), clamp(v.z, min, max));
+		return tvec3<type>(std::clamp(v.x, min, max), std::clamp(v.y, min, max), std::clamp(v.z, min, max));
 	}
 	template<typename type>
 	tvec4<type> clamp(const tvec4<type> &v, type min, type max) {
-		return tvec4<type>(clamp(v.x, min, max), clamp(v.y, min, max), clamp(v.z, min, max), clamp(v.w, min, max));
+		return tvec4<type>(std::clamp(v.x, min, max), std::clamp(v.y, min, max), std::clamp(v.z, min, max), std::clamp(v.w, min, max));
 	}
 
 	template<typename type>

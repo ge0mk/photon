@@ -39,7 +39,6 @@ public:
 	bool checkLeft(const WorldContainer &world, float &leftX);
 	bool checkRight(const WorldContainer &world, float &rightX);
 
-	const std::vector<ivec2>& getCollidingTiles() const;
 	vec2 getPos() const;
 	vec2 getSpeed() const;
 
@@ -52,7 +51,7 @@ public:
 	vec2 scale = 1;
 	float mass = 1;
 
-	float maxspeed = 512.0f;
+	float maxspeed = 8192.0f;
 
 	vec2 aabbOffset = 0;
 
@@ -67,6 +66,4 @@ public:
 
 	bool mWasAtCeiling = false;
 	bool mAtCeiling = false;
-
-	std::vector<ivec2> collidingTiles;
 };
