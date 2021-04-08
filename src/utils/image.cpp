@@ -51,7 +51,7 @@ int Image::bitdepth() const {
 }
 
 Pixel<uint8_t> Image::operator[](const math::ivec2 &pos) {
-	return Pixel<uint8_t>(&m_data[pos.y*m_size.x + pos.x], m_channels);
+	return Pixel<uint8_t>(&m_data[pos.y*m_size.x*m_channels + pos.x*m_channels], m_channels);
 }
 
 GLFWimage Image::getGLFWImage() const {

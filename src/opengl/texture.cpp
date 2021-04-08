@@ -94,6 +94,26 @@ namespace opengl {
 		generateMipmap();
 		unbind();
 	}
+	void Texture::load(const Image &image, GLenum internalFormat, GLenum format) {
+		channels = image.channels();
+		m_size = image.size();
+
+		switch(image.bitdepth()) {
+			case  8: atomic = GL_UNSIGNED_BYTE; break;
+			case 16: atomic = GL_UNSIGNED_SHORT; break;
+			case 32: atomic = GL_UNSIGNED_INT; break;
+		}
+		this->internalFormat = internalFormat;
+
+		bind();
+		setParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+		setParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+		setParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		setParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexImage2D(type, 0, internalFormat, image.size().x, image.size().y, 0, format, atomic, image.data());
+		generateMipmap();
+		unbind();
+	}
 
 	void Texture::load(const HDRImage &image) {
 		channels = image.channels();

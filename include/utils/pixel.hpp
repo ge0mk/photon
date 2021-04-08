@@ -192,6 +192,120 @@ Pixel<channel_t>& Pixel<channel_t>::operator=(float color) {
 }
 
 template<typename channel_t>
+Pixel<channel_t>& Pixel<channel_t>::operator=(const math::bvec4 &color) {
+	if constexpr(std::is_floating_point<channel_t>()) {
+		if(m_channels == 4) {
+			m_data[0] = float(color.r) / 255.0f;
+			m_data[1] = float(color.g) / 255.0f;
+			m_data[2] = float(color.b) / 255.0f;
+			m_data[3] = float(color.a) / 255.0f;
+		} else if(m_channels == 3) {
+			m_data[0] = float(color.r) / 255.0f;
+			m_data[1] = float(color.g) / 255.0f;
+			m_data[2] = float(color.b) / 255.0f;
+		} else if(m_channels == 2) {
+			m_data[0] = ((float(color.r) + float(color.g) + float(color.b)) / 3.0f) / 255.0f;
+			m_data[1] = float(color.a) / 255.0f;
+		} else if(m_channels == 1) {
+			m_data[0] = ((float(color.r) + float(color.g) + float(color.b)) / 3.0f) / 255.0f;
+		}
+	} else {
+		if(m_channels == 4) {
+			m_data[0] = color.r;
+			m_data[1] = color.g;
+			m_data[2] = color.b;
+			m_data[3] = color.a;
+		} else if(m_channels == 3) {
+			m_data[0] = color.r;
+			m_data[1] = color.g;
+			m_data[2] = color.b;
+		} else if(m_channels == 2) {
+			m_data[0] = (float(color.r) + float(color.g) + float(color.b)) / 3.0f;
+			m_data[1] = color.a;
+		} else if(m_channels == 1) {
+			m_data[0] = (float(color.r) + float(color.g) + float(color.b)) / 3.0f;
+		}
+	}
+	return *this;
+}
+
+template<typename channel_t>
+Pixel<channel_t>& Pixel<channel_t>::operator=(const math::bvec3 &color) {
+	if constexpr(std::is_floating_point<channel_t>()) {
+		if(m_channels == 4) {
+			m_data[0] = float(color.r) / 255.0f;
+			m_data[1] = float(color.g) / 255.0f;
+			m_data[2] = float(color.b) / 255.0f;
+			m_data[3] = 1.0f;
+		} else if(m_channels == 3) {
+			m_data[0] = float(color.r) / 255.0f;
+			m_data[1] = float(color.g) / 255.0f;
+			m_data[2] = float(color.b) / 255.0f;
+		} else if(m_channels == 2) {
+			m_data[0] = ((float(color.r )+ float(color.g )+ float(color.b)) / 3.0f) / 255.0f;
+			m_data[1] = 1.0f;
+		} else if(m_channels == 1) {
+			m_data[0] = ((float(color.r )+ float(color.g )+ float(color.b)) / 3.0f) / 255.0f;
+		}
+	} else {
+		if(m_channels == 4) {
+			m_data[0] = color.r;
+			m_data[1] = color.g;
+			m_data[2] = color.b;
+			m_data[3] = 255;
+		} else if(m_channels == 3) {
+			m_data[0] = color.r;
+			m_data[1] = color.g;
+			m_data[2] = color.b;
+		} else if(m_channels == 2) {
+			m_data[0] = (float(color.r) + float(color.g) + float(color.b)) / 3.0f;
+			m_data[1] = 255;
+		} else if(m_channels == 1) {
+			m_data[0] = (float(color.r) + float(color.g) + float(color.b)) / 3.0f;
+		}
+	}
+	return *this;
+}
+
+template<typename channel_t>
+Pixel<channel_t>& Pixel<channel_t>::operator=(const math::bvec2 &color) {
+	if constexpr(std::is_floating_point<channel_t>()) {
+		if(m_channels == 4) {
+			m_data[0] = float(color.x) / 255.0f;
+			m_data[1] = float(color.x) / 255.0f;
+			m_data[2] = float(color.x) / 255.0f;
+			m_data[3] = float(color.y) / 255.0f;
+		} else if(m_channels == 3) {
+			m_data[0] = float(color.x) / 255.0f;
+			m_data[1] = float(color.x) / 255.0f;
+			m_data[2] = float(color.x) / 255.0f;
+		} else if(m_channels == 2) {
+			m_data[0] = float(color.x) / 255.0f;
+			m_data[1] = float(color.y) / 255.0f;
+		} else if(m_channels == 1) {
+			m_data[0] = float(color.x) / 255.0f;
+		}
+	} else {
+		if(m_channels == 4) {
+			m_data[0] = color.x;
+			m_data[1] = color.x;
+			m_data[2] = color.x;
+			m_data[3] = color.y;
+		} else if(m_channels == 3) {
+			m_data[0] = color.x;
+			m_data[1] = color.x;
+			m_data[2] = color.x;
+		} else if(m_channels == 2) {
+			m_data[0] = color.x;
+			m_data[1] = color.y;
+		} else if(m_channels == 1) {
+			m_data[0] = color.x;
+		}
+	}
+	return *this;
+}
+
+template<typename channel_t>
 Pixel<channel_t>& Pixel<channel_t>::operator=(uint8_t color) {
 	if constexpr(std::is_floating_point<channel_t>()) {
 		if(m_channels == 4) {
@@ -247,6 +361,118 @@ Pixel<channel_t>::operator math::vec2() {
 template<typename channel_t>
 Pixel<channel_t>::operator float() {
 	return gray();
+}
+
+template<typename channel_t>
+Pixel<channel_t>::operator math::bvec4() {
+	if constexpr(std::is_floating_point<channel_t>()) {
+		if(m_channels == 4) {
+			return math::bvec4(
+				m_data[0] * 255,
+				m_data[1] * 255,
+				m_data[2] * 255,
+				m_data[3] * 255
+			);
+		} else if(m_channels == 3) {
+			return math::bvec4(
+				m_data[0] * 255,
+				m_data[1] * 255,
+				m_data[2] * 255,
+				255
+			);
+		} else if(m_channels == 2) {
+			return math::bvec4(
+				m_data[0] * 255,
+				m_data[0] * 255,
+				m_data[0] * 255,
+				m_data[1] * 255
+			);
+		} else {
+			return math::bvec4(
+				m_data[0] * 255,
+				m_data[0] * 255,
+				m_data[0] * 255,
+				255.0
+			);
+		}
+	} else {
+		if(m_channels == 4) {
+			return math::bvec4(m_data[0], m_data[1], m_data[2], m_data[3]);
+		} else if(m_channels == 3) {
+			return math::bvec4(m_data[0], m_data[1], m_data[2], 255);
+		} else if(m_channels == 2) {
+			return math::bvec4(m_data[0], m_data[0], m_data[0], m_data[1]);
+		} else {
+			return math::bvec4(m_data[0], m_data[0], m_data[0], 255);
+		}
+	}
+}
+
+template<typename channel_t>
+Pixel<channel_t>::operator math::bvec3() {
+	if constexpr(std::is_floating_point<channel_t>()) {
+		if(m_channels == 4 || m_channels == 3) {
+			return math::bvec3(
+				m_data[0] * 255,
+				m_data[1] * 255,
+				m_data[2] * 255
+			);
+		} else if(m_channels == 2) {
+			return math::bvec3(
+				m_data[0] * 255,
+				m_data[0] * 255,
+				m_data[0] * 255
+			);
+		} else {
+			return math::bvec3(
+				m_data[0] * 255,
+				m_data[0] * 255,
+				m_data[0] * 255
+			);
+		}
+	} else {
+		if(m_channels == 4 || m_channels == 3) {
+			return math::bvec3(
+				m_data[0],
+				m_data[1],
+				m_data[2]
+			);
+		} else if(m_channels == 2) {
+			return math::bvec3(
+				m_data[0],
+				m_data[0],
+				m_data[0]
+			);
+		} else {
+			return math::bvec3(
+				m_data[0],
+				m_data[0],
+				m_data[0]
+			);
+		}
+	}
+}
+
+template<typename channel_t>
+Pixel<channel_t>::operator math::bvec2() {
+	return math::vec2(gray(), alpha()) * 255;
+}
+
+template<typename channel_t>
+Pixel<channel_t>::operator uint8_t() {
+	if constexpr(std::is_floating_point<channel_t>()) {
+		if(m_channels == 4 || m_channels == 3) {
+			return (m_data[0] + m_data[1] + m_data[2]) / 3.0f * 255;
+		} else {
+			return m_data[0] * 255;
+		}
+	} else {
+		if(m_channels == 4 || m_channels == 3) {
+			return (float(m_data[0]) + float(m_data[1]) + float(m_data[2])) / 3.0f;
+		} else {
+			return m_data[0];
+		}
+	}
 }
 
 template<typename channel_t>
@@ -364,16 +590,12 @@ float Pixel<channel_t>::gray() {
 	if constexpr(std::is_floating_point<channel_t>()) {
 		if(m_channels == 4 || m_channels == 3) {
 			return (m_data[0] + m_data[1] + m_data[2]) / 3.0f;
-		} else if(m_channels == 2) {
-			return m_data[0];
 		} else {
 			return m_data[0];
 		}
 	} else {
 		if(m_channels == 4 || m_channels == 3) {
 			return (float(m_data[0]) / 255.0f + float(m_data[1]) / 255.0f + float(m_data[2]) / 255.0f) / 3.0f;
-		} else if(m_channels == 2) {
-			return float(m_data[0]) / 255.0f;
 		} else {
 			return float(m_data[0]) / 255.0f;
 		}

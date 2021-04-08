@@ -24,6 +24,7 @@ namespace opengl {
 		Texture& operator=(Texture &&other);
 
 		void load(const Image &image);
+		void load(const Image &image, GLenum internalFormat, GLenum format);
 		void load(const std::vector<Image> &images);
 		void load(const HDRImage &image);
 		void load(const std::vector<HDRImage> &images);
