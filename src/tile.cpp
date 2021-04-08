@@ -27,6 +27,13 @@ vec2 Tile::texture(svec2 pos) const {
 	}
 }
 
+float Tile::alpha() const {
+	switch(type) {
+		case null: return 0.0f;
+		default: return 1.0f;
+	}
+}
+
 void Tile::destroy() {
 	type = null;
 	variant = 0;
