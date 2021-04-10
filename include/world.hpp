@@ -171,11 +171,11 @@ public:
 		updateParticles(time, dt);
 		textRenderer->update();
 
-		if(updateLight) {
+		//if(updateLight) {
 			renderer->update();
 			exit(0);
 			updateLight = false;
-		}
+		//}
 	}
 
 	void render() {

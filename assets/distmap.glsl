@@ -21,24 +21,60 @@
 		else {
 			distToAir = 0;
 		}
-		for (int ty = 0; ty < 320; ty++) {
-			for(int tx = 0; tx < 320; tx++) {
-				if(tx == pixel.x && ty == pixel.y) {
-					continue;
-				}
-				uvec4 other = get(ivec2(tx, ty));
-				if(other.a == color.a) {
-					continue;
-				}
-				float d = clamp(distance(vec2(pixel), vec2(tx, ty)), 0.0f, 255.0f);
-				if(other.a == 255) {
-					distToTile = min(distToTile, uint(round(d)));
-				}
-				else {
-					distToAir = min(distToAir, uint(round(d)));
+
+		bool done = false;
+		for (int radius = 1; radius < 255 && !done; radius++) {
+			for (int dy = -radius; dy <= radius; dy++) {
+				if (pixel.y + dy < 320 || pixel.y + dy >= 0) {
+					if (abs(dy) < radius) { // sides
+						if (pixel.x - radius >= 0) { // left
+							uvec4 other = get(pixel + ivec2(-radius, dy));
+							if(other.a != color.a) {
+								float d = clamp(length(vec2(-radius, dy)), 0.0f, 255.0f);
+								if(other.a == 255) {
+									distToTile = min(distToTile, uint(round(d)));
+								}
+								else {
+									distToAir = min(distToAir, uint(round(d)));
+								}
+								done = true;
+							}
+						}
+						if (pixel.x + radius < 320) { // right
+							uvec4 other = get(pixel + ivec2(radius, dy));
+							if(other.a != color.a) {
+								float d = clamp(length(vec2(radius, dy)), 0.0f, 255.0f);
+								if(other.a == 255) {
+									distToTile = min(distToTile, uint(round(d)));
+								}
+								else {
+									distToAir = min(distToAir, uint(round(d)));
+								}
+								done = true;
+							}
+						}
+					}
+					else { // top / bottom
+						for(int dx = -radius; dx <= radius; dx++) {
+							if(pixel.x + dx < 320 || pixel.x + dx >= 0) {
+								uvec4 other = get(pixel + ivec2(dx, dy));
+								if(other.a != color.a) {
+									float d = clamp(length(vec2(dx, dy)), 0.0f, 255.0f);
+									if(other.a == 255) {
+										distToTile = min(distToTile, uint(round(d)));
+									}
+									else {
+										distToAir = min(distToAir, uint(round(d)));
+									}
+									done = true;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
+
 		color.r = distToTile;
 		color.g = distToAir;
 

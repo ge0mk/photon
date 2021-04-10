@@ -51,7 +51,11 @@ int Image::bitdepth() const {
 }
 
 Pixel<uint8_t> Image::operator[](const math::ivec2 &pos) {
-	return Pixel<uint8_t>(&m_data[pos.y*m_size.x*m_channels + pos.x*m_channels], m_channels);
+	uint64_t index = pos.y*m_size.x*m_channels + pos.x*m_channels;
+	if(index > m_data.size() - m_channels) {
+		std::cout<<pos<<" is not on this image!\n";
+	}
+	return Pixel<uint8_t>(&m_data[index], m_channels);
 }
 
 GLFWimage Image::getGLFWImage() const {

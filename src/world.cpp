@@ -116,60 +116,125 @@ Image WorldContainer::renderTileProperties() const {
 }
 
 Image WorldContainer::renderLightingData() const {
-	Image result(ivec2(Chunk::size * 5), 4);
+	float start = glfwGetTime();
+	const int range = 1;
+	Image result(ivec2(Chunk::size * (range * 2 + 1)), 4);
 	ivec2 res = result.size();
 
-	for(int cy = -2; cy <= 2; cy++) {
-		for(int cx = -2; cx <= 2; cx++) {
+	for(int cy = -range; cy <= range; cy++) {
+		for(int cx = -range; cx <= range; cx++) {
 			auto chunk = getChunk(lvec2(cx, cy));
 			if(chunk) {
 				for(int y = 0; y < Chunk::size; y++) {
 					for(int x = 0; x < Chunk::size; x++) {
 						auto tile = chunk->at(ivec2(x, y));
 						bvec4 color = vec4(0, 0, 0, tile.alpha() * 255);
-						result[ivec2(cx + 2, cy + 2) * Chunk::size + ivec2(x, y)] = color;
+						result[ivec2(cx + range, cy + range) * Chunk::size + ivec2(x, y)] = color;
 					}
 				}
 			}
 		}
 	}
-	return result;
+	//return result;
 
 	for(int y = 0; y < res.y; y++) {
 		for(int x = 0; x < res.x; x++) {
 			Pixel<uint8_t> pixel = result[ivec2(x, y)];
-			bvec4 col = pixel;
+			bvec4 color = pixel;
 			uint8_t distToAir = 255, distToTile = 255;
-			if(col.a == 255) {
+
+			bool donea = false, doneb = false;
+			int overshoot = 0;
+
+			if(color.a == 255) {
 				distToTile = 0;
+				donea = true;
 			}
 			else {
 				distToAir = 0;
+				doneb = true;
 			}
-			for(int ty = 0; ty < res.y; ty++) {
-				for(int tx = 0; tx < res.x; tx++) {
-					if(tx == x && ty == y) {
-						continue;
+
+			for (int radius = 1; radius < 255; radius++) {
+				for (int dy = -radius; dy <= radius; dy++) {
+					if ((y + dy < res.y) && (y + dy >= 0)) {
+						if (abs(dy) < radius) { // sides
+							if (x - radius >= 0) { // left
+								bvec4 other = result[ivec2(x - radius, y + dy)];
+								if(other.a != color.a) {
+									float d = std::clamp(length(vec2(-radius, dy)), 0.0f, 255.0f);
+									if(other.a == 255) {
+										distToTile = std::min(distToTile, uint8_t(round(d)));
+										donea = true;
+									}
+									else {
+										distToAir = std::min(distToAir, uint8_t(round(d)));
+										doneb = true;
+									}
+								}
+							}
+							if (x + radius < res.x) { // right
+								bvec4 other = result[ivec2(x + radius, y + dy)];
+								if(other.a != color.a) {
+									float d = std::clamp(length(vec2(radius, dy)), 0.0f, 255.0f);
+									if(other.a == 255) {
+										distToTile = std::min(distToTile, uint8_t(round(d)));
+										donea = true;
+									}
+									else {
+										distToAir = std::min(distToAir, uint8_t(round(d)));
+										doneb = true;
+									}
+								}
+							}
+						}
+						else { // top / bottom
+							for(int dx = -radius + overshoot; dx <= radius - overshoot; dx++) {
+								if((x + dx < res.x) && (x + dx >= 0)) {
+									bvec4 other = result[ivec2(x + dx, y + dy)];
+									if(other.a != color.a) {
+										float d = std::clamp(length(vec2(dx, dy)), 0.0f, 255.0f);
+										if(other.a == 255) {
+											distToTile = std::min(distToTile, uint8_t(round(d)));
+											donea = true;
+										}
+										else {
+											distToAir = std::min(distToAir, uint8_t(round(d)));
+											doneb = true;
+										}
+									}
+								}
+							}
+						}
 					}
-					bvec4 other = result[ivec2(tx, ty)];
-					if(other.a == col.a) {
-						continue;
+				}
+				if(donea && doneb) {
+					if(overshoot == 0) {
+						overshoot = sqrt(radius * radius) - radius / 2 + 1;
 					}
-					float d = std::clamp(dist(vec2(x, y), vec2(tx, ty)), 0.0f, 255.0f);
-					if(other.a == 255) {
-						distToTile = std::min(distToTile, uint8_t(round(d)));
+					else if(overshoot == 1) {
+						break;
 					}
 					else {
-						distToAir = std::min(distToAir, uint8_t(round(d)));
+						overshoot--;
 					}
 				}
 			}
-			col.r = distToTile;
-			col.g = distToAir;
-			pixel = col;
-			std::cout<<vec2(x, y)<<"\n";
+
+			color.r = distToTile;
+			color.g = distToAir;
+			pixel = color;
 		}
 	}
+	std::cout<<glfwGetTime() - start<<"s\n";
+	for(int y = 0; y < res.y; y++) {
+		for(int x = 0; x < res.x; x++) {
+			vec4 c = result[ivec2(x, y)];
+			c.a = 1;
+			result[ivec2(x, y)] = c;
+		}
+	}
+	return result;
 }
 
 WorldGenerator::WorldGenerator(const WorldContainer &container, vec2 tileScale) : container(container), tileScale(tileScale) {}
@@ -254,8 +319,8 @@ void WorldRenderer::render() {
 	distanceMap.activate(GL_TEXTURE1);
 	distanceMap.bind();
 
-	distanceCalculator.dispatch(rawDist.size());
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//distanceCalculator.dispatch(rawDist.size());
+	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	prog.use();
 
