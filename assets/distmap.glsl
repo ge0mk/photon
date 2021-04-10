@@ -15,13 +15,13 @@
 		uvec4 color = get(pixel);
 
 		uint distToAir = 255, distToTile = 255;
-		if(color.a == 255) {
+		if (color.a == 255) {
 			distToTile = 0;
 		}
 		else {
 			distToAir = 0;
 		}
-		for(int ty = 0; ty < 320; ty++) {
+		for (int ty = 0; ty < 320; ty++) {
 			for(int tx = 0; tx < 320; tx++) {
 				if(tx == pixel.x && ty == pixel.y) {
 					continue;
