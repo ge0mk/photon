@@ -49,7 +49,7 @@ namespace opengl {
 	public:
 		inline VertexShader() : Shader(GL_VERTEX_SHADER) {}
 		inline static VertexShader load(const std::string &src) {
-			return std::move(Shader::load(GL_VERTEX_SHADER, src));
+			return Shader::load(GL_VERTEX_SHADER, src);
 		}
 	};
 
@@ -58,7 +58,7 @@ namespace opengl {
 	public:
 		inline FragmentShader() : Shader(GL_FRAGMENT_SHADER) {}
 		inline static FragmentShader load(const std::string &src) {
-			return std::move(Shader::load(GL_FRAGMENT_SHADER, src));
+			return Shader::load(GL_FRAGMENT_SHADER, src);
 		}
 	};
 
@@ -67,7 +67,7 @@ namespace opengl {
 	public:
 		inline GeometryShader() : Shader(GL_GEOMETRY_SHADER) {}
 		inline static GeometryShader load(const std::string &src) {
-			return std::move(Shader::load(GL_GEOMETRY_SHADER, src));
+			return Shader::load(GL_GEOMETRY_SHADER, src);
 		}
 	};
 
@@ -76,7 +76,7 @@ namespace opengl {
 	public:
 		inline ComputeShader() : Shader(GL_COMPUTE_SHADER) {}
 		inline static ComputeShader load(const std::string &src) {
-			return std::move(Shader::load(GL_COMPUTE_SHADER, src));
+			return Shader::load(GL_COMPUTE_SHADER, src);
 		}
 	};
 }

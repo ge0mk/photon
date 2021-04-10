@@ -115,6 +115,63 @@ Image WorldContainer::renderTileProperties() const {
 	return result;
 }
 
+Image WorldContainer::renderLightingData() const {
+	Image result(ivec2(Chunk::size * 5), 4);
+	ivec2 res = result.size();
+
+	for(int cy = -2; cy <= 2; cy++) {
+		for(int cx = -2; cx <= 2; cx++) {
+			auto chunk = getChunk(lvec2(cx, cy));
+			if(chunk) {
+				for(int y = 0; y < Chunk::size; y++) {
+					for(int x = 0; x < Chunk::size; x++) {
+						auto tile = chunk->at(ivec2(x, y));
+						bvec4 color = vec4(0, 0, 0, tile.alpha() * 255);
+						result[ivec2(cx + 2, cy + 2) * Chunk::size + ivec2(x, y)] = color;
+					}
+				}
+			}
+		}
+	}
+	return result;
+
+	for(int y = 0; y < res.y; y++) {
+		for(int x = 0; x < res.x; x++) {
+			Pixel<uint8_t> pixel = result[ivec2(x, y)];
+			bvec4 col = pixel;
+			uint8_t distToAir = 255, distToTile = 255;
+			if(col.a == 255) {
+				distToTile = 0;
+			}
+			else {
+				distToAir = 0;
+			}
+			for(int ty = 0; ty < res.y; ty++) {
+				for(int tx = 0; tx < res.x; tx++) {
+					if(tx == x && ty == y) {
+						continue;
+					}
+					bvec4 other = result[ivec2(tx, ty)];
+					if(other.a == col.a) {
+						continue;
+					}
+					float d = std::clamp(dist(vec2(x, y), vec2(tx, ty)), 0.0f, 255.0f);
+					if(other.a == 255) {
+						distToTile = std::min(distToTile, uint8_t(round(d)));
+					}
+					else {
+						distToAir = std::min(distToAir, uint8_t(round(d)));
+					}
+				}
+			}
+			col.r = distToTile;
+			col.g = distToAir;
+			pixel = col;
+			std::cout<<vec2(x, y)<<"\n";
+		}
+	}
+}
+
 WorldGenerator::WorldGenerator(const WorldContainer &container, vec2 tileScale) : container(container), tileScale(tileScale) {}
 
 std::shared_ptr<Chunk> WorldGenerator::getChunk(lvec2 pos) {
@@ -153,16 +210,21 @@ WorldRenderer::WorldRenderer(const WorldContainer &container, const Camera &cam,
 	src.seekg(src.beg);
 	src.read(buffer.data(), buffer.size());
 
-	shader = opengl::Program::load(buffer, opengl::Shader::VertexStage | opengl::Shader::FragmentStage);
-	shader.use();
-	shader.setUniform("sampler", 0);
+	prog = opengl::Program::load(buffer, opengl::Shader::VertexStage | opengl::Shader::FragmentStage);
+	prog.use();
+	prog.setUniform("sampler", 0);
+	prog.setUniform("distanceMap", 1);
+
+	src = std::ifstream("assets/distmap.glsl", std::ios::ate);
+	buffer = std::string(src.tellg(), '\0');
+	src.seekg(src.beg);
+	src.read(buffer.data(), buffer.size());
+
+	distanceCalculator = opengl::ComputeProgram::load(buffer);
 
 	// init ubos
-	cameraInfoUBO.bindBase(0);
 	cameraInfoUBO.setData({mat4(), mat4()});
-	modelInfoUBO.bindBase(1);
 	modelInfoUBO.setData({mat4(), mat4()});
-	renderInfoUBO.bindBase(2);
 	renderInfoUBO.setData({vec4(0), cam.res, 0.0f, 0.0f});
 
 	// init meshes
@@ -172,10 +234,30 @@ WorldRenderer::WorldRenderer(const WorldContainer &container, const Camera &cam,
 		{ math::vec3( 0.5f,-0.5f, 0.0f), math::vec2(1,1) },
 		{ math::vec3(-0.5f,-0.5f, 0.0f), math::vec2(0,1) },
 	});
+
+	distanceMapRaw.load(Image(ivec2(320, 320), 4), GL_RGBA8UI, GL_UNSIGNED_BYTE);
+	distanceMap.load(Image(ivec2(320, 320), 4), GL_RGBA8UI, GL_UNSIGNED_BYTE);
+}
+
+void WorldRenderer::update() {
+	Image img = container.renderLightingData();
+	distanceMap.load(img);
+	img.save("test.png");
 }
 
 void WorldRenderer::render() {
-	shader.use();
+	Image rawDist = container.renderLightingData();
+	distanceMapRaw.load(rawDist, GL_RGBA8UI, GL_UNSIGNED_BYTE);
+
+	distanceMapRaw.activate(GL_TEXTURE0);
+	distanceMapRaw.bind();
+	distanceMap.activate(GL_TEXTURE1);
+	distanceMap.bind();
+
+	distanceCalculator.dispatch(rawDist.size());
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+	prog.use();
 
 	cameraInfoUBO.bindBase(0);
 	modelInfoUBO.bindBase(1);
@@ -191,6 +273,9 @@ void WorldRenderer::render() {
 	cameraInfoUBO.update({proj, view});
 	renderInfoUBO.update({vec4(0), res, 0.0f, 0.0f});
 
+	distanceMap.activate(GL_TEXTURE1);
+	distanceMap.bind();
+
 	mat4 transform = mainEntity->getTransform();
 	modelInfoUBO.update({transform, mainEntity->getUVTransform()});
 	mainEntity->getTexturePtr()->activate();
@@ -199,6 +284,7 @@ void WorldRenderer::render() {
 	cameraMutex.unlock();
 
 	texture->activate();
+
 	for(auto &[chunkid, chunk] : container.chunks()) {
 		lvec2 chunkoffset = chunkid - container.offset();
 		vec2 chunkpos = chunkoffset * Chunk::size * Tile::resolution;

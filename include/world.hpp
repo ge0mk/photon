@@ -67,6 +67,7 @@ public:
 	lvec2 offset() const;
 
 	Image renderTileProperties() const;
+	Image renderLightingData() const;
 
 protected:
 	std::map<lvec2, std::shared_ptr<Chunk>> m_chunks;
@@ -90,6 +91,7 @@ public:
 class WorldRenderer {
 public:
 	WorldRenderer(const WorldContainer &container, const Camera &cam, const std::shared_ptr<Entity> &mainEntity, const std::shared_ptr<TiledTexture> &texture);
+	virtual void update();
 	virtual void render();
 
 	mat4 getCamTransform();
@@ -110,19 +112,22 @@ protected:
 		float time, dt;
 	};
 
-private:
 	const WorldContainer &container;
 	const Camera &cam;
 
 	std::shared_ptr<Entity> mainEntity;
 
-	opengl::Program shader;
+	opengl::Program prog;
+	opengl::ComputeProgram distanceCalculator;
+
 	opengl::Mesh<vec3, vec2> unitplane;
 	opengl::UniformBuffer<ModelInfo> modelInfoUBO;
 	opengl::UniformBuffer<CameraInfo> cameraInfoUBO;
 	opengl::UniformBuffer<RenderInfo> renderInfoUBO;
 
 	std::shared_ptr<TiledTexture> texture;
+	opengl::Texture distanceMapRaw;
+	opengl::Texture distanceMap;
 
 	std::mutex cameraMutex;
 };
@@ -165,6 +170,12 @@ public:
 
 		updateParticles(time, dt);
 		textRenderer->update();
+
+		if(updateLight) {
+			renderer->update();
+			exit(0);
+			updateLight = false;
+		}
 	}
 
 	void render() {
@@ -286,4 +297,6 @@ private:
 	std::unique_ptr<Renderer_t> renderer;
 
 	std::shared_ptr<Entity> mainEntity;
+
+	bool updateLight = false;
 };

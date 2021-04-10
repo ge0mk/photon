@@ -33,7 +33,7 @@ void Chunk::build() {
 	for(unsigned y = 0; y < size; y++) {
 		for(unsigned x = 0; x < size; x++) {
 			const Tile &current = tiles[y * size + x];
-			if(current.visible()) {
+			//if(current.visible()) {
 				vec2 bl = vec2(x, y) * Tile::resolution;
 				vec2 tr = bl + vec2(1) * Tile::resolution;
 				vec2 tl = vec2(bl.x, tr.y);
@@ -51,7 +51,7 @@ void Chunk::build() {
 					Vertex { vec3(tr), uvtr },
 					Vertex { vec3(tl), uvtl },
 				});
-			}
+			//}
 		}
 	}
 }

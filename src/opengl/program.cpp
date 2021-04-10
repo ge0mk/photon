@@ -175,4 +175,43 @@ namespace opengl {
 		}
 		return prog;
 	}
+
+	void ComputeProgram::dispatch(math::uvec3 workers) {
+		glUseProgram(handle);
+		glDispatchCompute(workers.x, workers.y, workers.z);
+	}
+
+	void ComputeProgram::dispatch(math::uvec2 workers) {
+		glUseProgram(handle);
+		glDispatchCompute(workers.x, workers.y, 1);}
+
+	void ComputeProgram::dispatch(unsigned workers) {
+		glUseProgram(handle);
+		glDispatchCompute(workers, 1, 1);
+	}
+
+	ComputeProgram ComputeProgram::load(const std::string &src) {
+		size_t insertStagePos = src.find("#version");
+		insertStagePos = src.find("\n", insertStagePos);
+
+		ComputeShader shader;
+		std::string tmp = src;
+		tmp.insert(insertStagePos, "\n#define COMPUTE_SHADER");
+		shader.setSource(tmp);
+		shader.compile();
+		std::string result = shader.getInfoLog();
+		if(result != "") {
+			std::cout<<"error in fragment compute shader:\n"<<result;
+		}
+
+		ComputeProgram prog;
+			prog.attachShader(shader);
+		prog.link();
+		result = prog.getInfoLog();
+		if(result != "") {
+			std::cout<<"error while linking compute program:\n"<<result;
+		}
+		prog.detachShader(shader);
+		return prog;
+	}
 }

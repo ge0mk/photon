@@ -63,7 +63,16 @@ namespace opengl {
 
 		static Program load(const std::string &src, uint8_t stages);
 
-	private:
+	protected:
 		GLuint handle;
+	};
+
+	class ComputeProgram : public Program {
+	public:
+		void dispatch(math::uvec3 workers);
+		void dispatch(math::uvec2 workers);
+		void dispatch(unsigned workers);
+
+		static ComputeProgram load(const std::string &src);
 	};
 }

@@ -213,6 +213,7 @@ void Game::onFramebufferResized(ivec2 size) {
 }
 
 int main(int argc, const char *argv[]) {
+	stbi_flip_vertically_on_write(true);
 	std::vector<std::string> args(argv, argv + argc);
 
 	glfw::init();

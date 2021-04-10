@@ -181,7 +181,7 @@ bool RigidBody::checkLeft(const WorldContainer &world, float &leftX) {
 	float begX = std::max(std::ceil(oldbl.x) - 1.0f, endX);
 	float dist = std::max(abs(endX - begX), 1.0f);
 
-	for (float tileX = begX; tileX >= endX; tileX -= 0.5f * Tile::resolution) {
+	for (float tileX = begX; tileX >= endX; tileX -= 1.0f) {
 		vec2 bottomLeft = lerp(newbl, oldbl, abs(endX - tileX) / dist);
 		vec2 topLeft = vec2(bottomLeft.x, bottomLeft.y + halfSize.y * 2.0f - 2.0f);
 
@@ -213,7 +213,7 @@ bool RigidBody::checkRight(const WorldContainer &world, float &rightX) {
 	float begX = std::max(std::floor(oldbr.x) - 1.0f, endX);
 	float dist = std::max(abs(endX - begX), 1.0f);
 
-	for (float tileX = begX; tileX >= endX; tileX -= 0.5f * Tile::resolution) {
+	for (float tileX = begX; tileX >= endX; tileX -= 1.0f) {
 		vec2 bottomRight = lerp(newbr, oldbr, abs(endX - tileX) / dist);
 		vec2 topRight = vec2(bottomRight.x, bottomRight.y + halfSize.y * 2.0f - 2.0f);
 
